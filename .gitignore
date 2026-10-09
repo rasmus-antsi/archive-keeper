@@ -1,0 +1,15 @@
+venv/
+__pycache__/
+*.pyc
+.DS_Store
+
+# pygbag output
+build/
+
+# desktop packaging (if you add PyInstaller / Actions later)
+dist/
+*.spec
+
+# editor
+.idea/
+.vscode/
