@@ -30,4 +30,4 @@ Mäng tühjendab osa välju ise (`data/cases.json`); päris andmeid ei ole muude
 
 ## Tehisaru kasutus
 
-Kood, koodis joonistatud asenduspildid ja helid ning roboti ingliskeelsed tekstimustandid (data/game.json) on tehtud Claude Code'i abil. Sissejuhatuse ja mälestuste tekstid on kirjutanud tiim. Tekstid vajavad inimese ülelugemist.
+Kood ja koodis joonistatud asenduspildid on tehtud Claude Code'i abil. Sissejuhatuse, roboti, lõpuekraani ja mälestuste tekstid, muusika, heliefektid ja pildid (assets/music, assets/snd/{wrong,restore,page*}.ogg, assets/img/tegelased, assets/img/objektid) on tiimi enda tehtud; ülejäänud helid kaustas assets/snd on koodiga genereeritud. Tekstid vajavad inimese ülelugemist.

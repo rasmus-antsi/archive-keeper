@@ -103,8 +103,9 @@ def blink(speed=160):
 class DialogueBox:
     """A queue of spoken lines, typed out one at a time; each waits for a key or click."""
 
-    def __init__(self, x=180, width=settings.W - 360):
+    def __init__(self, x=180, width=settings.W - 360, top=False):
         self.x, self.width = x, width
+        self.top = top           # sit at the top of the screen, when the speaker stands at the bottom
         self.queue = []          # (speaker, text)
         self.shown = 0.0
         self.on_done = None
@@ -154,7 +155,7 @@ class DialogueBox:
         x, width = self.x, self.width
         lines = wrap(line, "body", 44, width - 100)
         height = 56 + len(lines) * 54 + (44 if speaker else 0)
-        y = settings.H - height - 70
+        y = 40 if self.top else settings.H - height - 70
         panel(surf, (x, y, width, height), radius=16, border=(70, 70, 84))
         ty = y + 24
         if speaker:

@@ -8,8 +8,11 @@
     "fields": [["Esemed", "päikesekell-kompass; trükimasin"]],
     "texts": [],
     "source": "ALLIKAS PUUDU – lisa museaali link ja õiguste rida",
-    "image": null
+    "image": "objektid/dokument-tyhi.png",
+    "image_restored": "objektid/dokument-varviline.png"
   },
+
+  "music": "tartu",
 
   "background": "taustad/meremehe-tuba.png",
 
@@ -21,7 +24,8 @@
   ],
 
   "objects": [
-    {"id": "kompass", "label": "päikesekell-kompass", "rect": [420, 530, 132, 96]},
+    {"id": "kompass", "label": "päikesekell-kompass", "rect": [420, 440, 124, 196],
+     "sprite": "objektid/paikesekell.png"},
     {"id": "trykimasin", "label": "trükimasin", "rect": [760, 380, 372, 315]},
     {"id": "kyynal", "label": "küünal", "rect": [168, 430, 72, 117]},
     {"id": "raamat", "label": "raamat", "rect": [624, 560, 144, 60]},

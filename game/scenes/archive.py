@@ -37,7 +37,7 @@ class Archive(Scene):
         self.robot_img = assets.sprite("tegelased/robot.png") if assets.optional("tegelased/robot.png") \
             else assets.enlarge(_stand_in_robot(), settings.PIXEL)
         self.robot_pos = pygame.Vector2(self.robot_aside if "door_open" in self.state.seen else self.robot_guard)
-        self.dialogue = ui.DialogueBox()
+        self.dialogue = ui.DialogueBox(top=True)      # the robot talks from the bottom of the room
         self.near = None           # the shelf dict the ghost is standing at
         self.near_robot = False
         self.leaving = False

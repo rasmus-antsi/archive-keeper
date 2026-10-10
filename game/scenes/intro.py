@@ -6,7 +6,7 @@ TYPE_SPEED = 70       # characters per second
 
 
 class Intro(Scene):
-    music = "intro"
+    music = "menu"
 
     def __init__(self, game):
         super().__init__(game)

@@ -6,6 +6,9 @@ The picture is assets/img/<background>, 1920x1080, and every rect and position i
 the document is in those pixels. Until the picture exists the scene paints a plain
 room and shows every object as a labelled box.
 
+An object can have its own "sprite", drawn into its rect on top of the picture;
+leave it out once the object is painted into the background.
+
 An optional "establishing" picture (a wide view of the place) is shown first, until
 a key or click. People can have a second "talk" image; the two alternate while they speak.
 """
@@ -16,11 +19,10 @@ from ..scene import Scene
 
 
 class Memory(Scene):
-    music = "memory"
-
     def __init__(self, game, doc):
         super().__init__(game)
         self.doc = doc
+        self.music = doc.get("music", "memory")
         self.t = 0.0
         self.background = assets.backdrop(doc.get("background", ""))
         self.objects = [(o, pygame.Rect(o["rect"])) for o in doc["objects"]]
@@ -114,9 +116,16 @@ class Memory(Scene):
             screen.fill((70, 60, 56))
             pygame.draw.rect(screen, (96, 78, 62), (0, 675, settings.W, 405))
             for obj, rect in self.objects:
+                if obj.get("sprite"):
+                    continue
                 pygame.draw.rect(screen, (150, 130, 104), rect)
                 pygame.draw.rect(screen, (50, 40, 34), rect, 6)
                 ui.draw_text(screen, obj.get("label", obj["id"]), rect.center, "mono", 20, settings.INK, center=True)
+        for obj, rect in self.objects:
+            if obj.get("sprite"):
+                img = assets.optional(obj["sprite"])
+                if img:
+                    screen.blit(assets.sprite(obj["sprite"], scale=max(1, rect.height // img.get_height())), rect)
         if self.hover:
             pygame.draw.rect(screen, settings.CREAM, pygame.Rect(self.hover["rect"]).inflate(20, 20), 4, border_radius=8)
         for npc in self.npcs:

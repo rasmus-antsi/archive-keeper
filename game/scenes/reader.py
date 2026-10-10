@@ -2,6 +2,8 @@
 
 This is an overlay: it keeps a darkened copy of the room it was opened from.
 """
+import random
+
 import pygame
 
 from .. import assets, settings, ui
@@ -22,6 +24,7 @@ class Reader(Scene):
         self.entries = self.content.shelf_entries(shelf)
         self.cursor = min(self.state.shelf_cursor.get(shelf["id"], 0), max(0, len(self.entries) - 1))
         self.top_row = 0
+        turn_page()
         self.backdrop = game.screen.copy()
         dim = pygame.Surface(self.backdrop.get_size(), pygame.SRCALPHA)
         dim.fill((8, 8, 12, 200))
@@ -56,8 +59,11 @@ class Reader(Scene):
                     self.cursor = i
             if self.entries and self.enter_rect().collidepoint(click):
                 enter = True
+        before = self.cursor
         if move and self.entries:
             self.cursor = max(0, min(len(self.entries) - 1, self.cursor + move))
+        if self.cursor != before:
+            turn_page()
         self.top_row = max(self.cursor - ROWS + 1, min(self.top_row, self.cursor))
         if enter and self.entries:
             doc = self.entries[self.cursor]["doc"]
@@ -144,6 +150,10 @@ class Reader(Scene):
             y = box.bottom + 24
 
         img = assets.photo(record["image"], (width, 380)) if record.get("image") else None
+        if doc and record.get("image"):
+            # the team's own pixel-art page: blank while the memory is lost, filled in once restored
+            name = record.get("image_restored") if doc["id"] in self.state.solved else None
+            img = assets.sprite(name or record["image"], scale=2)
         if img:
             screen.blit(img, (x, y))
             y += img.get_height() + 20
@@ -165,3 +175,7 @@ class Reader(Scene):
             ui.draw_text(screen, record["source"], (x, BOX.bottom - 76), "mono", 18, FADED)
         if record.get("rights"):
             ui.draw_text(screen, record["rights"], (x, BOX.bottom - 48), "mono", 18, FADED)
+
+
+def turn_page():
+    assets.play(f"page{random.randint(1, 6)}.ogg", 0.5)

@@ -17,19 +17,20 @@
   "robot": {
     "name": "OVERSEER",
     "welcome": [
-      "You are awake. Good.",
-      "One shelf is glowing. It holds a damaged record. Walk up to it and read.",
-      "Nobody leaves this room until the paperwork is done."
+      "Hey you. You're finally awake. You were trying to cross the border, right? Walked right into that Imperial ambush and ended up as a filthy undead.",
+      "Do you see the glowing shelf behind you, spook? Walk up to it and start restoring the damaged records.",
+      "If you want to leave this room in one intangible piece, I recommend you follow orders."
     ],
     "blocked": [
-      "HALT. Paperwork incomplete.",
-      "Records restored: {done} of {total}. The shelves are behind you, ghost."
+      "Stop right where you are. You spooks never learn. I just said that no one's leaving until the work gets done.",
+      "Do you understand, spook? Your place is in the bookshelves, spook."
     ],
     "done": [
-      "All records restored. Processing…",
-      "Acceptable. You may pass."
+      "Task completed. Achievement “Actual rights” unlocked.",
+      "Even though I really don't like it, I guess I have to free you.",
+      "But if I were you I would keep my eyes peeled, because as soon as I get off work, I won't be obligated to tolerate you."
     ],
-    "after": ["The door is open. Go, before I change my mind."]
+    "after": ["Keep your eyes peeled, spook. As soon as I get off work, I won't be obligated to tolerate you."]
   },
 
   "room": {
@@ -57,10 +58,11 @@
   ],
 
   "ending": {
-    "heading": "Paperwork complete",
+    "heading": "Freedom achieved",
     "text": [
-      "The door opens. Behind you, the shelves remember a little more than they did this morning.",
-      "Every record on the shelves is real and comes from Estonian heritage databases. The conversations in the memories are invented."
+      "The door closes as you step out, leaving the archive just a little less dusty and useless.",
+      "After having achieved his freedom the small ghost lived a happy and fulfilling life for about 2 weeks, before getting caught haunting an attic and shortly after being disintegrated into ectoplasm.",
+      "All the records are real and originate from Estonian heritage databases. The conversations and science fiction are unfortunately fake."
     ],
     "credits": [
       "A game for TÜ Mängujämm 2026",
