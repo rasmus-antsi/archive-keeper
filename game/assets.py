@@ -83,13 +83,7 @@ def photo(name, box):
 
 
 def play(name, volume=1.0):
-    if name not in _sounds:
-        path = f"assets/snd/{name}"
-        try:
-            _sounds[name] = pygame.mixer.Sound(path) if os.path.isfile(path) else None
-        except pygame.error:
-            _sounds[name] = None
-    snd = _sounds[name]
+    snd = sound(name)
     if snd:
         snd.set_volume(volume)
         snd.play()
@@ -102,14 +96,26 @@ def music(name, volume=0.5):
         return
     _music = name
     try:
-        pygame.mixer.music.fadeout(400)
+        # no fadeout() here: it blocks the whole game until the fade is over
+        pygame.mixer.music.stop()
         path = f"assets/music/{name}.ogg"
         if name and os.path.isfile(path):
             pygame.mixer.music.load(path)
             pygame.mixer.music.set_volume(0 if muted else volume)
-            pygame.mixer.music.play(-1, fade_ms=800)
+            pygame.mixer.music.play(-1, fade_ms=600)
     except pygame.error:
         pass
+
+
+def sound(name):
+    """Load a sound without playing it, so its first use does not stutter."""
+    if name not in _sounds:
+        path = f"assets/snd/{name}"
+        try:
+            _sounds[name] = pygame.mixer.Sound(path) if os.path.isfile(path) else None
+        except pygame.error:
+            _sounds[name] = None
+    return _sounds[name]
 
 
 def toggle_mute():

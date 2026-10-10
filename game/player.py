@@ -1,25 +1,26 @@
-"""The ghost in the archive room: four-direction walking with one sprite per direction."""
+"""The ghost: four-direction walking with one sprite per direction.
+Positions are in art pixels (see game/world.py)."""
 import math
 
 import pygame
 
 from . import assets
 
-SPEED = 420           # pixels per second
-FEET = (60, 30)       # the part of the sprite that collides
+SPEED = 62            # art pixels per second
+FEET = (8, 4)         # the part of the sprite that collides
 
 
 class Player:
     def __init__(self, pos, facing="down"):
-        self.pos = pygame.Vector2(pos)      # centre of the feet
+        self.pos = pygame.Vector2(pos)      # bottom centre of the feet
         self.facing = facing
         self.moving = False
         self.t = 0.0
-        self.sprites = {d: assets.sprite(f"tegelased/{d}.png") for d in ("up", "down", "left", "right")}
+        self.sprites = {d: assets.optional(f"tegelased/{d}.png") for d in ("up", "down", "left", "right")}
 
     def feet(self, pos=None):
         pos = self.pos if pos is None else pos
-        return pygame.Rect(round(pos.x - FEET[0] / 2), round(pos.y - FEET[1]), *FEET)
+        return pygame.Rect(round(pos.x) - FEET[0] // 2, round(pos.y) - FEET[1], *FEET)
 
     def update(self, dt, walkable, control=True):
         """walkable(rect) says whether the feet may stand there."""
@@ -44,7 +45,8 @@ class Player:
             if walkable(self.feet(trial)):
                 self.pos = trial
 
-    def draw(self, screen):
+    def actor(self):
+        """(y of the feet, picture, top left) for World.draw. The ghost hovers a little."""
         img = self.sprites[self.facing]
-        bob = round(math.sin(self.t * 9)) * 6 if self.moving else 0
-        screen.blit(img, (round(self.pos.x - img.get_width() / 2), round(self.pos.y - img.get_height()) + bob))
+        bob = round(math.sin(self.t * (9 if self.moving else 2.4)))
+        return self.pos.y, img, (round(self.pos.x) - img.get_width() // 2, round(self.pos.y) - img.get_height() - 1 + bob)

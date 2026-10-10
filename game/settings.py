@@ -8,9 +8,11 @@ TITLE = "Archive Keeper"
 W, H = 1920, 1080
 FPS = 60
 
-# Small pixel-art sprites are enlarged by a whole number so they stay crisp.
-# A sprite drawn at full size (taller than SPRITE_BIG) is used as it is.
-PIXEL = 6
+# The rooms the ghost walks in are pixel art: one art pixel is PIXEL screen pixels,
+# so the screen shows VIEW_W x VIEW_H of them at a time (see game/world.py).
+# Interface pictures (portraits, documents) taller than SPRITE_BIG are used as they are.
+PIXEL = 8
+VIEW_W, VIEW_H = W // PIXEL, H // PIXEL
 SPRITE_BIG = 100
 
 CREAM = (240, 232, 212)

@@ -5,7 +5,7 @@ import pygame
 
 from . import assets, settings
 
-_texts = {}
+_texts, _wraps, _panels = {}, {}, {}
 
 CONFIRM = (pygame.K_SPACE, pygame.K_RETURN, pygame.K_e)
 BACK = (pygame.K_ESCAPE, pygame.K_BACKSPACE)
@@ -41,8 +41,13 @@ def text(string, role="body", size=24, color=settings.CREAM):
 
 
 def wrap(string, role, size, width):
+    key = (string, role, size, width)
+    if key in _wraps:
+        return _wraps[key]
+    if len(_wraps) > 400:
+        _wraps.clear()
     f = assets.font(role, size)
-    lines = []
+    lines = _wraps[key] = []
     for para in string.split("\n"):
         line = ""
         for word in para.split(" "):
@@ -80,18 +85,70 @@ def draw_wrapped(surf, string, pos, width, role="body", size=24, color=settings.
     return y
 
 
+def draw_typed(surf, lines, shown, pos, role="body", size=24, color=settings.CREAM, step=None):
+    """Already wrapped lines with only the first `shown` characters visible. Each line is
+    rendered once and uncovered from the left, so typing costs nothing and words never jump."""
+    x, y = pos
+    f = assets.font(role, size)
+    for line in lines:
+        if shown <= 0:
+            break
+        img = text(line, role, size, color)
+        if shown >= len(line):
+            surf.blit(img, (x, y))
+        else:
+            surf.blit(img, (x, y), (0, 0, f.size(line[:int(shown)])[0], img.get_height()))
+        shown -= len(line) + 1
+        y += step or img.get_height() + 4
+    return y
+
+
+def key_prompt(surf, pos, key="E"):
+    """A small bobbing key cap above something that can be used. pos is its top centre."""
+    x, y = pos[0], pos[1] - 64 + round(math.sin(pygame.time.get_ticks() / 220) * 5)
+    rect = pygame.Rect(0, 0, 54, 54)
+    rect.midbottom = (x, y)
+    pygame.draw.rect(surf, settings.NIGHT, rect.move(0, 5), border_radius=10)
+    pygame.draw.rect(surf, settings.CREAM, rect, border_radius=10)
+    draw_text(surf, key, rect.center, "mono", 34, settings.INK, center=True)
+
+
+def pointer(surf, target, color=settings.TEAL):
+    """An arrow at the edge of the screen towards something that is out of sight."""
+    box = pygame.Rect(70, 110, settings.W - 140, settings.H - 240)
+    if box.collidepoint(target):
+        return
+    centre = pygame.Vector2(box.center)
+    way = pygame.Vector2(target) - centre
+    k = min(box.w / 2 / abs(way.x) if way.x else 1e9, box.h / 2 / abs(way.y) if way.y else 1e9)
+    tip = centre + way * k
+    way = way.normalize()
+    side = pygame.Vector2(-way.y, way.x)
+    back = tip - way * (44 + 8 * math.sin(pygame.time.get_ticks() / 180))
+    tip = back + way * 40
+    pygame.draw.polygon(surf, settings.NIGHT, [tip + way * 8, back + side * 30 - way * 6, back - side * 30 - way * 6])
+    pygame.draw.polygon(surf, color, [tip, back + side * 22, back - side * 22])
+
+
 def panel(surf, rect, color=settings.NIGHT, alpha=225, radius=14, border=None):
     rect = pygame.Rect(rect)
-    box = pygame.Surface(rect.size, pygame.SRCALPHA)
-    pygame.draw.rect(box, (*color, alpha), box.get_rect(), border_radius=radius)
-    if border:
-        pygame.draw.rect(box, border, box.get_rect(), 3, border_radius=radius)
-    surf.blit(box, rect)
+    key = (rect.size, tuple(color), alpha, radius, tuple(border) if border else None)
+    if key not in _panels:        # built once: making a see-through surface every frame is slow
+        if len(_panels) > 60:
+            _panels.clear()
+        box = pygame.Surface(rect.size, pygame.SRCALPHA)
+        pygame.draw.rect(box, (*color, alpha), box.get_rect(), border_radius=radius)
+        if border:
+            pygame.draw.rect(box, border, box.get_rect(), 3, border_radius=radius)
+        _panels[key] = box
+    surf.blit(_panels[key], rect)
 
 
 def hint(surf, string, alpha=255):
     """One line of key help along the bottom edge."""
-    draw_text(surf, string, (settings.W / 2, settings.H - 30), "mono", 24, settings.DIM, center=True, alpha=alpha)
+    width = text(string, "mono", 24, settings.CREAM).get_width() + 60
+    panel(surf, (settings.W / 2 - width / 2, settings.H - 54, width, 46), alpha=170, radius=10)
+    draw_text(surf, string, (settings.W / 2, settings.H - 31), "mono", 24, settings.CREAM, center=True, alpha=alpha)
 
 
 def blink(speed=160):
@@ -161,12 +218,6 @@ class DialogueBox:
         if speaker:
             draw_text(surf, speaker, (x + 50, ty), "mono", 26, settings.TEAL)
             ty += 44
-        left = int(self.shown)
-        for l in lines:
-            part = l[:max(0, left)]
-            left -= len(l) + 1
-            if part:
-                draw_text(surf, part, (x + 50, ty), "body", 44)
-            ty += 54
+        draw_typed(surf, lines, self.shown, (x + 50, ty), "body", 44, step=54)
         if self.shown >= len(line):
             draw_text(surf, "space >", (x + width - 150, y + height + 8), "mono", 22, settings.WARM, alpha=blink())

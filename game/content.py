@@ -1,6 +1,6 @@
 """Everything the writer and artists edit lives in data/ and is loaded here.
 
-data/game.json          interface text, the robot's lines, the shelves, credits
+data/game.json          interface text, the robot's lines, the archive rooms, the shelves, credits
 data/documents/*.json   one file per memory (a record you can step into)
 data/archive.json       the real heritage records that fill the shelves
 """
@@ -43,15 +43,24 @@ class Content:
 def _check(doc, shelf_ids):
     """Fail early, with the file's id in the message, when a document is put together wrong."""
     where = f"data/documents: '{doc.get('id', '?')}'"
-    for key in ("id", "shelf", "title", "objects", "requests"):
+    for key in ("id", "shelf", "title", "map", "items", "requests"):
         if key not in doc:
             raise ValueError(f"{where} is missing \"{key}\"")
     if doc["shelf"] not in shelf_ids:
         raise ValueError(f"{where} names shelf '{doc['shelf']}', which is not in data/game.json")
-    objects = {o["id"] for o in doc["objects"]}
+    items = {i["id"] for i in doc["items"]}
+    held = [i for p in doc["map"].get("props", []) for i in p.get("holds", [])]
+    for prop in doc["map"].get("props", []):
+        if "holds" in prop and "id" not in prop:
+            raise ValueError(f"{where} has a {prop['type']} with \"holds\" but no \"id\"")
+    for item in held:
+        if item not in items:
+            raise ValueError(f"{where} hides '{item}', which is not one of its items")
+        if held.count(item) > 1:
+            raise ValueError(f"{where} hides '{item}' in more than one place")
     npcs = {n["id"] for n in doc.get("npcs", [])}
     for req in doc["requests"]:
-        if req["target"] not in objects:
-            raise ValueError(f"{where} asks for '{req['target']}', which is not one of its objects")
+        if req["target"] not in held:
+            raise ValueError(f"{where} asks for '{req['target']}', which is not hidden anywhere")
         if "speaker" in req and req["speaker"] not in npcs:
             raise ValueError(f"{where} has a request spoken by unknown npc '{req['speaker']}'")

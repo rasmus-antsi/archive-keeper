@@ -1,29 +1,25 @@
-"""A memory: a small place from the past that the ghost walks around in, seen from
-above like the archive room. People there ask for things; the ghost walks up to
-an object and presses E to hand it over. Everything about it comes from one file
-in data/documents/.
+"""A memory: a place from the past, larger than the screen, that the ghost walks
+around in. Somebody there asks for a thing. The ghost searches chests, cupboards
+and houses for it, takes it and carries it back.
 
-The picture is assets/img/<background>, 1920x1080, and every rect and position in
-the document is in those pixels. "floor" is where the ghost can walk and "start"
-where it appears; objects and people block the way. Until the picture exists the
-scene paints a plain room and shows every object as a labelled box.
+Everything about a memory is in one file in data/documents/:
 
-An object can have its own "sprite", drawn into its rect on top of the picture;
-leave it out once the object is painted into the background.
-
-A person has a small "sprite" standing in the room and, optionally, a big
-"portrait" (with a mouth-open "portrait_talk") that appears while they speak.
+  map       the place (see game/world.py). A prop with "holds": [item ids] can be
+            opened and searched; give it a "label".
+  items     everything that can be found: {"id", "label", "image" or "icon"}.
+            "image" is a drawn picture in assets/img; "icon" names a stand-in.
+  npcs      the people: a small "sprite" standing at "pos", and optionally a big
+            "portrait" (with a mouth-open "portrait_talk") shown while they speak.
+  requests  what is asked for, in order: {"speaker", "hint", "target", "thanks"}.
 
 An optional "establishing" picture (a wide view of the place) is shown first, until
 a key or click.
 """
 import pygame
 
-from .. import assets, settings, ui
+from .. import assets, paint, settings, ui
 from ..player import Player
 from ..scene import Scene
-
-REACH = 60                     # how close to a thing counts as standing at it
 
 
 class Memory(Scene):
@@ -32,38 +28,57 @@ class Memory(Scene):
         self.doc = doc
         self.music = doc.get("music", "memory")
         self.t = 0.0
-        self.background = assets.backdrop(doc.get("background", ""))
-        self.objects = [(o, pygame.Rect(o["rect"])) for o in doc["objects"]]
+        self.world = game.world(doc["id"], doc["map"])
+        self.player = Player(doc["map"]["start"])
+        self.items = {i["id"]: i for i in doc["items"]}
+        self.containers = [p for p in self.world.props if "holds" in p.data]
+        self.home = {item: p.id for p in self.containers for item in p.data["holds"]}     # where each thing belongs
+        self.where = dict(self.home)                                                     # where it is now
+        self.carrying = None
         self.npcs = [Npc(n) for n in doc.get("npcs", [])]
         self.request = 0               # which of the document's requests is being asked
         self.establishing = assets.backdrop(doc.get("establishing", ""))
         box = doc.get("dialogue", {})          # lets a document keep the text clear of a big portrait
         self.dialogue = ui.DialogueBox(box.get("x", 180), box.get("width", settings.W - 360))
-        self.floor = pygame.Rect(doc.get("floor", (144, 300, 1632, 672)))
-        self.player = Player(doc.get("start", self.floor.center), "up")
-        self.near = None               # the object dict or Npc the ghost is standing at
+        self.near = None               # the container or Npc the ghost is standing at
         self.blackout = 0.0            # a wrong guess blinks the scene away for a moment
         self.black = pygame.Surface((settings.W, settings.H))
         self.done = False
+        self.asked = False
 
     def enter(self):
-        if not self.establishing:
+        if not self.establishing and not self.asked:
             self.ask()
 
     # ---------------------------------------------------------------- rules
 
     def speaker(self, request):
-        npc = next((n for n in self.npcs if n.id == request.get("speaker")), self.npcs[0] if self.npcs else None)
-        return npc.name if npc else ""
+        return next((n for n in self.npcs if n.id == request.get("speaker")), self.npcs[0] if self.npcs else None)
 
     def ask(self, first=None):
         """The current request's hint, optionally after some other lines."""
+        self.asked = True
         request = self.doc["requests"][self.request]
-        self.dialogue.say(list(first or []) + request["hint"], self.speaker(request))
+        npc = self.speaker(request)
+        self.dialogue.say(list(first or []) + request["hint"], npc.name if npc else "")
 
-    def choose(self, obj):
+    def contents(self, container):
+        return [self.items[i] for i in container.data["holds"] if self.where.get(i) == container.id]
+
+    def take(self, item):
+        """Pick a thing up; whatever was being carried goes back where it belongs."""
+        if self.carrying:
+            self.where[self.carrying] = self.home[self.carrying]
+        self.carrying = item["id"]
+        del self.where[item["id"]]
+        assets.play("place.ogg", 0.6)
+
+    def give(self):
         request = self.doc["requests"][self.request]
-        if obj["id"] != request["target"]:
+        npc = self.speaker(request)
+        item, self.carrying = self.carrying, None
+        if item != request["target"]:
+            self.where[item] = self.home[item]
             assets.play("wrong.ogg", 0.5)
             self.blackout = 1.0
             self.ask(first=self.doc.get("retry", []))
@@ -74,19 +89,7 @@ class Memory(Scene):
             self.ask(first=request.get("thanks", []))
         else:
             self.done = True
-            self.dialogue.say(request.get("thanks", []) or ["…"], self.speaker(request), on_done=self.leave)
-
-    def walkable(self, feet):
-        return self.floor.contains(feet) and feet.collidelist([rect for _, rect in self.objects]) < 0 \
-            and feet.collidelist([n.feet for n in self.npcs]) < 0
-
-    def nearest(self):
-        """The object or person the ghost is standing at, the closest one if there are several."""
-        feet = self.player.feet()
-        things = [(o, rect) for o, rect in self.objects] + [(n, n.rect) for n in self.npcs]
-        close = [(pygame.Vector2(feet.center).distance_to(rect.center), i) for i, (_, rect) in enumerate(things)
-                 if rect.inflate(REACH * 2, REACH * 2).colliderect(feet)]
-        return things[min(close)[1]][0] if close else None
+            self.dialogue.say(request.get("thanks", []) or ["…"], npc.name if npc else "", on_done=self.leave)
 
     def leave(self):
         if self.done:
@@ -94,11 +97,20 @@ class Memory(Scene):
         from .archive import Archive
         self.scenes.go(lambda: Archive(self.game), "spiral")
 
+    def walkable(self, feet):
+        return self.world.walkable(feet) and feet.collidelist([n.solid for n in self.npcs]) < 0
+
+    def nearest(self):
+        feet = self.player.feet()
+        npc = next((n for n in self.npcs if n.solid.inflate(18, 18).colliderect(feet)), None)
+        return npc or self.world.nearest(feet, self.containers)
+
     # ---------------------------------------------------------------- loop
 
     def update(self, dt, events):
         self.t += dt
         self.blackout = max(0.0, self.blackout - dt / 0.7)
+        self.world.update(dt, self.player.pos)
         if self.establishing:
             if self.t > 0.8 and (ui.confirm(events) or ui.clicked(events)):
                 self.establishing = None
@@ -115,10 +127,15 @@ class Memory(Scene):
         self.player.update(dt, self.walkable)
         self.near = self.nearest()
         if ui.confirm(events) and self.near:
-            if isinstance(self.near, Npc):
-                self.ask()
+            if not isinstance(self.near, Npc):
+                from .inside import Inside
+                assets.play(f"page{1 + int(self.t * 7) % 6}.ogg", 0.5)
+                self.draw(self.game.screen)        # a clean picture for the overlay to sit on
+                self.scenes.push(Inside(self.game, self, self.near))
+            elif self.carrying:
+                self.give()
             else:
-                self.choose(self.near)
+                self.ask()
 
     # ---------------------------------------------------------------- drawing
 
@@ -128,32 +145,13 @@ class Memory(Scene):
             ui.draw_text(screen, self.doc.get("place", ""), (settings.W / 2, 110), "title", 96, settings.CREAM, center=True)
             ui.hint(screen, "space — continue")
             return
-        if self.background:
-            screen.blit(self.background, (0, 0))
-        else:
-            screen.fill((34, 30, 34))
-            pygame.draw.rect(screen, (70, 60, 56), (self.floor.left, 48, self.floor.width, self.floor.top - 48))
-            pygame.draw.rect(screen, (112, 94, 76), self.floor)
-            for obj, rect in self.objects:
-                if obj.get("sprite"):
-                    continue
-                pygame.draw.rect(screen, (150, 130, 104), rect)
-                pygame.draw.rect(screen, (50, 40, 34), rect, 6)
-                ui.draw_text(screen, obj.get("label", obj["id"]), rect.center, "mono", 20, settings.INK, center=True)
-        for obj, rect in self.objects:
-            if obj.get("sprite"):
-                img = assets.optional(obj["sprite"])
-                if img:
-                    screen.blit(assets.sprite(obj["sprite"], scale=max(1, rect.height // img.get_height())), rect)
-        if self.near and not isinstance(self.near, Npc):
-            pygame.draw.rect(screen, settings.CREAM, pygame.Rect(self.near["rect"]).inflate(20, 20), 4, border_radius=8)
-        # whoever stands lower on the screen is drawn in front
-        people = [(n.rect.bottom, lambda n=n: n.draw(screen)) for n in self.npcs]
-        people.append((self.player.pos.y, lambda: self.player.draw(screen)))
-        for _, draw in sorted(people, key=lambda pair: pair[0]):
-            draw()
+        world = self.world
+        world.look_at(self.player.pos)
+        outlines = [(self.near.rect, settings.CREAM)] if self.near and not isinstance(self.near, Npc) else []
+        world.draw(screen, [self.player.actor()] + [n.actor() for n in self.npcs], outlines=outlines)
+        talking = self.dialogue.active and self.dialogue.queue[0][0]
         for npc in self.npcs:
-            if self.dialogue.active and self.dialogue.queue[0][0] == npc.name:
+            if talking == npc.name:
                 npc.draw_portrait(screen, mouth_open=self.dialogue.talking == npc.name and int(self.t * 9) % 2 == 0)
 
         fade = max(0, min(1, self.t / 0.6, (5 - self.t) / 1.0))
@@ -161,31 +159,55 @@ class Memory(Scene):
             ui.draw_text(screen, self.doc.get("place", ""), (settings.W / 2, 110), "title", 96, settings.CREAM,
                          center=True, alpha=int(255 * fade))
         n, total = min(self.request + 1, len(self.doc["requests"])), len(self.doc["requests"])
+        ui.panel(screen, (24, 14, 470, 52), alpha=150)
         ui.draw_text(screen, f"{self.doc['title']}  ·  {n} / {total}", (40, 24), "mono", 26, settings.CREAM)
+        if self.carrying:
+            item = self.items[self.carrying]
+            ui.panel(screen, (settings.W - 200, 20, 176, 216), alpha=200, border=settings.WARM)
+            img = item_image(item, 128)
+            screen.blit(img, img.get_rect(center=(settings.W - 112, 104)))
+            ui.draw_text(screen, "kaasas", (settings.W - 112, 196), "mono", 24, settings.WARM, center=True)
         if self.dialogue.active:
             self.dialogue.draw(screen)
+        elif isinstance(self.near, Npc):
+            ui.key_prompt(screen, world.to_screen(self.near.rect.midtop))
+            ui.hint(screen, f"E — anna talle: {self.items[self.carrying]['label']}" if self.carrying else "E — kuula uuesti")
+        elif self.near:
+            ui.key_prompt(screen, world.to_screen(self.near.rect.midtop))
+            ui.hint(screen, f"E — vaata sisse: {self.near.label}")
         else:
-            if isinstance(self.near, Npc):
-                ui.hint(screen, "E — hear it again")
-            elif self.near:
-                ui.hint(screen, f"E — hand over: {self.near.get('label', self.near['id'])}")
-            else:
-                ui.hint(screen, "walk to the thing they asked for and press E · Esc — back to the archive")
+            if self.carrying and self.npcs:
+                ui.pointer(screen, world.to_screen(self.npcs[0].rect.center), settings.WARM)
+            ui.hint(screen, "otsi üles, mida küsiti, ja vii see talle · Esc — tagasi arhiivi")
         if self.blackout > 0:
             self.black.set_alpha(int(255 * min(1, self.blackout * 2)))
             screen.blit(self.black, (0, 0))
 
 
+def item_image(item, box):
+    """An item's picture enlarged with hard edges to fit a square of box pixels."""
+    name = item.get("image") or ""
+    if assets.optional(name):
+        img = assets.optional(name)
+        return assets.sprite(name, scale=max(1, min(box // img.get_width(), box // img.get_height())))
+    key = ("icon", item.get("icon", item["id"]), box)
+    if key not in _icons:
+        _icons[key] = assets.enlarge(paint.icon(item.get("icon", item["id"])), box // 16)
+    return _icons[key]
+
+
+_icons = {}
+
+
 class Npc:
-    """A person in the room. With a sprite it stands at pos (feet); without one it
-    is already painted into the background and only needs a rect."""
+    """A person standing in the place, at pos (the feet)."""
 
     def __init__(self, data):
         self.id = data["id"]
         self.name = data.get("name", "")
-        self.img = assets.sprite(data["sprite"], scale=data.get("scale")) if data.get("sprite") else None
-        self.rect = self.img.get_rect(midbottom=data["pos"]) if self.img else pygame.Rect(data["rect"])
-        self.feet = pygame.Rect(self.rect.left, self.rect.bottom - 40, self.rect.width, 40)
+        self.img = assets.optional(data.get("sprite", "")) or paint.robot()
+        self.rect = self.img.get_rect(midbottom=data["pos"])
+        self.solid = pygame.Rect(self.rect.left + 1, self.rect.bottom - 5, self.rect.width - 2, 5)
         self.portrait = self.portrait_talk = None
         if assets.optional(data.get("portrait", "")):
             k = data.get("portrait_scale")
@@ -194,9 +216,8 @@ class Npc:
             self.portrait_talk = assets.sprite(talk, scale=k) if assets.optional(talk) else self.portrait
             self.portrait_pos = data.get("portrait_pos", (1560, settings.H))
 
-    def draw(self, screen):
-        if self.img:
-            screen.blit(self.img, self.rect)
+    def actor(self):
+        return self.rect.bottom, self.img, self.rect.topleft
 
     def draw_portrait(self, screen, mouth_open=False):
         if self.portrait:

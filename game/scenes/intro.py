@@ -33,12 +33,12 @@ class Intro(Scene):
         screen.fill((10, 14, 16))
         x, width = 300, settings.W - 600
         ui.draw_text(screen, self.heading, (x, 110), "mono", 28, settings.TEAL)
-        left = int(self.t * TYPE_SPEED)
+        left = self.t * TYPE_SPEED
         y = 190
         for para in self.paragraphs:
             if left <= 0:
                 break
-            y = ui.draw_wrapped(screen, para[:left], (x, y), width, "mono", 34, settings.CREAM, gap=10) + 26
+            y = ui.draw_typed(screen, ui.wrap(para, "mono", 34, width), left, (x, y), "mono", 34, step=44) + 26
             left -= len(para)
         # time left before the game starts on its own
         k = max(0.0, 1 - self.t / self.seconds)

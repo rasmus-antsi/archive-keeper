@@ -17,8 +17,16 @@ class Game:
         self.content = Content()
         self.state = GameState(self.content)
         self.scenes = SceneManager()
-        from .scenes.menu import Menu
-        self.scenes.start(Menu(self))
+        self.worlds = {}
+        from .scenes.boot import Boot
+        self.scenes.start(Boot(self))
+
+    def world(self, name, data):
+        """The place with this name, built once and kept: painting one takes a moment."""
+        if name not in self.worlds:
+            from .world import World
+            self.worlds[name] = World(name, data)
+        return self.worlds[name]
 
     def new_game(self):
         self.state = GameState(self.content)

@@ -33,24 +33,57 @@
     "after": ["Keep your eyes peeled, spook. As soon as I get off work, I won't be obligated to tolerate you."]
   },
 
-  "room": {
-    "floor": [144, 300, 1632, 672],
-    "door": [240, 972, 192, 108],
-    "start": [1620, 600],
-    "robot_guard": [336, 960],
-    "robot_aside": [580, 960],
-    "rug": [470, 450, 1040, 380],
-    "obstacles": []
+  "map": {
+    "size": [520, 300],
+    "ambient": [80, 78, 106],
+    "start": [84, 80],
+    "exit": [32, 20, 16, 22],
+    "robot": {"guard": [40, 46], "aside": [68, 48]},
+    "rooms": [
+      {"id": "hall", "rect": [8, 8, 332, 284], "floor": "planks", "wall": "stone"},
+      {"id": "stacks", "rect": [340, 8, 172, 284], "floor": "tiles", "wall": "stone"}
+    ],
+    "doors": [{"rect": [336, 150, 8, 24]}],
+    "props": [
+      {"type": "door", "id": "exit", "pos": [30, 8]},
+      {"type": "sconce", "pos": [56, 14]},
+      {"type": "sconce", "pos": [158, 14]},
+      {"type": "sconce", "pos": [278, 14]},
+      {"type": "bookcase", "shelf": "vallakohtud", "pos": [70, 8], "size": [80, 30]},
+      {"type": "bookcase", "shelf": "hoimud-a", "pos": [170, 8], "size": [100, 30]},
+      {"type": "machine", "pos": [296, 2]},
+      {"type": "rug", "pos": [100, 128], "size": [140, 76]},
+      {"type": "sofa", "pos": [148, 100]},
+      {"type": "table", "pos": [153, 154]},
+      {"type": "armchair", "pos": [112, 150]},
+      {"type": "armchair", "pos": [208, 150]},
+      {"type": "lamp", "pos": [198, 94]},
+      {"type": "plant", "pos": [320, 40]},
+      {"type": "boxes", "pos": [14, 120]},
+      {"type": "boxes", "pos": [14, 146]},
+      {"type": "desk", "pos": [16, 204]},
+      {"type": "stool", "pos": [28, 230]},
+      {"type": "lamp", "pos": [70, 236]},
+      {"type": "bookcase", "shelf": "hoimud-a", "pos": [190, 236], "size": [110, 30]},
+      {"type": "crate", "pos": [312, 268]},
+
+      {"type": "bookcase", "shelf": "tartu", "pos": [356, 8], "size": [70, 30]},
+      {"type": "sconce", "pos": [431, 14]},
+      {"type": "bookcase", "shelf": "hoimud-b", "pos": [442, 8], "size": [60, 30]},
+      {"type": "bookcase", "shelf": "hoimud-b", "pos": [362, 96], "size": [126, 30]},
+      {"type": "bookcase", "shelf": "hoimud-a", "pos": [362, 158], "size": [126, 30]},
+      {"type": "bookcase", "shelf": "hoimud-b", "pos": [362, 220], "size": [126, 30]},
+      {"type": "lamp", "pos": [346, 250]},
+      {"type": "boxes", "pos": [490, 264]}
+    ]
   },
 
   "shelves": [
-    {"id": "tartu", "label": "Tartu, 1800s", "rect": [200, 84, 400, 216],
-     "folders": ["Tartu ehitusprojektid"]},
-    {"id": "vallakohtud", "label": "Parish courts", "rect": [640, 84, 520, 216],
-     "folders": ["Vallakohtud"]},
-    {"id": "hoimud-a", "label": "Kindred peoples I", "rect": [1200, 84, 520, 216],
+    {"id": "tartu", "label": "Tartu, 1800s", "folders": ["Tartu ehitusprojektid"]},
+    {"id": "vallakohtud", "label": "Parish courts", "folders": ["Vallakohtud"]},
+    {"id": "hoimud-a", "label": "Kindred peoples I",
      "folders": ["Hõimurahvad/Marid", "Hõimurahvad/Udmurdid", "Hõimurahvad/Mordvalased"]},
-    {"id": "hoimud-b", "label": "Kindred peoples II", "rect": [24, 372, 120, 528],
+    {"id": "hoimud-b", "label": "Kindred peoples II",
      "folders": ["Hõimurahvad/Vepslased", "Hõimurahvad/Liivlased", "Hõimurahvad/Komid", "Hõimurahvad/Mitu rahvast",
                  "Hõimurahvad/Isurid", "Hõimurahvad/Karjalased", "Hõimurahvad/Saamid", "Hõimurahvad/Handid",
                  "Hõimurahvad/Vadjalased", "Hõimurahvad/Soomlased", "Hõimurahvad/Ungarlased", "Hõimurahvad/Määramata",

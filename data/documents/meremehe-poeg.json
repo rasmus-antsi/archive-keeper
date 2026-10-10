@@ -14,28 +14,103 @@
 
   "music": "tartu",
 
-  "background": "taustad/meremehe-tuba.png",
-
-  "floor": [144, 300, 1632, 672],
-  "start": [760, 900],
-
   "dialogue": {"x": 80, "width": 1180},
 
   "npcs": [
-    {"id": "poiss", "name": "Poiss", "sprite": "tegelased/junsu.png", "pos": [960, 760],
+    {"id": "poiss", "name": "Poiss", "sprite": "tegelased/junsu.png", "pos": [338, 224],
      "portrait": "tegelased/suu-kinni.png", "portrait_talk": "tegelased/suu-lahti.png", "portrait_scale": 4,
      "portrait_pos": [1560, 1080]}
   ],
 
-  "objects": [
-    {"id": "kompass", "label": "päikesekell-kompass", "rect": [460, 340, 124, 196],
-     "sprite": "objektid/paikesekell.png"},
-    {"id": "trykimasin", "label": "trükimasin", "rect": [1000, 320, 372, 315]},
-    {"id": "kyynal", "label": "küünal", "rect": [220, 330, 72, 117]},
-    {"id": "raamat", "label": "raamat", "rect": [700, 380, 144, 60]},
-    {"id": "kell", "label": "seinakell", "rect": [1500, 110, 132, 153]},
-    {"id": "tool", "label": "tool", "rect": [300, 720, 180, 207]}
+  "items": [
+    {"id": "kompass", "label": "värviline karbike", "image": "objektid/paikesekell.png"},
+    {"id": "pikksilm", "label": "pikksilm", "icon": "spyglass"},
+    {"id": "kyynal", "label": "küünal", "icon": "candle"},
+    {"id": "kirjad", "label": "pakk kirju", "icon": "letters"},
+    {"id": "raamat", "label": "raamat", "icon": "book"},
+    {"id": "trykimasin", "label": "klahvidega masin", "icon": "typewriter"},
+    {"id": "tindipott", "label": "tindipott", "icon": "inkwell"},
+    {"id": "pudel", "label": "pudel", "icon": "bottle"},
+    {"id": "taskukell", "label": "taskukell", "icon": "watch"},
+    {"id": "voti", "label": "võti", "icon": "key"}
   ],
+
+  "map": {
+    "size": [720, 420],
+    "start": [322, 248],
+    "rooms": [
+      {"rect": [0, 0, 720, 420], "floor": "cobble"},
+      {"rect": [20, 200, 200, 200], "floor": "grass"},
+      {"rect": [470, 200, 230, 200], "floor": "grass"},
+      {"id": "meremehe-maja", "rect": [40, 40, 190, 130], "floor": "boards", "wall": "plaster", "roof": "tile"},
+      {"id": "kirjatuba", "rect": [290, 30, 170, 120], "floor": "boards", "wall": "paper", "roof": "shingle"},
+      {"id": "ait", "rect": [520, 50, 160, 120], "floor": "dirt", "wall": "log", "roof": "thatch"},
+      {"id": "naabri-maja", "rect": [250, 270, 180, 110], "floor": "boards", "wall": "plaster", "roof": "tile"}
+    ],
+    "doors": [
+      {"rect": [120, 164, 14, 10]},
+      {"rect": [360, 144, 14, 10]},
+      {"rect": [590, 164, 14, 10]},
+      {"rect": [330, 374, 14, 10]}
+    ],
+    "props": [
+      {"type": "window", "pos": [62, 48]},
+      {"type": "picture", "pos": [112, 46]},
+      {"type": "window", "pos": [166, 48]},
+      {"type": "bed", "pos": [46, 64]},
+      {"type": "chest", "id": "merekirst", "label": "isa merekirst", "pos": [84, 56], "holds": ["pikksilm", "kompass"]},
+      {"type": "dresser", "id": "kummut-a", "label": "kummut", "pos": [126, 52], "holds": ["kyynal"]},
+      {"type": "stove", "pos": [198, 42]},
+      {"type": "rug", "pos": [96, 98], "size": [84, 46], "color": [86, 100, 126]},
+      {"type": "table", "pos": [122, 108]},
+      {"type": "stool", "pos": [108, 114]},
+      {"type": "stool", "pos": [160, 114]},
+
+      {"type": "bookcase", "id": "riiul", "label": "raamaturiiul", "pos": [300, 30], "size": [56, 30], "holds": ["raamat"]},
+      {"type": "window", "pos": [376, 38]},
+      {"type": "cabinet", "id": "kapp", "label": "kapp", "pos": [426, 28], "holds": ["tindipott", "trykimasin"]},
+      {"type": "rug", "pos": [322, 78], "size": [54, 40]},
+      {"type": "desk", "pos": [388, 86]},
+      {"type": "stool", "pos": [400, 110]},
+      {"type": "crate", "id": "kast-b", "label": "kast", "pos": [296, 130], "holds": []},
+
+      {"type": "barrel", "id": "tynn-c", "label": "tünn", "pos": [528, 66], "holds": ["pudel"]},
+      {"type": "barrel", "pos": [544, 68]},
+      {"type": "crate", "id": "kast-c", "label": "kast", "pos": [600, 68], "holds": []},
+      {"type": "chest", "id": "kirst-c", "label": "kirst", "pos": [648, 66], "holds": ["taskukell", "voti"]},
+      {"type": "crate", "pos": [640, 138]},
+      {"type": "crate", "pos": [656, 146]},
+      {"type": "barrel", "pos": [530, 142]},
+
+      {"type": "window", "pos": [340, 278]},
+      {"type": "bed", "pos": [256, 294], "color": [146, 92, 84]},
+      {"type": "dresser", "id": "kummut-d", "label": "kummut", "pos": [296, 282], "holds": ["kirjad"]},
+      {"type": "stove", "pos": [398, 272]},
+      {"type": "table", "pos": [346, 326]},
+      {"type": "stool", "pos": [334, 332]},
+
+      {"type": "well", "pos": [350, 178]},
+      {"type": "bench", "pos": [392, 200]},
+      {"type": "post", "pos": [246, 150]},
+      {"type": "post", "pos": [486, 150]},
+      {"type": "post", "pos": [446, 366]},
+      {"type": "barrel", "id": "vihmatynn", "label": "vihmaveetünn", "pos": [694, 152], "holds": []},
+      {"type": "crate", "pos": [236, 62]},
+      {"type": "fence", "pos": [20, 194], "size": [120, 11]},
+      {"type": "tree", "pos": [36, 208]},
+      {"type": "tree", "pos": [150, 226]},
+      {"type": "tree", "pos": [100, 318]},
+      {"type": "bush", "pos": [96, 262]},
+      {"type": "bush", "pos": [180, 350]},
+      {"type": "tree", "pos": [500, 214]},
+      {"type": "tree", "pos": [630, 250]},
+      {"type": "tree", "pos": [560, 326]},
+      {"type": "bush", "pos": [600, 230]},
+      {"type": "bush", "pos": [480, 340]},
+      {"type": "tree", "pos": [8, 100]},
+      {"type": "tree", "pos": [684, 20]}
+    ]
+  },
 
   "requests": [
     {

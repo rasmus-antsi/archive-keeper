@@ -14,6 +14,7 @@ from game import settings
 from game.app import Game
 from game.display import Display
 from game.scenes.archive import Archive
+from game.scenes.inside import Inside
 from game.scenes.ending import Ending
 from game.scenes.intro import Intro
 from game.scenes.memory import Memory
@@ -49,9 +50,9 @@ def click(pos):
 
 
 def stand_at(scene, rect):
-    """Put the ghost just below a thing in a room, close enough to press E at it."""
+    """Put the ghost just below a thing, close enough to press E at it."""
     rect = pygame.Rect(rect)
-    scene.player.pos.update(rect.centerx, max(rect.bottom + 45, scene.floor.top + 35))
+    scene.player.pos.update(rect.centerx, rect.bottom + 6)
     run(0.1)
 
 
@@ -69,6 +70,10 @@ def talk_through():
     raise AssertionError("dialogue never ended")
 
 
+for _ in range(400):         # the loading bar
+    if isinstance(game.scenes.top, Menu) and game.scenes.fade == 0:
+        break
+    run()
 top(Menu)
 run(1)
 shot("1-menu")
@@ -84,34 +89,53 @@ room = top(Archive)
 run(1)
 shot("3-archive-welcome")
 talk_through()
-for shelf in game.content.shelves:      # every shelf opens and shows its records
-    rect = pygame.Rect(shelf["rect"])
-    if rect.width > rect.height:
-        room.player.pos.update(rect.centerx, 340)
-    else:
-        room.player.pos.update(190 if rect.x < 900 else 1730, rect.centery)
-    run(0.2)
-    assert room.near is shelf, f"not standing at shelf {shelf['id']}"
-    shot(f"4-at-shelf-{shelf['id']}")
+for case in room.cases:                 # every bookcase opens and shows its records
+    stand_at(room, case.solid)
+    assert room.near is case, f"not standing at a {case.data['shelf']} bookcase"
+    shot(f"4-at-shelf-{case.data['shelf']}-{case.rect.x}")
     run(0.2, SPACE)
     reader = top(Reader)
-    assert reader.entries, f"shelf {shelf['id']} is empty"
+    assert reader.entries, f"shelf {case.data['shelf']} is empty"
     run(0.1, pygame.event.Event(pygame.KEYDOWN, key=pygame.K_DOWN))
-    shot(f"5-reader-{shelf['id']}")
+    shot(f"5-reader-{case.data['shelf']}")
     run(0.2, pygame.event.Event(pygame.KEYDOWN, key=pygame.K_ESCAPE))
     top(Archive)
 
-room.player.pos.update(room.robot_guard[0], room.robot_guard[1] - 80)        # the robot will not let the ghost through
+room.player.pos.update(170, 150)
+run(0.2)
+shot("4-archive-hall")
+room.player.pos.update(350, 170)
+run(0.2)
+shot("4-archive-stacks")
+room.player.pos.update(room.robot_guard[0], room.robot_guard[1] + 10)        # the robot will not let the ghost through
 run(0.2)
 run(0.3, SPACE)
 shot("6-robot-blocks")
 talk_through()
 
+
+def fetch(memory, item):
+    """Find the thing, take it out of whatever holds it and carry it to whoever asked."""
+    holder = memory.world.by_id[memory.where[item]]
+    stand_at(memory, holder.solid)
+    assert memory.near is holder, f"not standing at {holder.id}"
+    shot(f"8-memory-at-{holder.id}")
+    run(0.2, SPACE)
+    inside = top(Inside)
+    inside.cursor = next(i for i, it in enumerate(inside.items) if it["id"] == item)
+    shot(f"8-memory-inside-{holder.id}")
+    run(0.2, SPACE)
+    top(Memory)
+    assert memory.carrying == item
+    stand_at(memory, memory.npcs[0].solid)
+    shot(f"8-memory-carrying-{item}")
+    run(1.0, SPACE)
+
+
 for doc in game.content.documents:      # solve every memory, with one wrong guess each
-    shelf = next(s for s in game.content.shelves if s["id"] == doc["shelf"])
     room = top(Archive)
-    room.player.pos.update(pygame.Rect(shelf["rect"]).centerx, 340)
-    run(0.2)
+    case = next(c for c in room.cases if c.data["shelf"] == doc["shelf"])
+    stand_at(room, case.solid)
     run(0.2, SPACE)
     reader = top(Reader)
     reader.cursor = next(i for i, e in enumerate(reader.entries) if e["doc"] is doc)
@@ -122,21 +146,20 @@ for doc in game.content.documents:      # solve every memory, with one wrong gue
     run(1.2)
     memory = top(Memory)
     shot(f"8-memory-{doc['id']}-hint")
+    for room in memory.world.rooms:        # every house from the street, roof on
+        if room.roof:
+            memory.player.pos.update(room.rect.centerx, room.rect.bottom + 14)
+            run(0.5)
+            shot(f"8-memory-house-{room.data['id']}")
+    memory.player.pos.update(doc["map"]["start"])
     for i, request in enumerate(doc["requests"]):
         talk_through()
         shot(f"8-memory-{doc['id']}-{i}-look")
-        wrong = next(o for o in doc["objects"] if o["id"] != request["target"])
-        stand_at(memory, wrong["rect"])
-        assert memory.near is wrong, f"not standing at {wrong['id']}"
-        shot(f"8-memory-{doc['id']}-{i}-at-object")
-        run(1.0, SPACE)
-        assert memory.request == i and memory.dialogue.active, "a wrong guess should repeat the hint"
-        shot(f"8-memory-{doc['id']}-{i}-wrong")
+        fetch(memory, next(item for item in memory.where if item != request["target"]))
+        assert memory.request == i and memory.dialogue.active, "a wrong thing should repeat the hint"
         talk_through()
-        right = next(o for o in doc["objects"] if o["id"] == request["target"])
-        stand_at(memory, right["rect"])
-        run(0.3, SPACE)
-        assert memory.request == i + 1, "the right object should move on"
+        fetch(memory, request["target"])
+        assert memory.request == i + 1, "the right thing should move on"
     talk_through()
     run(1.5)
     assert doc["id"] in game.state.solved
@@ -147,11 +170,11 @@ talk_through()
 run(2)
 assert "door_open" in game.state.seen
 shot("9-door-open")
-room.player.pos.update(room.door.centerx, room.door.bottom - 40)
+room.player.pos.update(room.exit.centerx, room.exit.top + 8)
 run(1.5)
 top(Ending)
 shot("10-ending")
 run(2)
 run(1.5, SPACE)
 top(Menu)
-print("smoke test passed:", ", ".join(sorted(os.listdir(out))))
+print("smoke test passed:", len(os.listdir(out)), "screenshots")

@@ -14,7 +14,7 @@ class Menu(Scene):
         super().__init__(game)
         self.t = 0.0
         self.background = assets.backdrop("taustad/menu.png")
-        self.ghost = assets.sprite("tegelased/down.png", scale=settings.PIXEL * 2)
+        self.ghost = assets.sprite("tegelased/down.png", scale=12)
 
     def update(self, dt, events):
         self.t += dt
@@ -30,7 +30,7 @@ class Menu(Scene):
         else:
             screen.fill((30, 28, 34))
             pygame.draw.rect(screen, (44, 40, 44), (0, 760, settings.W, 320))
-            bob = round(math.sin(self.t * 2) * 2) * settings.PIXEL
+            bob = round(math.sin(self.t * 2) * 2) * 12
             screen.blit(self.ghost, self.ghost.get_rect(midbottom=(settings.W // 2, 810 + bob)))
         game = self.content.game
         ui.draw_text(screen, game["title"], (settings.W / 2, 250), "title", 190, settings.CREAM, center=True)
