@@ -69,7 +69,7 @@
   },
 
   {
-    "id": "koiola", "wing": "vald",
+    "id": "koiola", "wing": "vald", "trip": "koiola",
     "title": "Kurrat sinno sisse", "where": "Vana-Koiola, 1867",
     "kind": "Vallakohtu protokoll", "number": "kirje 119032",
     "given": [["Kohus", "Vana-Koiola vallakohus"], ["Kuupäev", "28.08.1867"], ["Liik", "Sõim ja vägivald"]],

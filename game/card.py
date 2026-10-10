@@ -76,8 +76,13 @@ class Card:
         return pygame.Rect(VALUE_X - 8, FIELD_Y + (len(self.given) + idx) * ROW - 4, 360, ROW - 6)
 
     def leave(self):
-        from .world import World
-        self.game.go(lambda: World(self.game))
+        from .home import Home
+        self.game.go(lambda: Home(self.game))
+
+    def enter(self):
+        from .level import Level
+        core.play("enter.ogg", 0.7)
+        self.game.go(lambda: Level(self.game, self.rec["trip"]))
 
     # ---------------------------------------------------------------- logic
 
@@ -104,8 +109,8 @@ class Card:
             self.reveal += dt
             if self.reveal > 3.2 and (core.pressed_confirm(events) or core.clicked(events)):
                 self.game.restored.append(self.rec["id"])
-                from .world import World
-                self.game.go(lambda: World(self.game, arrive=self.rec["id"]))
+                from .home import Home
+                self.game.go(lambda: Home(self.game, arrive=self.rec["id"]))
             return
 
         if self.fly:
@@ -126,7 +131,7 @@ class Card:
         chips = self.chips()
         if not chips:
             if core.pressed_confirm(events) or core.clicked(events):
-                self.leave()
+                self.enter()
             return
         open_idx = self.open_blanks()
         if core.pressed(events, pygame.K_RIGHT, pygame.K_d):
@@ -240,9 +245,10 @@ class Card:
 
         chips = self.chips()
         if not chips:
-            core.draw_text(surf, "Sul ei ole selle saali mälestusi kaasas.", (CARD.centerx, CARD.bottom - 96), "italic", 24, SOFT, center=True)
-            core.draw_text(surf, "Otsi saalist helendavaid täppe ja tule tagasi.", (CARD.centerx, CARD.bottom - 64), "italic", 24, SOFT, center=True)
-            core.draw_text(surf, "tühik – tagasi saali", (core.W / 2, core.H - 30), "mono", 18, core.CREAM, center=True)
+            core.draw_text(surf, "See kirje on poolik. Paberist enam ei piisa.", (CARD.centerx, CARD.bottom - 96), "italic", 24, SOFT, center=True)
+            core.draw_text(surf, "Astu sisse ja vaata oma silmaga järele.", (CARD.centerx, CARD.bottom - 64), "italic", 24, SOFT, center=True)
+            core.draw_text(surf, "tühik – astu kirje sisse   ·   esc – tagasi", (core.W / 2, core.H - 30), "mono", 18, core.CREAM, center=True,
+                           alpha=int(190 + 60 * math.sin(self.t * 3)))
             return
         for i, (frag, rect) in enumerate(chips):
             if self.fly and frag is self.fly[0]:

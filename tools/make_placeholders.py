@@ -515,9 +515,326 @@ def make_sounds():
     write_ogg("unlock.ogg", mix(unlock, int(RATE * 3)), 0.6)
 
 
+# ---------------------------------------------------------------- people and things for the trips
+
+def person(name, coat, hat=None, hair=(70, 48, 36), small=False, skirt=False, beard=False):
+    """A villager seen from a high angle, 72x100 with the feet at the bottom centre."""
+    s = pygame.Surface((72, 100), pygame.SRCALPHA)
+    k = 0.78 if small else 1.0
+    cx, base = 36, 94
+    sh = pygame.Surface((72, 100), pygame.SRCALPHA)
+    pygame.draw.ellipse(sh, (20, 10, 10, 70), (cx - 22 * k, base - 12, 44 * k, 16))
+    s.blit(sh, (0, 0))
+    bw, bh = 40 * k, 50 * k
+    body = pygame.Rect(cx - bw / 2, base - 8 - bh, bw, bh)
+    if skirt:
+        pygame.draw.polygon(s, coat, [(body.x + 6, body.y), (body.right - 6, body.y), (body.right + 4, body.bottom), (body.x - 4, body.bottom)])
+        pygame.draw.rect(s, (240, 232, 214), (body.x + 8, body.y + bh * 0.45, bw - 16, bh * 0.5), border_radius=4)
+    else:
+        pygame.draw.rect(s, coat, body, border_radius=int(14 * k))
+        pygame.draw.rect(s, shade(coat, 0.78), (body.x, body.bottom - bh * 0.3, bw, bh * 0.3), border_bottom_left_radius=int(14 * k), border_bottom_right_radius=int(14 * k))
+        pygame.draw.line(s, shade(coat, 0.7), (cx, body.y + 10), (cx, body.bottom - 6), 2)
+    for dx in (-1, 1):
+        pygame.draw.circle(s, shade(coat, 0.9), (cx + dx * (bw / 2 + 1), body.y + bh * 0.42), 7 * k)
+    hr = 16 * k
+    hy = body.y - hr * 0.55
+    pygame.draw.circle(s, (232, 196, 164), (cx, hy), hr)
+    pygame.draw.circle(s, hair, (cx, hy - 3), hr, draw_top_left=True, draw_top_right=True)
+    for dx in (-6, 6):
+        pygame.draw.circle(s, (50, 36, 30), (cx + dx * k, hy + 3), 2)
+    if beard:
+        pygame.draw.circle(s, hair, (cx, hy + 6), hr * 0.8, draw_bottom_left=True, draw_bottom_right=True)
+    if hat:
+        pygame.draw.ellipse(s, shade(hat, 0.8), (cx - hr - 6, hy - hr * 0.7, (hr + 6) * 2, hr * 0.9))
+        pygame.draw.ellipse(s, hat, (cx - hr * 0.75, hy - hr * 1.25, hr * 1.5, hr * 1.1))
+    if skirt and not hat:
+        pygame.draw.circle(s, hair, (cx + hr * 0.9, hy + hr * 0.7), 5 * k)
+        pygame.draw.circle(s, hair, (cx - hr * 0.9, hy + hr * 0.7), 5 * k)
+    save(s, f"npc/{name}.png")
+
+
+def make_people():
+    person("ado", (150, 84, 60), hair=(96, 60, 36), beard=True)
+    person("harms", (60, 60, 76), hat=(40, 40, 50), hair=(200, 196, 190), beard=True)
+    person("kohtumees_0", (96, 82, 66), hair=(60, 44, 34), beard=True)
+    person("kohtumees_1", (84, 96, 80), hair=(190, 180, 170))
+    person("kohtumees_2", (110, 90, 100), hair=(110, 70, 40), beard=True)
+    person("kirjutaja", (70, 86, 110), hair=(60, 44, 34))
+    person("peremees_0", (120, 100, 70), hat=(90, 70, 50), hair=(60, 44, 34), beard=True)
+    person("peremees_1", (96, 110, 96), hat=(60, 56, 50), hair=(180, 170, 160), beard=True)
+    person("peremees_2", (130, 96, 84), hat=(110, 90, 60), hair=(96, 60, 36))
+    person("peremees_3", (90, 90, 110), hat=(70, 60, 60), hair=(60, 44, 34), beard=True)
+    person("tydruk", (170, 80, 76), hair=(210, 170, 90), small=True, skirt=True)
+
+    # the courtroom door: shut, and swung open
+    for name, open_ in (("door_closed", False), ("door_open", True)):
+        s = pygame.Surface((120, 110), pygame.SRCALPHA)
+        if open_:
+            pygame.draw.polygon(s, (120, 82, 52), [(8, 30), (22, 30), (22, 104), (8, 96)])
+            pygame.draw.polygon(s, (90, 60, 40), [(8, 30), (22, 30), (22, 104), (8, 96)], 3)
+        else:
+            pygame.draw.rect(s, (130, 90, 56), (10, 34, 100, 46), border_radius=4)
+            for x in range(30, 110, 22):
+                pygame.draw.line(s, (96, 64, 42), (x, 36), (x, 78), 2)
+            pygame.draw.rect(s, (90, 60, 40), (10, 34, 100, 46), 3, border_radius=4)
+            pygame.draw.rect(s, (60, 56, 60), (50, 50, 34, 10), border_radius=4)
+            pygame.draw.circle(s, (200, 170, 100), (84, 55), 6)
+        save(s, f"obj/{name}.png")
+    for name, lit in (("candle_off", False), ("candle_on", True)):
+        s = pygame.Surface((90, 110), pygame.SRCALPHA)
+        if lit:
+            glow(s, (45, 44), 44, (255, 190, 90), 1.6)
+            mask = pygame.Surface((90, 110), pygame.SRCALPHA)
+            pygame.draw.circle(mask, (255, 255, 255, 255), (45, 44), 44)
+        pygame.draw.ellipse(s, (150, 130, 90), (30, 84, 30, 12))
+        pygame.draw.rect(s, (244, 236, 214), (39, 52, 12, 36), border_radius=3)
+        pygame.draw.line(s, (50, 40, 30), (45, 52), (45, 46), 2)
+        if lit:
+            pygame.draw.ellipse(s, (255, 200, 90), (38, 26, 14, 24))
+            pygame.draw.ellipse(s, (255, 246, 210), (42, 34, 6, 12))
+        save(s, f"obj/{name}.png")
+    # keepsake: the scribe's quill
+    s = pygame.Surface((80, 80), pygame.SRCALPHA)
+    pygame.draw.polygon(s, (244, 240, 230), [(14, 66), (58, 8), (70, 14), (30, 60)])
+    pygame.draw.line(s, (150, 140, 130), (12, 70), (64, 12), 3)
+    pygame.draw.polygon(s, (60, 50, 60), [(8, 74), (16, 62), (20, 68)])
+    save(s, "obj/keepsake_koiola.png")
+
+
+def tree(s, x, y, r=70):
+    sh = pygame.Rect(x - r, y - r * 0.3, r * 2, r * 1.1)
+    shadow(s, sh, radius=int(r * 0.5), offset=(10, 18), alpha=60)
+    pygame.draw.rect(s, (104, 72, 48), (x - 9, y - 10, 18, 40), border_radius=6)
+    for i in range(11):
+        a = i / 11 * math.tau
+        d = rnd.uniform(0.25, 0.6) * r
+        pygame.draw.circle(s, rnd.choice(((92, 140, 80), (108, 156, 86), (128, 160, 80), (190, 170, 80))),
+                           (x + math.cos(a) * d, y - r * 0.5 + math.sin(a) * d * 0.8), rnd.uniform(0.38, 0.55) * r)
+    pygame.draw.circle(s, (140, 176, 96), (x - r * 0.15, y - r * 0.7), r * 0.32)
+
+
+def make_koiola_map():
+    W, H = 2400, 1500
+    s = pygame.Surface((W, H))
+    s.fill((126, 150, 88))
+    # grass: mottled late-summer greens and yellows
+    for _ in range(5200):
+        x, y = rnd.randrange(W), rnd.randrange(H)
+        c = rnd.choice(((118, 144, 82), (136, 158, 92), (150, 164, 96), (166, 168, 92), (110, 136, 80)))
+        pygame.draw.ellipse(s, c, (x, y, rnd.randint(30, 110), rnd.randint(14, 44)))
+    for _ in range(2600):
+        x, y = rnd.randrange(W), rnd.randrange(H)
+        pygame.draw.line(s, (96, 124, 70), (x, y), (x + rnd.randint(-3, 3), y - rnd.randint(6, 12)), 2)
+    for _ in range(260):
+        x, y = rnd.randrange(W), rnd.randrange(H)
+        pygame.draw.circle(s, rnd.choice(((250, 240, 200), (240, 200, 90), (230, 150, 150))), (x, y), 3)
+    # dirt path from the gate to the door, and a worn patch in the yard
+    path = pygame.Surface((W, H), pygame.SRCALPHA)
+    for y in range(760, 1500, 6):
+        wob = math.sin(y / 90) * 26
+        pygame.draw.ellipse(path, (190, 160, 112, 255), (1200 - 80 + wob, y - 30, 160, 70))
+    pygame.draw.ellipse(path, (190, 160, 112, 255), (900, 760, 620, 190))
+    pygame.draw.ellipse(path, (184, 154, 108, 255), (520, 960, 520, 260))
+    path = pygame.transform.gaussian_blur(path, 10)
+    s.blit(path, (0, 0))
+    for _ in range(500):
+        x, y = rnd.randrange(500, 1560), rnd.randrange(760, 1500)
+        if path.get_at((x, y))[3] > 120:
+            pygame.draw.circle(s, rnd.choice(((170, 142, 100), (204, 176, 128))), (x, y), rnd.randint(2, 4))
+
+    # fence around the yard, gate at the bottom
+    def fence(a, b):
+        n = int(math.dist(a, b) / 46)
+        for i in range(n + 1):
+            x = a[0] + (b[0] - a[0]) * i / n
+            y = a[1] + (b[1] - a[1]) * i / n
+            pygame.draw.rect(s, (60, 44, 34), (x - 3, y - 4, 12, 40), border_radius=3)
+            pygame.draw.rect(s, (150, 112, 76), (x - 5, y - 10, 12, 40), border_radius=3)
+        for off in (0, 14):
+            pygame.draw.line(s, (170, 130, 90), (a[0], a[1] + off), (b[0], b[1] + off), 6)
+    fence((280, 130), (2120, 130))
+    fence((280, 1400), (1100, 1400))
+    fence((1300, 1400), (2120, 1400))
+    for x in (280, 2120):
+        fence((x, 130), (x, 1400))
+
+    # the parish house: log walls, plank floor, seen without its roof
+    outer = pygame.Rect(700, 200, 1000, 560)
+    inner = pygame.Rect(740, 240, 920, 480)
+    shadow(s, outer, radius=10, offset=(16, 26), alpha=90)
+    pygame.draw.rect(s, (112, 78, 52), outer, border_radius=8)
+    for y in range(outer.y + 6, outer.bottom, 13):
+        pygame.draw.line(s, (88, 60, 40), (outer.x + 4, y), (outer.right - 4, y), 2)
+    planks(s, inner, (196, 156, 110))
+    for i in range(22):
+        line = pygame.Surface((inner.w, 1), pygame.SRCALPHA)
+        line.fill((40, 20, 10, int(80 * (1 - i / 22))))
+        s.blit(line, (inner.x, inner.y + i))
+    # doorway in the bottom wall, with a stone step
+    planks(s, (1150, 720, 100, 40), (176, 136, 96))
+    pygame.draw.rect(s, (170, 166, 158), (1130, 760, 140, 34), border_radius=8)
+    pygame.draw.rect(s, (140, 136, 130), (1130, 782, 140, 12), border_radius=6)
+    # windows in the side walls
+    for wy in (360, 560):
+        for wx in (700, 1660):
+            pygame.draw.rect(s, (200, 220, 230), (wx + 8, wy, 24, 80))
+            pygame.draw.line(s, (88, 60, 40), (wx + 8, wy + 40), (wx + 32, wy + 40), 3)
+    # inside: rug, court table, chairs, scribe's desk, stove, bench, lamps
+    prop(s, "rug", 1200, 520, 560, 200, (150, 70, 58))
+    for cx in (1040, 1200, 1360):
+        prop(s, "chair", cx, 330, 0, 0, (120, 60, 50))
+    prop(s, "table", 1200, 400, 560, 92, (0, 0, 0))
+    pygame.draw.rect(s, (244, 236, 214), (1170, 380, 66, 44))
+    pygame.draw.rect(s, (120, 60, 50), (1166, 376, 74, 52), 4)
+    prop(s, "desk", 1530, 600, 170, 100, (0, 0, 0))
+    pygame.draw.rect(s, (250, 242, 220), (1480, 572, 84, 56), border_radius=3)
+    pygame.draw.line(s, (120, 100, 80), (1522, 574), (1522, 626), 2)
+    for ly in range(582, 622, 8):
+        pygame.draw.line(s, (90, 70, 60), (1486, ly), (1516, ly), 2)
+        pygame.draw.line(s, (90, 70, 60), (1528, ly), (1552 - rnd.randint(0, 14), ly), 2)
+    prop(s, "chair", 1530, 680, 0, 0, (70, 86, 110))
+    prop(s, "stove", 810, 310, 110, 110, (0, 0, 0))
+    prop(s, "bench", 860, 640, 200, 46, (0, 0, 0))
+    prop(s, "shelf", 1630, 380, 46, 200, (0, 0, 0))
+    glow(s, (1200, 300), 260, (255, 200, 120), 0.5)
+
+    # the yard: cart, hay, well, woodpile, trees
+    cart = pygame.Rect(470, 1010, 200, 110)
+    shadow(s, cart, offset=(10, 16))
+    pygame.draw.rect(s, (150, 108, 70), cart, border_radius=8)
+    pygame.draw.rect(s, (104, 72, 48), cart, 6, border_radius=8)
+    for x in range(cart.x + 30, cart.right, 34):
+        pygame.draw.line(s, (104, 72, 48), (x, cart.y + 6), (x, cart.bottom - 6), 3)
+    for wx, wy in ((cart.x + 30, cart.y - 6), (cart.right - 30, cart.y - 6), (cart.x + 30, cart.bottom + 6), (cart.right - 30, cart.bottom + 6)):
+        pygame.draw.ellipse(s, (70, 50, 40), (wx - 26, wy - 9, 52, 18))
+    pygame.draw.line(s, (104, 72, 48), (cart.right, cart.centery - 20), (cart.right + 110, cart.centery - 30), 6)
+    pygame.draw.line(s, (104, 72, 48), (cart.right, cart.centery + 20), (cart.right + 110, cart.centery + 30), 6)
+    for hx, hy, hr in ((1880, 420, 90), (1960, 560, 70), (440, 380, 80)):
+        shadow(s, pygame.Rect(hx - hr, hy - hr * 0.5, hr * 2, hr * 1.3), radius=hr, offset=(10, 16))
+        pygame.draw.ellipse(s, (214, 184, 100), (hx - hr, hy - hr * 0.8, hr * 2, hr * 1.6))
+        pygame.draw.ellipse(s, (234, 206, 124), (hx - hr * 0.7, hy - hr * 0.75, hr * 1.4, hr * 1.0))
+        for _ in range(40):
+            a = rnd.uniform(0, math.tau)
+            px, py = hx + math.cos(a) * hr * 0.8, hy + math.sin(a) * hr * 0.6
+            pygame.draw.line(s, (190, 160, 80), (px, py), (px + rnd.randint(-10, 10), py + rnd.randint(4, 14)), 2)
+    well = pygame.Rect(1760, 980, 120, 120)
+    shadow(s, well, radius=60, offset=(10, 16))
+    pygame.draw.circle(s, (160, 156, 150), well.center, 60)
+    pygame.draw.circle(s, (60, 80, 100), well.center, 42)
+    pygame.draw.circle(s, (90, 120, 140), (well.centerx - 8, well.centery - 8), 16)
+    pygame.draw.line(s, (104, 72, 48), (well.x - 10, well.centery), (well.right + 10, well.centery), 8)
+    for i in range(6):
+        for j in range(3 - i // 2):
+            pygame.draw.ellipse(s, (150, 110, 74), (1840 + i * 34, 1240 - j * 22, 32, 24))
+            pygame.draw.ellipse(s, (210, 176, 130), (1846 + i * 34, 1244 - j * 22, 20, 14))
+    for tx, ty, r in ((360, 260, 86), (2030, 250, 90), (2040, 1280, 80), (380, 1300, 74), (160, 700, 90), (2260, 760, 96),
+                      (1200, 80, 70), (700, 60, 60), (1740, 70, 64), (140, 220, 70), (2280, 300, 70), (150, 1260, 80), (2270, 1250, 76)):
+        tree(s, tx, ty, r)
+    grain(s, 50000, (255, 250, 220), (30, 40, 10), 12)
+    save(s, "maps/koiola.png")
+
+
+def make_home_map():
+    """Inside the archive machine: a warm little room of drawers, valves and tape."""
+    W, H = 1900, 1200
+    s = pygame.Surface((W, H))
+    s.fill((30, 22, 26))
+    room = pygame.Rect(140, 340, 1620, 700)
+    outer = pygame.Rect(100, 120, 1700, 960)
+    shadow(s, outer, radius=30, offset=(0, 20), alpha=120)
+    pygame.draw.rect(s, (74, 50, 44), outer, border_radius=34)
+    pygame.draw.rect(s, (110, 78, 60), outer, 8, border_radius=34)
+    for x in range(outer.x + 40, outer.right - 20, 120):          # rivets
+        pygame.draw.circle(s, (170, 130, 80), (x, outer.y + 22), 6)
+        pygame.draw.circle(s, (170, 130, 80), (x, outer.bottom - 20), 6)
+    # floor: dark planks with copper traces, like a circuit board grown cosy
+    planks(s, room, (150, 104, 72))
+    trace = (214, 150, 84)
+    for _ in range(16):
+        x, y = rnd.randrange(room.x + 60, room.right - 200), rnd.randrange(room.y + 120, room.bottom - 60)
+        pts = [(x, y)]
+        for _ in range(rnd.randint(2, 4)):
+            if rnd.random() < 0.5:
+                x += rnd.choice((-1, 1)) * rnd.randint(60, 180)
+            else:
+                y += rnd.choice((-1, 1)) * rnd.randint(40, 120)
+            x, y = max(room.x + 30, min(room.right - 30, x)), max(room.y + 100, min(room.bottom - 30, y))
+            pts.append((x, y))
+        pygame.draw.lines(s, shade(trace, 0.8), False, pts, 4)
+        pygame.draw.circle(s, trace, pts[0], 7)
+        pygame.draw.circle(s, trace, pts[-1], 7)
+    # back wall: the drawer cabinet
+    face = pygame.Rect(room.x, 150, room.w, 190)
+    pygame.draw.rect(s, (126, 88, 60), face)
+    for i in range(26):
+        line = pygame.Surface((room.w, 1), pygame.SRCALPHA)
+        line.fill((30, 14, 10, int(90 * (1 - i / 26))))
+        s.blit(line, (room.x, room.y + i))
+    for row in range(3):
+        for col in range(27):
+            r = pygame.Rect(face.x + 12 + col * 59.2, face.y + 58 + row * 44, 52, 38)
+            pygame.draw.rect(s, (160, 118, 80), r, border_radius=4)
+            pygame.draw.rect(s, (96, 66, 46), r, 2, border_radius=4)
+            pygame.draw.rect(s, (236, 222, 190), (r.x + 12, r.y + 7, 28, 10))
+            pygame.draw.circle(s, (214, 170, 100), (r.centerx, r.y + 27), 4)
+    # valves glowing along the top of the cabinet
+    for x in range(face.x + 40, face.right - 20, 74):
+        glow(s, (x, face.y + 26), 70, (255, 150, 70), 0.9)
+        pygame.draw.rect(s, (70, 50, 44), (x - 10, face.y + 36, 20, 12), border_radius=3)
+        pygame.draw.ellipse(s, (255, 190, 120), (x - 11, face.y + 4, 22, 36))
+        pygame.draw.ellipse(s, (255, 236, 190), (x - 5, face.y + 14, 10, 20))
+    # tape reels on the left wall, cables on the floor
+    for ry in (520, 760):
+        shadow(s, pygame.Rect(170, ry - 80, 160, 160), radius=80)
+        pygame.draw.circle(s, (60, 50, 56), (250, ry), 84)
+        pygame.draw.circle(s, (120, 84, 60), (250, ry), 70)
+        pygame.draw.circle(s, (60, 50, 56), (250, ry), 26)
+        for a in range(3):
+            ang = a * math.tau / 3 + ry
+            pygame.draw.circle(s, (60, 50, 56), (250 + math.cos(ang) * 46, ry + math.sin(ang) * 46), 14)
+    pygame.draw.line(s, (150, 104, 70), (250, 604), (250, 676), 10)
+    for cy, col in ((960, (170, 70, 60)), (990, (80, 110, 130)), (1010, (190, 150, 80))):
+        pts = [(room.x + 20 + i * 60, cy + math.sin(i * 0.9 + cy) * 12) for i in range(28)]
+        pygame.draw.lines(s, shade(col, 0.6), False, [(x, y + 4) for x, y in pts], 8)
+        pygame.draw.lines(s, col, False, pts, 8)
+    # Liis's terminal, bottom left
+    desk = pygame.Rect(390, 800, 240, 120)
+    prop(s, "desk", desk.centerx, desk.centery, desk.w, desk.h, (0, 0, 0))
+    crt = pygame.Rect(440, 770, 140, 100)
+    shadow(s, crt)
+    pygame.draw.rect(s, (200, 190, 170), crt, border_radius=14)
+    pygame.draw.rect(s, (40, 70, 60), crt.inflate(-24, -24), border_radius=8)
+    glow(s, crt.center, 150, (90, 220, 170), 0.7)
+    for i in range(4):
+        pygame.draw.line(s, (140, 240, 190), (crt.x + 22, crt.y + 26 + i * 13), (crt.right - 30 - i * 12, crt.y + 26 + i * 13), 3)
+    # the keeper's nook, right: rug, cushion, a little shelf for keepsakes, string lights
+    prop(s, "rug_round", 1480, 760, 420, 300, (178, 82, 62))
+    cushion = pygame.Rect(1410, 720, 140, 96)
+    shadow(s, cushion, radius=30)
+    pygame.draw.rect(s, (226, 190, 120), cushion, border_radius=34)
+    pygame.draw.rect(s, (200, 160, 96), cushion, 5, border_radius=34)
+    prop(s, "shelf_low", 1620, 560, 220, 70, (0, 0, 0))
+    pygame.draw.rect(s, (160, 118, 80), (1516, 530, 208, 56), border_radius=6)
+    prop(s, "plant", 1700, 940, 0, 0, (0, 0, 0))
+    prop(s, "plant", 1260, 980, 0, 0, (0, 0, 0))
+    for i in range(12):
+        x = 1260 + i * 42
+        y = 420 + math.sin(i * 0.7) * 16
+        glow(s, (x, y), 46, rnd.choice(((255, 190, 100), (255, 140, 110), (255, 220, 150))), 1.0)
+        pygame.draw.circle(s, (255, 240, 200), (x, y), 5)
+    prop(s, "lamp", 880, 700, 0, 0, (0, 0, 0))
+    prop(s, "rug", 900, 720, 420, 220, (92, 110, 100))
+    prop(s, "lamp", 900, 700, 0, 0, (0, 0, 0))
+    grain(s, 30000, (255, 240, 220), (40, 20, 10), 12)
+    save(s, "maps/home.png")
+
+
 if __name__ == "__main__":
     make_ghost()
     make_small()
+    make_people()
+    make_koiola_map()
+    make_home_map()
     make_map()
     make_record_images()
     make_sounds()

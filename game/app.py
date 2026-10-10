@@ -1,4 +1,5 @@
 """Game state, scene switching with a fade, and the sparse background music."""
+
 import random
 
 import pygame
@@ -20,23 +21,20 @@ class Game:
         self.restart()
 
     def restart(self):
-        from .world import Title
+        from .home import Title
         self.restored = []          # record ids, in the order they were restored
         self.unlocked = {w for w, d in layout.WINGS.items() if d["unlock"] == 0}
         self.pos = pygame.Vector2(layout.START)
+        self.home_pos = None
         self.seen_intro = False
-        # every blank of every record is a fragment lying somewhere in its wing
+        self.flags = {}             # trip id -> set of flag words
+        # the blanks of every record that has a trip: found out there, then placed on its card
         self.fragments = []
-        rnd = random.Random(11)
-        for wing in layout.WINGS:
-            spots = list(layout.SPOTS[wing])
-            rnd.shuffle(spots)
-            for rec in self.records:
-                if rec["wing"] != wing:
-                    continue
+        for rec in self.records:
+            if "trip" in rec:
                 for idx, blank in enumerate(rec["blanks"]):
-                    self.fragments.append({"rid": rec["id"], "idx": idx, "wing": wing, "value": blank["value"],
-                                           "line": blank["line"], "pos": spots.pop(), "state": "world"})
+                    self.fragments.append({"rid": rec["id"], "idx": idx, "wing": rec["wing"], "value": blank["value"],
+                                           "line": blank["line"], "state": "world"})
         self.next = None
         self.fade = 1.0
         self.scene = Title(self)

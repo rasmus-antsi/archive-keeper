@@ -64,8 +64,14 @@ class Visitor:
 
 
 class World:
-    def __init__(self, game, arrive=None, control=True):
+    def __init__(self, game, arrive=None, control=True, epilogue=False):
         self.game = game
+        if epilogue:
+            # everything the keeper remembered has moved into the new museum
+            game.restored = [r["id"] for r in game.records]
+            game.unlocked = set(layout.WINGS)
+            game.pos = pygame.Vector2(layout.START)
+            game.seen_intro = True
         self.t = 0.0
         self.control = control
         self.map = core.image("map.png", scale=1).convert()
@@ -117,6 +123,9 @@ class World:
                 self.box.say(f"{d['name']} on nüüd lahti! Seal ootavad uued kirjed: {d['sub']}.", SIGNED, hold=9)
             elif len(game.restored) in (layout.OPEN_AT, len(game.records)):
                 self.box.say(progress_note(game), SIGNED, hold=10)
+        elif epilogue:
+            self.box.say("Uus muuseum. Kõik, mida sa mäletasid, seisab nüüd siin oma koha peal. "
+                         "Käi ringi. Kui oled valmis, ava fuajee allservas välisuks.", SIGNED, hold=14)
         elif control and not game.seen_intro:
             game.seen_intro = True
             self.box.say("Liigu nooltega või hoia hiirt all. Peatu helendava täpi juures, et seda mäletada. "
@@ -256,6 +265,8 @@ class World:
                                   "käsitsi sisse trükkinud üle 100 000. Ülejäänud ootavad oma silti.",
                                   (60, y + 4), 820, "serif", 23, core.CREAM)
             core.draw_text(sheet, "ra.ee/vallakohtud  ·  ajapaik.ee  ·  muis.ee", (470, y + 24), "mono", 18, core.TEAL, center=True)
+            core.draw_text(sheet, "Kaartidel olev on arhiivist. Jutuajamised ja kummitamine on mängu väljamõeldis.",
+                           (470, y + 56), "italic", 19, core.CREAM, center=True)
             core.draw_text(sheet, "tühik – algusesse", (470, 572), "mono", 15, core.DIM, center=True)
             self.sheet = sheet
         return self.sheet
@@ -401,30 +412,3 @@ class World:
             for i, f in enumerate(rows):
                 value = f["value"] if len(f["value"]) < 27 else f["value"][:25] + "…"
                 core.draw_text(surf, value, (core.W - 264, 46 + i * 24), "serif", 20, core.CREAM)
-
-
-class Title:
-    """The title sits over the live lobby."""
-
-    def __init__(self, game):
-        self.game = game
-        self.t = 0.0
-        self.world = World(game, control=False)
-        self.veil = pygame.Surface((core.W, core.H))
-        self.veil.fill((30, 18, 20))
-        self.veil.set_alpha(120)
-
-    def update(self, dt, events):
-        self.t += dt
-        self.world.update(dt, [])
-        if self.t > 0.5 and (core.pressed_confirm(events) or core.clicked(events)):
-            self.game.go(lambda: World(self.game))
-
-    def draw(self, surf):
-        self.world.draw(surf)
-        surf.blit(self.veil, (0, 0))
-        core.draw_text(surf, "ARHIIVIHOIDJA", (core.W / 2, 170), "bold", 96, core.CREAM, center=True)
-        core.draw_text(surf, "öövahetus uues muuseumis", (core.W / 2, 246), "italic", 34, core.WARM, center=True)
-        a = int(160 + 90 * math.sin(self.t * 2.4))
-        core.draw_text(surf, "vajuta tühikut", (core.W / 2, 610), "mono", 22, core.CREAM, center=True, alpha=a)
-        core.draw_text(surf, "M – muusika sisse/välja", (core.W / 2, 690), "mono", 14, core.DIM, center=True)

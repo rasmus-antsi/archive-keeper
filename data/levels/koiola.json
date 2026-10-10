@@ -1,0 +1,103 @@
+{
+  "id": "koiola",
+  "record": "koiola",
+  "title": "Vana-Koiola vallamaja",
+  "sub": "28. august 1867, kohtupäev",
+  "map": "maps/koiola.png",
+  "size": [2400, 1500],
+  "start": [1200, 1330],
+  "exit": [1200, 1330],
+  "intro": [
+    "Siin see on: Vana-Koiola vallamaja, kohtupäev. Protokollist on puudu, kes siin lärmi lõi, mida ta ütles ja mis talle mõisteti.",
+    "Mind ei näe siin peaaegu keegi. Aga ma võin kuulata. Ja mõnda asja saan ma natuke… liigutada."
+  ],
+  "walk": [
+    {"rect": [300, 800, 1800, 580]},
+    {"rect": [300, 150, 400, 650]},
+    {"rect": [1700, 150, 400, 650]},
+    {"rect": [740, 240, 920, 480]},
+    {"rect": [1150, 700, 100, 110], "when": ["door_open"]}
+  ],
+  "npcs": [
+    {"id": "peremees_0", "name": "Johan Lutzar", "sprite": "npc/peremees_0.png", "states": [
+      {"pos": [770, 1010], "lines": [
+        "Täna on kohtupäev. Meie, Holvandi peremehed, tulime neljakesi oma asja ajama.",
+        {"text": "Näe, Ado Warres on ka siin. Mis tema siit otsib?", "fact": 0}
+      ]},
+      {"when": ["door_open"], "pos": [1090, 870], "lines": ["Me seisime siinsamas ukse peal. Kõik oli näha."]}
+    ]},
+    {"id": "peremees_1", "name": "Mikel Holwandus", "sprite": "npc/peremees_1.png", "states": [
+      {"pos": [850, 1060], "lines": ["Adol pole kohtuga vähimatki asja. Aga suu on tal suur."]},
+      {"when": ["door_open"], "pos": [1150, 900], "lines": ["Vallavanemale niimoodi öelda… ei tea, mis sellest tuleb."]}
+    ]},
+    {"id": "peremees_2", "name": "Peter Hund", "sprite": "npc/peremees_2.png", "states": [
+      {"pos": [760, 1120], "lines": ["Vallavanem Härms lärmi ei salli. Uks pandi kinni, et saaks rahus kohut mõista."]},
+      {"when": ["door_open"], "pos": [1255, 900], "lines": ["Kui küsitakse, siis ma tunnistan. Ma kuulsin iga sõna."]}
+    ]},
+    {"id": "peremees_3", "name": "Mihkel Sau", "sprite": "npc/peremees_3.png", "states": [
+      {"pos": [860, 1150], "lines": ["Kui siin midagi juhtub, siis meie neli näeme ja võime tunnistada."]},
+      {"when": ["door_open"], "pos": [1315, 870], "lines": ["Näe, mis ma ütlesin. Tunnistajaid läks vaja."]}
+    ]},
+    {"id": "tydruk", "name": "kirjutaja tütar", "sprite": "npc/tydruk.png", "sees": true, "states": [
+      {"pos": [1430, 850], "lines": [
+        "Oi! Sa oled läbipaistev. Kas sa oled kodukäija? … Arhiivist? Mis asi see on?",
+        "Kohtutoa uks on kinni, kuni päris asjad on aetud. Link on kõrgel ja kange, Ado-onu ei saa seda lahti.",
+        "Aga sina saad ju läbi seina! Vajuta Shift ja söösta. Või mine ukse juurde ja… tee midagi tondilikku."
+      ]},
+      {"when": ["row_done"], "pos": [1430, 850], "lines": [
+        "Isa kirjutab kõik raamatusse. Aga toas on nii hämar, et ta ei näe oma kirja.",
+        "Tema laua peal on küünal. See kustus ära, kui uks lahti lendas."
+      ]},
+      {"when": ["verdict"], "pos": [1430, 850], "lines": ["Kas sa lähed nüüd ära? Ma ei räägi kellelegi, et sa siin käisid."]}
+    ]},
+    {"id": "ado", "name": "Ado Warres", "sprite": "npc/ado.png", "states": [
+      {"pos": [1120, 850], "lines": ["Laske sisse! Mul on ka sõna öelda!", "See uks on meelega kinni pandud."]},
+      {"when": ["door_open"], "pos": [1200, 640], "path": [[1200, 830], [1200, 700]], "speed": 120, "lines": []},
+      {"when": ["row_done"], "pos": [980, 650], "speed": 60, "lines": ["Ma ei öelnud midagi. Mitte midagi ma ei öelnud."]},
+      {"when": ["verdict"], "pos": [980, 650], "lines": ["Kolmkümmend vitsa. Ühe lause eest."]}
+    ]},
+    {"id": "harms", "name": "vallavanem S. Härms", "sprite": "npc/harms.png", "states": [
+      {"pos": [1090, 600], "lines": ["Kord peab majas olema.", "Kellel asja ei ole, see jääb ukse taha."]},
+      {"when": ["row_done"], "pos": [1090, 600], "lines": ["Minu peale võib karjuda. Aga kohtu ees?"]}
+    ]},
+    {"id": "kohtumees_0", "name": "kohtumees P. Kärik", "sprite": "npc/kohtumees_0.png", "states": [
+      {"pos": [1040, 360], "lines": ["Kirjutada ma ei oska. Protokolli alla panen kolm risti."]}
+    ]},
+    {"id": "kohtumees_1", "name": "kohtumees J. Pihho", "sprite": "npc/kohtumees_1.png", "states": [
+      {"pos": [1200, 360], "lines": ["Järgmine asi, palun.", "Vallakohus on talurahva oma kohus. Siin mõistavad peremehed ise."]}
+    ]},
+    {"id": "kohtumees_2", "name": "kohtumees A. Hurt", "sprite": "npc/kohtumees_2.png", "states": [
+      {"pos": [1360, 360], "lines": ["Pikk päev tuleb."]}
+    ]},
+    {"id": "kirjutaja", "name": "kirjutaja", "sprite": "npc/kirjutaja.png", "states": [
+      {"pos": [1530, 700], "lines": ["Ma kirjutan kõik üles, sõna-sõnalt. Nii jääb see alles."]},
+      {"when": ["row_done"], "pos": [1530, 700], "lines": ["„Mõistetu:“ … edasi ma ei näe. Küünal on kustunud."]},
+      {"when": ["verdict"], "pos": [1530, 700], "lines": ["Kirjas. Sada aastat hiljem saab keegi seda lugeda."]}
+    ]}
+  ],
+  "haunts": [
+    {"id": "door", "name": "ukselink", "pos": [1200, 800], "sprite": ["obj/door_closed.png", "obj/door_open.png"], "at": [1200, 745],
+     "set": "door_open", "text": "Link klõpsatab. Uks vajub lahti ja tuul käib toast läbi."},
+    {"id": "candle", "name": "küünal", "pos": [1600, 640], "sprite": ["obj/candle_off.png", "obj/candle_on.png"], "at": [1600, 580],
+     "set": "candle", "text": "Taht lööb särisema ja leek tõuseb kõrgeks."},
+    {"id": "well", "name": "kaevuvinn", "pos": [1820, 1120], "repeat": true,
+     "text": "Vinn kriuksub iseenesest. Peremehed vaatavad korraks kaevu poole ja siis üksteisele otsa."},
+    {"id": "cart", "name": "vanker", "pos": [570, 1150], "repeat": true,
+     "text": "Vanker nõksatab. Keegi ei pane tähele. Peaaegu keegi."}
+  ],
+  "events": [
+    {"id": "row", "when": ["door_open"], "delay": 2.6, "script": [
+      {"who": "ado", "text": "Mul on ka õigus siin seista!", "t": 2.6},
+      {"who": "harms", "text": "Ado Warres, sul pole siin vähimatki asja. Välja!", "t": 3.2, "fact": 0},
+      {"who": "ado", "text": "„Kurrat sinno sisse! Kas ollet sinna minno wälja ajaja?“", "t": 4.4, "fact": 1},
+      {"who": "kohtumees_1", "text": "Kirjutaja, pane kirja. Sõna-sõnalt.", "t": 2.8},
+      {"who": "peremees_3", "text": "Me nägime ja kuulsime kõike.", "t": 2.6}
+    ], "set": "row_done"},
+    {"id": "verdict", "when": ["row_done", "candle"], "delay": 0.8, "script": [
+      {"who": "kirjutaja", "text": "Oo, valgust! Nüüd ma näen.", "t": 2.4},
+      {"who": "kirjutaja", "text": "„Mõistetu: Selle häbbemata wallawannemba nink koggokonna kohto härgitamisse nink trotsmisse eest…“", "t": 5.4},
+      {"who": "kirjutaja", "text": "„…saab Ado Warres 30 witza löki.“", "t": 3.6, "fact": 2},
+      {"who": "ado", "text": "Kolmkümmend?!", "t": 2.2}
+    ], "set": "verdict"}
+  ]
+}
