@@ -48,6 +48,13 @@ def click(pos):
     return pygame.event.Event(pygame.MOUSEBUTTONDOWN, button=1, pos=win)
 
 
+def stand_at(scene, rect):
+    """Put the ghost just below a thing in a room, close enough to press E at it."""
+    rect = pygame.Rect(rect)
+    scene.player.pos.update(rect.centerx, max(rect.bottom + 45, scene.floor.top + 35))
+    run(0.1)
+
+
 def top(kind):
     assert isinstance(game.scenes.top, kind), f"expected {kind.__name__}, got {type(game.scenes.top).__name__}"
     return game.scenes.top
@@ -119,12 +126,16 @@ for doc in game.content.documents:      # solve every memory, with one wrong gue
         talk_through()
         shot(f"8-memory-{doc['id']}-{i}-look")
         wrong = next(o for o in doc["objects"] if o["id"] != request["target"])
-        run(1.0, click(pygame.Rect(wrong["rect"]).center))
+        stand_at(memory, wrong["rect"])
+        assert memory.near is wrong, f"not standing at {wrong['id']}"
+        shot(f"8-memory-{doc['id']}-{i}-at-object")
+        run(1.0, SPACE)
         assert memory.request == i and memory.dialogue.active, "a wrong guess should repeat the hint"
         shot(f"8-memory-{doc['id']}-{i}-wrong")
         talk_through()
         right = next(o for o in doc["objects"] if o["id"] == request["target"])
-        run(0.3, click(pygame.Rect(right["rect"]).center))
+        stand_at(memory, right["rect"])
+        run(0.3, SPACE)
         assert memory.request == i + 1, "the right object should move on"
     talk_through()
     run(1.5)

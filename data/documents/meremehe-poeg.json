@@ -16,21 +16,25 @@
 
   "background": "taustad/meremehe-tuba.png",
 
+  "floor": [144, 300, 1632, 672],
+  "start": [760, 900],
+
   "dialogue": {"x": 80, "width": 1180},
 
   "npcs": [
-    {"id": "poiss", "name": "Poiss", "sprite": "tegelased/suu-kinni.png", "talk": "tegelased/suu-lahti.png",
-     "pos": [1560, 1080], "scale": 4}
+    {"id": "poiss", "name": "Poiss", "sprite": "tegelased/junsu.png", "pos": [960, 760],
+     "portrait": "tegelased/suu-kinni.png", "portrait_talk": "tegelased/suu-lahti.png", "portrait_scale": 4,
+     "portrait_pos": [1560, 1080]}
   ],
 
   "objects": [
-    {"id": "kompass", "label": "päikesekell-kompass", "rect": [420, 440, 124, 196],
+    {"id": "kompass", "label": "päikesekell-kompass", "rect": [460, 340, 124, 196],
      "sprite": "objektid/paikesekell.png"},
-    {"id": "trykimasin", "label": "trükimasin", "rect": [760, 380, 372, 315]},
-    {"id": "kyynal", "label": "küünal", "rect": [168, 430, 72, 117]},
-    {"id": "raamat", "label": "raamat", "rect": [624, 560, 144, 60]},
-    {"id": "kell", "label": "seinakell", "rect": [1170, 170, 132, 153]},
-    {"id": "tool", "label": "tool", "rect": [132, 675, 180, 207]}
+    {"id": "trykimasin", "label": "trükimasin", "rect": [1000, 320, 372, 315]},
+    {"id": "kyynal", "label": "küünal", "rect": [220, 330, 72, 117]},
+    {"id": "raamat", "label": "raamat", "rect": [700, 380, 144, 60]},
+    {"id": "kell", "label": "seinakell", "rect": [1500, 110, 132, 153]},
+    {"id": "tool", "label": "tool", "rect": [300, 720, 180, 207]}
   ],
 
   "requests": [
