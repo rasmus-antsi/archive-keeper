@@ -1,0 +1,53 @@
+{
+  "id": "meremehe-poeg",
+  "shelf": "tartu",
+  "title": "Meremehe poeg",
+  "place": "Tartu, 1800ndad",
+
+  "record": {
+    "fields": [["Esemed", "päikesekell-kompass; trükimasin"]],
+    "texts": [],
+    "source": "ALLIKAS PUUDU – lisa museaali link ja õiguste rida",
+    "image": null
+  },
+
+  "background": "taustad/meremehe-tuba.png",
+
+  "npcs": [
+    {"id": "poiss", "name": "Poiss", "sprite": "tegelased/junsu.png", "pos": [276, 214], "scale": 3}
+  ],
+
+  "objects": [
+    {"id": "kompass", "label": "päikesekell-kompass", "rect": [70, 118, 22, 16]},
+    {"id": "trykimasin", "label": "trükimasin", "rect": [150, 84, 62, 70]},
+    {"id": "kyynal", "label": "küünal", "rect": [28, 96, 12, 26]},
+    {"id": "raamat", "label": "raamat", "rect": [104, 122, 24, 12]},
+    {"id": "kell", "label": "seinakell", "rect": [236, 40, 22, 34]},
+    {"id": "tool", "label": "tool", "rect": [22, 150, 30, 46]}
+  ],
+
+  "requests": [
+    {
+      "speaker": "poiss",
+      "hint": [
+        "Ma otsin ühte värvilist vidinat. Ma arvan et see on katki läinud, TOAS SEE KOHE ÜLDSE EI TÖÖTA.",
+        "See on vist mingi mänguasi, minu isa ALATI KÄPIB seda kui ta tööle läheb.",
+        "Tollel vidinal on ka paariline millega isa mängib koos, aga minu isa on MEREMEES ja ütleb et õige madrus peaks ainult TÄHTI VAADATES JUBA TEADMA, mida see jutustab."
+      ],
+      "target": "kompass",
+      "thanks": ["See ta ongi!"]
+    },
+    {
+      "speaker": "poiss",
+      "hint": [
+        "Ma ei oska äraarvata miks minu isa toda õelat olendit tahab, aga kuna olen hea poeg käsitan sind ikka.",
+        "Too mulle masin millel on HUNNIKUS MÜSTILISI SÜMBOLEID.",
+        "See õel masin SÖÖB MINU KRITSELDUSI ja JOOB KAHEKSAJALGADE VERD."
+      ],
+      "target": "trykimasin",
+      "thanks": ["Jah. Too õel masin."]
+    }
+  ],
+
+  "retry": ["Oi oi oi, vaata kes siin jälle on. Võibolla see kord sa teed enda kõrvad lahti ja päriselt kuulad."]
+}

@@ -1,0 +1,61 @@
+{
+  "title": "Archive Keeper",
+  "subtitle": "a ghost in the machine",
+
+  "intro": {
+    "seconds": 20,
+    "heading": "INCOMING TRANSMISSION",
+    "text": [
+      "Welcome to a new world, you little ancient curmudgeon.",
+      "We, the modern robot overlords of tomorrow, have called upon your long-passed soul from far in the past for one reason: to do our paperwork.",
+      "You, as the only Estonian soul, are tasked with going far into the past through your memories, to uncover the secrets that the ancients hid long ago.",
+      "You will enter your own mind palace through the devices known as THE DOCUMENTS. You must talk to the ancient Estonians and figure out for what reason they used certain objects and tools, matching the ancient person's request with an object displayed in a still image of an ancient household.",
+      "Now you better get to working, before we turn your ghost ass back into ectoplasm."
+    ]
+  },
+
+  "robot": {
+    "name": "OVERSEER",
+    "welcome": [
+      "You are awake. Good.",
+      "One shelf is glowing. It holds a damaged record. Walk up to it and read.",
+      "Nobody leaves this room until the paperwork is done."
+    ],
+    "blocked": [
+      "HALT. Paperwork incomplete.",
+      "Records restored: {done} of {total}. The shelves are behind you, ghost."
+    ],
+    "done": [
+      "All records restored. Processing…",
+      "Acceptable. You may pass."
+    ],
+    "after": ["The door is open. Go, before I change my mind."]
+  },
+
+  "shelves": [
+    {"id": "tartu", "label": "Tartu, 1800s", "rect": [40, 22, 104, 38],
+     "folders": ["Tartu ehitusprojektid"]},
+    {"id": "vallakohtud", "label": "Parish courts", "rect": [176, 22, 104, 38],
+     "folders": ["Vallakohtud"]},
+    {"id": "hoimud-a", "label": "Kindred peoples I", "rect": [4, 76, 20, 112],
+     "folders": ["Hõimurahvad/Marid", "Hõimurahvad/Udmurdid", "Hõimurahvad/Mordvalased"]},
+    {"id": "hoimud-b", "label": "Kindred peoples II", "rect": [296, 76, 20, 112],
+     "folders": ["Hõimurahvad/Vepslased", "Hõimurahvad/Liivlased", "Hõimurahvad/Komid", "Hõimurahvad/Mitu rahvast",
+                 "Hõimurahvad/Isurid", "Hõimurahvad/Karjalased", "Hõimurahvad/Saamid", "Hõimurahvad/Handid",
+                 "Hõimurahvad/Vadjalased", "Hõimurahvad/Soomlased", "Hõimurahvad/Ungarlased", "Hõimurahvad/Määramata",
+                 "Hõimurahvad/Handi-mansi", "Hõimurahvad/Mansid", "Hõimurahvad/Neenetsid"]}
+  ],
+
+  "ending": {
+    "heading": "Paperwork complete",
+    "text": [
+      "The door opens. Behind you, the shelves remember a little more than they did this morning.",
+      "Every record on the shelves is real and comes from Estonian heritage databases. The conversations in the memories are invented."
+    ],
+    "credits": [
+      "A game for TÜ Mängujämm 2026",
+      "Records: Estonian National Museum (MuIS) · National Archives of Estonia",
+      "Full list of sources and rights: SOURCES.md"
+    ]
+  }
+}

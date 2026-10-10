@@ -14,6 +14,7 @@ Kirjete tekstid ja viited on failis `data/records.json`.
 | data/records.json (linnasaal) | Ehitusprojektid EAA.2623.1.125, lehed 90, 91, 92, 94 (andmed) | https://www.ra.ee/apps/hooned/ · HUM-häkatoni näidisandmestik „Building Designs in Tartu“ | KONTROLLIDA – litsentsi lehel ei leidnud |
 | assets/fonts/CrimsonText-*.ttf | Kirjatüüp Crimson Text | https://github.com/google/fonts/tree/main/ofl/crimsontext | SIL OFL 1.1 |
 | assets/fonts/CourierPrime-Regular.ttf | Kirjatüüp Courier Prime | https://github.com/google/fonts/tree/main/ofl/courierprime | SIL OFL 1.1 |
+| assets/fonts/UnifrakturMaguntia-Book.ttf | Kirjatüüp UnifrakturMaguntia | https://github.com/google/fonts/tree/main/ofl/unifrakturmaguntia | SIL OFL 1.1 |
 
 ## Kogu arhiiv mängus
 
@@ -29,4 +30,4 @@ Mäng tühjendab osa välju ise (`data/cases.json`); päris andmeid ei ole muude
 
 ## Tehisaru kasutus
 
-Kood, asenduspildid ja helid (tools/make_placeholders.py) ning eestikeelsed tekstimustandid on tehtud Claude Code'i abil. Tekstid vajavad inimese ülelugemist.
+Kood, koodis joonistatud asenduspildid ja helid ning roboti ingliskeelsed tekstimustandid (data/game.json) on tehtud Claude Code'i abil. Sissejuhatuse ja mälestuste tekstid on kirjutanud tiim. Tekstid vajavad inimese ülelugemist.

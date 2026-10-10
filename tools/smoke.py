@@ -1,4 +1,4 @@
-"""Plays the whole game headlessly and saves screenshots to the given folder.
+"""Plays the whole game headlessly and saves a screenshot of every scene.
 
 venv/bin/python tools/smoke.py /some/folder
 """
@@ -10,20 +10,25 @@ os.environ["SDL_AUDIODRIVER"] = "dummy"
 sys.path.insert(0, ".")
 import pygame
 
-from game import core, layout
+from game import settings
 from game.app import Game
-from game.desk import Desk
-from game.level import Level
-from game.world import World
+from game.scenes.archive import Archive
+from game.scenes.ending import Ending
+from game.scenes.intro import Intro
+from game.scenes.memory import Memory
+from game.scenes.menu import Menu
+from game.scenes.reader import Reader
 
 out = sys.argv[1]
+os.makedirs(out, exist_ok=True)
 pygame.init()
-screen = pygame.display.set_mode((core.W, core.H))
+screen = pygame.display.set_mode((settings.W, settings.H))
 game = Game(screen)
 DT = 1 / 60
+SPACE = pygame.event.Event(pygame.KEYDOWN, key=pygame.K_SPACE)
 
 
-def run(seconds, events=()):
+def run(seconds=0.0, *events):
     game.update(DT, list(events))
     for _ in range(int(seconds * 60)):
         game.update(DT, [])
@@ -35,146 +40,103 @@ def shot(name):
     pygame.image.save(screen, f"{out}/{name}.png")
 
 
-def key(k):
-    return pygame.event.Event(pygame.KEYDOWN, key=k)
+def click(canvas_pos):
+    pos = (canvas_pos[0] * settings.SCALE, canvas_pos[1] * settings.SCALE)
+    return pygame.event.Event(pygame.MOUSEBUTTONDOWN, button=1, pos=pos)
 
 
-def click(action_kind, match=lambda a: True):
-    """Click the first hot area with this kind of action."""
-    game.draw()
-    desk = game.scene
-    for rect, action in reversed(desk.hot):
-        if action[0] == action_kind and match(action):
-            desk.do(action)
+def top(kind):
+    assert isinstance(game.scenes.top, kind), f"expected {kind.__name__}, got {type(game.scenes.top).__name__}"
+    return game.scenes.top
+
+
+def talk_through():
+    """Press space until the top scene's dialogue is finished."""
+    for _ in range(60):
+        if not game.scenes.top.dialogue.active:
             return
-    raise AssertionError(f"nothing to click: {action_kind}")
+        run(0.05, SPACE)
+    raise AssertionError("dialogue never ended")
 
 
-def teleport(pos):
-    s = game.scene
-    assert s.walkable(pygame.Vector2(pos)), f"not walkable: {pos}"
-    s.ghost.pos.update(pos)
-    s.ghost.vel.update(0, 0)
-    s.cam = s.cam_target()
+top(Menu)
+run(1)
+shot("1-menu")
+run(1, SPACE)
+top(Intro)
+run(6)
+shot("2-intro")
+run(0.1, SPACE)          # show all the text
+shot("2-intro-full")
+run(1, SPACE)
 
+room = top(Archive)
+run(1)
+shot("3-archive-welcome")
+talk_through()
+for shelf in game.content.shelves:      # every shelf opens and shows its records
+    rect = pygame.Rect(shelf["rect"])
+    room.player.pos.update(max(34, min(286, rect.centerx)), max(68, min(200, rect.centery)))
+    if rect.width > rect.height:
+        room.player.pos.y = 66
+    else:
+        room.player.pos.x = 30 if rect.x < 100 else 290
+    run(0.2)
+    assert room.near is shelf, f"not standing at shelf {shelf['id']}"
+    shot(f"4-at-shelf-{shelf['id']}")
+    run(0.2, SPACE)
+    reader = top(Reader)
+    assert reader.entries, f"shelf {shelf['id']} is empty"
+    run(0.1, pygame.event.Event(pygame.KEYDOWN, key=pygame.K_DOWN))
+    shot(f"5-reader-{shelf['id']}")
+    run(0.2, pygame.event.Event(pygame.KEYDOWN, key=pygame.K_ESCAPE))
+    top(Archive)
 
-SPACE = key(pygame.K_SPACE)
+room.player.pos.update(160, 190)        # the robot will not let the ghost through
+run(0.2)
+run(0.3, SPACE)
+shot("6-robot-blocks")
+talk_through()
 
-# every ordinary blank must be answerable from another file of the same batch
-for case in game.case_list:
-    f = game.file_by_id[case["file"]]
-    for label in case.get("blanks", []):
-        truth = dict(f["fields"])[label]
-        assert truth, (f["id"], label)
-        others = [o for o in game.files if o is not f and o["group"] == f["group"]
-                  and not game.blank(o, label) and dict(o["fields"]).get(label) == truth]
-        assert others, f"no sibling answers {f['id']} {label}"
+for doc in game.content.documents:      # solve every memory, with one wrong guess each
+    shelf = next(s for s in game.content.shelves if s["id"] == doc["shelf"])
+    room = top(Archive)
+    room.player.pos.update(pygame.Rect(shelf["rect"]).centerx, 66)
+    run(0.2)
+    run(0.2, SPACE)
+    reader = top(Reader)
+    reader.cursor = next(i for i, e in enumerate(reader.entries) if e["doc"] is doc)
+    run(0.1)
+    shot(f"7-reader-memory-{doc['id']}")
+    run(1.5, pygame.event.Event(pygame.KEYDOWN, key=pygame.K_RETURN))
+    memory = top(Memory)
+    shot(f"8-memory-{doc['id']}-hint")
+    for i, request in enumerate(doc["requests"]):
+        talk_through()
+        shot(f"8-memory-{doc['id']}-{i}-look")
+        wrong = next(o for o in doc["objects"] if o["id"] != request["target"])
+        run(1.0, click(pygame.Rect(wrong["rect"]).center))
+        assert memory.request == i and memory.dialogue.active, "a wrong guess should repeat the hint"
+        shot(f"8-memory-{doc['id']}-{i}-wrong")
+        talk_through()
+        right = next(o for o in doc["objects"] if o["id"] == request["target"])
+        run(0.3, click(pygame.Rect(right["rect"]).center))
+        assert memory.request == i + 1, "the right object should move on"
+    talk_through()
+    run(1.5)
+    assert doc["id"] in game.state.solved
 
-run(1.5)
-shot("01_title")
-run(1.5, [SPACE])
-desk = game.scene
-assert isinstance(desk, Desk)
-run(0.5)
-shot("02_boot")
-while game.liis:
-    run(0.2, [SPACE])
-shot("03_all_files")
-click("folder", lambda a: a[1] == "!")
-run(0.3)
-shot("04_broken")
-
-for n, case in enumerate(c for c in game.case_list if not c.get("trip")):
-    f = game.file_by_id[case["file"]]
-    for label in case["blanks"]:
-        truth = dict(f["fields"])[label]
-        desk.do(("find", "group", f["group"]))
-        sibling = next(o for o in desk.listing() if o is not f and dict(o["fields"]).get(label) == truth and not game.blank(o, label))
-        desk.do(("open", sibling))
-        run(0.2)
-        if n == 0:
-            shot("05_sibling")
-        click("copy", lambda a: a[1] == label)
-        desk.do(("open", f))
-        run(0.2)
-        if n == 0:
-            shot("06_broken_file")
-            desk.do(("copy", "Rahvas", "vale vastus"))
-            desk.do(("blank", label))
-            click("paste", lambda a: a[1]["value"] == "vale vastus")
-            run(0.1)
-            shot("07_wrong")
-            desk.do(("forget", game.clip[-1]))
-        if desk.pick != label:
-            desk.do(("blank", label))
-        run(0.1)
-        if n == 0:
-            shot("08_pick")
-        click("paste", lambda a: a[1]["value"] == truth)
-        run(0.6)
-    assert f["id"] in game.fixed, f["id"]
-    if n == 0:
-        shot("09_fixed")
-    while game.liis:
-        run(0.2, [SPACE])
-    desk.do(("close",))
-
-# the last one needs a trip
-f = game.file_by_id["vk-119032"]
-desk.do(("open", f))
-run(0.3)
-shot("10_trip_file")
-click("trip")
-run(1.5)
-lv = game.scene
-assert isinstance(lv, Level), lv
-for _ in range(4):
-    run(0.3, [SPACE])
-teleport(lv.by_id["peremees_0"].pos + (0, 50))
-run(9)
-door = next(h for h in lv.haunts if h.id == "door")
-teleport(door.pos)
-run(1.6, [SPACE])
-run(0.3, [SPACE])
-shot("11_trip_box")
-teleport((1300, 620))
-run(24)
-candle = next(h for h in lv.haunts if h.id == "candle")
-teleport(candle.pos)
-run(1.6, [SPACE])
-run(0.3, [SPACE])
-run(18)
-assert lv.complete(), [x["state"] for x in lv.facts()]
-shot("12_trip_done")
-for _ in range(3):
-    run(0.3, [SPACE])
-teleport(lv.exit.pos)
-run(2.5)
-desk = game.scene
-assert isinstance(desk, Desk) and desk.open is f, desk
-shot("13_back")
-for label in [l for fid, l in sorted(game.blanks) if fid == f["id"] and l != "__text"]:
-    truth = dict(f["fields"])[label]
-    desk.do(("blank", label))
-    click("paste", lambda a: a[1]["value"] == truth)
-    run(0.5)
-assert len(game.fixed) == game.cases, game.fixed
-run(0.5)
-shot("14_text_back")
-while game.liis:
-    run(0.2, [SPACE])
-desk.do(("close",))
-run(0.3)
-shot("15_all_done")
-click("open_show")
+room = top(Archive)
+shot("9-archive-all-done")
+talk_through()
 run(2)
-assert isinstance(game.scene, World), game.scene
-shot("20_museum")
-teleport(layout.ENTRANCE)
-run(3)
-assert game.scene.ending is not None
-run(24)
-shot("21_credits")
-run(1, [SPACE])
-assert not game.fixed and isinstance(game.scene.desk, Desk)
-print("smoke test passed; glow cache", len(core._glows), "text cache", len(core._texts))
+assert "door_open" in game.state.seen
+shot("9-door-open")
+room.player.pos.update(160, 222)
+run(1.5)
+top(Ending)
+shot("10-ending")
+run(2)
+run(1.5, SPACE)
+top(Menu)
+print("smoke test passed:", ", ".join(sorted(os.listdir(out))))
