@@ -103,7 +103,8 @@ def blink(speed=160):
 class DialogueBox:
     """A queue of spoken lines, typed out one at a time; each waits for a key or click."""
 
-    def __init__(self):
+    def __init__(self, x=180, width=settings.W - 360):
+        self.x, self.width = x, width
         self.queue = []          # (speaker, text)
         self.shown = 0.0
         self.on_done = None
@@ -111,6 +112,13 @@ class DialogueBox:
     @property
     def active(self):
         return bool(self.queue)
+
+    @property
+    def talking(self):
+        """The name of whoever is in the middle of a line, or None once it is fully typed."""
+        if self.queue and self.shown < len(self.queue[0][1]):
+            return self.queue[0][0]
+        return None
 
     def say(self, lines, speaker="", on_done=None):
         """Queue one string or a list of them. on_done runs after the last line is dismissed."""
@@ -143,10 +151,10 @@ class DialogueBox:
         if not self.queue:
             return
         speaker, line = self.queue[0]
-        width = settings.W - 360
+        x, width = self.x, self.width
         lines = wrap(line, "body", 44, width - 100)
         height = 56 + len(lines) * 54 + (44 if speaker else 0)
-        x, y = 180, settings.H - height - 70
+        y = settings.H - height - 70
         panel(surf, (x, y, width, height), radius=16, border=(70, 70, 84))
         ty = y + 24
         if speaker:

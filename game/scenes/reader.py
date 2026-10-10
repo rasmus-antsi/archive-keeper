@@ -12,6 +12,7 @@ LIST_W = 560
 ROW_H = 44
 TOP = 110                                   # room for the shelf's name above the list
 ROWS = (BOX.height - TOP - 24) // ROW_H
+FADED = (120, 104, 90)                      # secondary ink on the paper
 
 
 class Reader(Scene):
@@ -26,6 +27,13 @@ class Reader(Scene):
         dim.fill((8, 8, 12, 200))
         self.backdrop.blit(dim, (0, 0))
         ui.panel(self.backdrop, BOX, (30, 26, 28), 250, radius=20, border=(92, 78, 64))
+        # the open record is a sheet of paper with a dog-eared corner
+        page = self.page_rect()
+        fold = 70
+        pygame.draw.polygon(self.backdrop, settings.PAPER, [page.topleft, page.topright, (page.right, page.bottom - fold),
+                                                            (page.right - fold, page.bottom), page.bottomleft])
+        pygame.draw.polygon(self.backdrop, (196, 182, 152), [(page.right, page.bottom - fold), (page.right - fold, page.bottom),
+                                                             (page.right - fold, page.bottom - fold)])
 
     def row_rect(self, i):
         return pygame.Rect(BOX.left + 24, BOX.top + TOP + (i - self.top_row) * ROW_H, LIST_W - 40, ROW_H)
@@ -64,25 +72,27 @@ class Reader(Scene):
         from .memory import Memory
         self.state.shelf_cursor[self.shelf["id"]] = self.cursor
         assets.play("enter.ogg", 0.5)
-        self.scenes.go(lambda: Memory(self.game, doc))
+        self.scenes.go(lambda: Memory(self.game, doc), "spiral")
 
     # ---------------------------------------------------------------- drawing
 
+    def page_rect(self):
+        return pygame.Rect(BOX.left + LIST_W + 24, BOX.top + TOP - 14, BOX.width - LIST_W - 48, BOX.height - TOP - 10)
+
     def detail_x(self):
-        return BOX.left + LIST_W + 40
+        return self.page_rect().left + 36
 
     def enter_rect(self):
         """The 'step inside' box of a record that holds a memory."""
         x = self.detail_x()
-        return pygame.Rect(x, BOX.top + TOP + 110, BOX.right - x - 40, 104)
+        return pygame.Rect(x, BOX.top + TOP + 110, self.page_rect().right - x - 36, 104)
 
     def draw(self, screen):
         screen.blit(self.backdrop, (0, 0))
         ui.draw_text(screen, self.shelf["label"], (BOX.left + 40, BOX.top + 22), "title", 60, settings.WARM)
         count = ui.text(f"{len(self.entries)} records", "mono", 22, settings.DIM)
         screen.blit(count, (BOX.right - 40 - count.get_width(), BOX.top + 50))
-        pygame.draw.line(screen, (92, 78, 64), (BOX.left + LIST_W, BOX.top + TOP), (BOX.left + LIST_W, BOX.bottom - 24), 2)
-
+        
         for i in range(self.top_row, min(len(self.entries), self.top_row + ROWS)):
             entry, rect = self.entries[i], self.row_rect(i)
             doc = entry["doc"]
@@ -113,12 +123,12 @@ class Reader(Scene):
     def draw_entry(self, screen, entry):
         record, doc = entry["record"], entry["doc"]
         x = self.detail_x()
-        width = BOX.right - x - 40
+        width = self.page_rect().right - x - 36
         y = BOX.top + TOP
         role = "title" if doc else "bold"       # shelf-marks like "ERM B 185:6" are unreadable in fraktur
-        y = ui.draw_wrapped(screen, entry["title"], (x, y), width, role, 48, settings.CREAM, limit=2) + 2
+        y = ui.draw_wrapped(screen, entry["title"], (x, y), width, role, 48, settings.INK, limit=2) + 2
         if entry["sub"]:
-            y = ui.draw_text(screen, entry["sub"], (x, y), "italic", 30, settings.DIM).bottom + 14
+            y = ui.draw_text(screen, entry["sub"], (x, y), "italic", 30, FADED).bottom + 14
 
         if doc:
             box = self.enter_rect()
@@ -141,17 +151,17 @@ class Reader(Scene):
         for label, value in record.get("fields", []):
             if not value or y > BOX.bottom - 125:
                 continue
-            ui.draw_text(screen, label.upper(), (x, y + 8), "mono", 20, settings.DIM)
-            y = ui.draw_wrapped(screen, value, (x + 210, y), width - 210, "body", 30, settings.CREAM, gap=1, limit=2) + 4
+            ui.draw_text(screen, label.upper(), (x, y + 8), "mono", 20, FADED)
+            y = ui.draw_wrapped(screen, value, (x + 210, y), width - 210, "body", 30, settings.INK, gap=1, limit=2) + 4
 
         for kind, body in record.get("texts", []):
             line = assets.font("italic", 28).get_linesize() + 1
             room = (BOX.bottom - 110 - y) // line
             if room < 2:
                 break
-            y = ui.draw_wrapped(screen, body, (x, y + 12), width, "italic", 28, settings.PAPER, gap=1, limit=room) + 6
+            y = ui.draw_wrapped(screen, body, (x, y + 12), width, "italic", 28, (70, 56, 50), gap=1, limit=room) + 6
 
         if record.get("source"):
-            ui.draw_text(screen, record["source"], (x, BOX.bottom - 76), "mono", 18, settings.DIM)
+            ui.draw_text(screen, record["source"], (x, BOX.bottom - 76), "mono", 18, FADED)
         if record.get("rights"):
-            ui.draw_text(screen, record["rights"], (x, BOX.bottom - 48), "mono", 18, settings.DIM)
+            ui.draw_text(screen, record["rights"], (x, BOX.bottom - 48), "mono", 18, FADED)

@@ -32,14 +32,24 @@
     "after": ["The door is open. Go, before I change my mind."]
   },
 
+  "room": {
+    "floor": [144, 300, 1632, 672],
+    "door": [240, 972, 192, 108],
+    "start": [1620, 600],
+    "robot_guard": [336, 960],
+    "robot_aside": [580, 960],
+    "rug": [470, 450, 1040, 380],
+    "obstacles": []
+  },
+
   "shelves": [
-    {"id": "tartu", "label": "Tartu, 1800s", "rect": [240, 84, 624, 216],
+    {"id": "tartu", "label": "Tartu, 1800s", "rect": [200, 84, 400, 216],
      "folders": ["Tartu ehitusprojektid"]},
-    {"id": "vallakohtud", "label": "Parish courts", "rect": [1056, 84, 624, 216],
+    {"id": "vallakohtud", "label": "Parish courts", "rect": [640, 84, 520, 216],
      "folders": ["Vallakohtud"]},
-    {"id": "hoimud-a", "label": "Kindred peoples I", "rect": [24, 372, 120, 528],
+    {"id": "hoimud-a", "label": "Kindred peoples I", "rect": [1200, 84, 520, 216],
      "folders": ["Hõimurahvad/Marid", "Hõimurahvad/Udmurdid", "Hõimurahvad/Mordvalased"]},
-    {"id": "hoimud-b", "label": "Kindred peoples II", "rect": [1776, 372, 120, 528],
+    {"id": "hoimud-b", "label": "Kindred peoples II", "rect": [24, 372, 120, 528],
      "folders": ["Hõimurahvad/Vepslased", "Hõimurahvad/Liivlased", "Hõimurahvad/Komid", "Hõimurahvad/Mitu rahvast",
                  "Hõimurahvad/Isurid", "Hõimurahvad/Karjalased", "Hõimurahvad/Saamid", "Hõimurahvad/Handid",
                  "Hõimurahvad/Vadjalased", "Hõimurahvad/Soomlased", "Hõimurahvad/Ungarlased", "Hõimurahvad/Määramata",

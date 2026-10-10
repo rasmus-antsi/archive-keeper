@@ -5,6 +5,9 @@ data/documents/.
 The picture is assets/img/<background>, 1920x1080, and every rect and position in
 the document is in those pixels. Until the picture exists the scene paints a plain
 room and shows every object as a labelled box.
+
+An optional "establishing" picture (a wide view of the place) is shown first, until
+a key or click. People can have a second "talk" image; the two alternate while they speak.
 """
 import pygame
 
@@ -23,14 +26,17 @@ class Memory(Scene):
         self.objects = [(o, pygame.Rect(o["rect"])) for o in doc["objects"]]
         self.npcs = [Npc(n) for n in doc.get("npcs", [])]
         self.request = 0               # which of the document's requests is being asked
-        self.dialogue = ui.DialogueBox()
+        self.establishing = assets.backdrop(doc.get("establishing", ""))
+        box = doc.get("dialogue", {})          # lets a document keep the text clear of a big portrait
+        self.dialogue = ui.DialogueBox(box.get("x", 180), box.get("width", settings.W - 360))
         self.hover = None
         self.blackout = 0.0            # a wrong guess blinks the scene away for a moment
         self.black = pygame.Surface((settings.W, settings.H))
         self.done = False
 
     def enter(self):
-        self.ask()
+        if not self.establishing:
+            self.ask()
 
     # ---------------------------------------------------------------- rules
 
@@ -62,7 +68,7 @@ class Memory(Scene):
         if self.done:
             self.state.solved.add(self.doc["id"])
         from .archive import Archive
-        self.scenes.go(lambda: Archive(self.game))
+        self.scenes.go(lambda: Archive(self.game), "spiral")
 
     # ---------------------------------------------------------------- loop
 
@@ -70,6 +76,12 @@ class Memory(Scene):
         self.t += dt
         self.blackout = max(0.0, self.blackout - dt / 0.7)
         self.hover = None
+        if self.establishing:
+            if self.t > 0.8 and (ui.confirm(events) or ui.clicked(events)):
+                self.establishing = None
+                self.t = 0.0
+                self.ask()
+            return
         if self.blackout > 0.5:
             return
         if self.dialogue.update(dt, events):
@@ -91,6 +103,11 @@ class Memory(Scene):
     # ---------------------------------------------------------------- drawing
 
     def draw(self, screen):
+        if self.establishing:
+            screen.blit(self.establishing, (0, 0))
+            ui.draw_text(screen, self.doc.get("place", ""), (settings.W / 2, 110), "title", 96, settings.CREAM, center=True)
+            ui.hint(screen, "space — continue")
+            return
         if self.background:
             screen.blit(self.background, (0, 0))
         else:
@@ -103,7 +120,7 @@ class Memory(Scene):
         if self.hover:
             pygame.draw.rect(screen, settings.CREAM, pygame.Rect(self.hover["rect"]).inflate(20, 20), 4, border_radius=8)
         for npc in self.npcs:
-            npc.draw(screen)
+            npc.draw(screen, mouth_open=self.dialogue.talking == npc.name and int(self.t * 9) % 2 == 0)
 
         fade = max(0, min(1, self.t / 0.6, (5 - self.t) / 1.0))
         if fade > 0:
@@ -128,12 +145,15 @@ class Npc:
         self.id = data["id"]
         self.name = data.get("name", "")
         self.img = None
+        self.talk = None                       # the same picture with the mouth open
         if data.get("sprite"):
             self.img = assets.sprite(data["sprite"], scale=data.get("scale"))
             self.rect = self.img.get_rect(midbottom=data["pos"])
+            if assets.optional(data.get("talk", "")):
+                self.talk = assets.sprite(data["talk"], scale=data.get("scale"))
         else:
             self.rect = pygame.Rect(data["rect"])
 
-    def draw(self, screen):
+    def draw(self, screen, mouth_open=False):
         if self.img:
-            screen.blit(self.img, self.rect)
+            screen.blit(self.talk if mouth_open and self.talk else self.img, self.rect)

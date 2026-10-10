@@ -13,16 +13,19 @@
 
   "background": "taustad/meremehe-tuba.png",
 
+  "dialogue": {"x": 80, "width": 1180},
+
   "npcs": [
-    {"id": "poiss", "name": "Poiss", "sprite": "tegelased/junsu.png", "pos": [1640, 980], "scale": 18}
+    {"id": "poiss", "name": "Poiss", "sprite": "tegelased/suu-kinni.png", "talk": "tegelased/suu-lahti.png",
+     "pos": [1560, 1080], "scale": 4}
   ],
 
   "objects": [
     {"id": "kompass", "label": "päikesekell-kompass", "rect": [420, 530, 132, 96]},
-    {"id": "trykimasin", "label": "trükimasin", "rect": [900, 380, 372, 315]},
+    {"id": "trykimasin", "label": "trükimasin", "rect": [760, 380, 372, 315]},
     {"id": "kyynal", "label": "küünal", "rect": [168, 430, 72, 117]},
     {"id": "raamat", "label": "raamat", "rect": [624, 560, 144, 60]},
-    {"id": "kell", "label": "seinakell", "rect": [1416, 180, 132, 153]},
+    {"id": "kell", "label": "seinakell", "rect": [1170, 170, 132, 153]},
     {"id": "tool", "label": "tool", "rect": [132, 675, 180, 207]}
   ],
 

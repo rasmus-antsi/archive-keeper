@@ -94,7 +94,7 @@ for shelf in game.content.shelves:      # every shelf opens and shows its record
     run(0.2, pygame.event.Event(pygame.KEYDOWN, key=pygame.K_ESCAPE))
     top(Archive)
 
-room.player.pos.update(960, 880)        # the robot will not let the ghost through
+room.player.pos.update(room.robot_guard[0], room.robot_guard[1] - 80)        # the robot will not let the ghost through
 run(0.2)
 run(0.3, SPACE)
 shot("6-robot-blocks")
@@ -110,7 +110,9 @@ for doc in game.content.documents:      # solve every memory, with one wrong gue
     reader.cursor = next(i for i, e in enumerate(reader.entries) if e["doc"] is doc)
     run(0.1)
     shot(f"7-reader-memory-{doc['id']}")
-    run(1.5, pygame.event.Event(pygame.KEYDOWN, key=pygame.K_RETURN))
+    run(1.0, pygame.event.Event(pygame.KEYDOWN, key=pygame.K_RETURN))
+    shot(f"7-spiral-{doc['id']}")
+    run(1.2)
     memory = top(Memory)
     shot(f"8-memory-{doc['id']}-hint")
     for i, request in enumerate(doc["requests"]):
@@ -134,7 +136,7 @@ talk_through()
 run(2)
 assert "door_open" in game.state.seen
 shot("9-door-open")
-room.player.pos.update(960, 1040)
+room.player.pos.update(room.door.centerx, room.door.bottom - 40)
 run(1.5)
 top(Ending)
 shot("10-ending")
