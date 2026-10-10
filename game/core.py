@@ -9,6 +9,7 @@ W, H = 1280, 720
 ART_W = 1920            # art and data coordinates are authored at 1920x1080
 S = W / ART_W
 FPS = 60
+WAIT = 9999.0         # a text box hold that means: stay until a key is pressed
 
 CREAM = (240, 232, 212)
 INK = (52, 40, 34)
@@ -243,6 +244,9 @@ class TextBox:
             if part:
                 draw_text(surf, part, (x + 28, ty), "serif", 27, CREAM, alpha=int(255 * fade))
             ty += 33
+        if self.hold >= WAIT and self.shown >= len(self.string):
+            draw_text(surf, "tühik >", (x + width - 96, y + height - 26), "mono", 14, WARM,
+                      alpha=int(170 + 80 * math.sin(pygame.time.get_ticks() / 160)))
 
 
 class Hotspot:

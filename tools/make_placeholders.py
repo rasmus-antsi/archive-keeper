@@ -734,107 +734,11 @@ def make_koiola_map():
     save(s, "maps/koiola.png")
 
 
-def make_home_map():
-    """Inside the archive machine: a warm little room of drawers, valves and tape."""
-    W, H = 1900, 1200
-    s = pygame.Surface((W, H))
-    s.fill((30, 22, 26))
-    room = pygame.Rect(140, 340, 1620, 700)
-    outer = pygame.Rect(100, 120, 1700, 960)
-    shadow(s, outer, radius=30, offset=(0, 20), alpha=120)
-    pygame.draw.rect(s, (74, 50, 44), outer, border_radius=34)
-    pygame.draw.rect(s, (110, 78, 60), outer, 8, border_radius=34)
-    for x in range(outer.x + 40, outer.right - 20, 120):          # rivets
-        pygame.draw.circle(s, (170, 130, 80), (x, outer.y + 22), 6)
-        pygame.draw.circle(s, (170, 130, 80), (x, outer.bottom - 20), 6)
-    # floor: dark planks with copper traces, like a circuit board grown cosy
-    planks(s, room, (150, 104, 72))
-    trace = (214, 150, 84)
-    for _ in range(16):
-        x, y = rnd.randrange(room.x + 60, room.right - 200), rnd.randrange(room.y + 120, room.bottom - 60)
-        pts = [(x, y)]
-        for _ in range(rnd.randint(2, 4)):
-            if rnd.random() < 0.5:
-                x += rnd.choice((-1, 1)) * rnd.randint(60, 180)
-            else:
-                y += rnd.choice((-1, 1)) * rnd.randint(40, 120)
-            x, y = max(room.x + 30, min(room.right - 30, x)), max(room.y + 100, min(room.bottom - 30, y))
-            pts.append((x, y))
-        pygame.draw.lines(s, shade(trace, 0.8), False, pts, 4)
-        pygame.draw.circle(s, trace, pts[0], 7)
-        pygame.draw.circle(s, trace, pts[-1], 7)
-    # back wall: the drawer cabinet
-    face = pygame.Rect(room.x, 150, room.w, 190)
-    pygame.draw.rect(s, (126, 88, 60), face)
-    for i in range(26):
-        line = pygame.Surface((room.w, 1), pygame.SRCALPHA)
-        line.fill((30, 14, 10, int(90 * (1 - i / 26))))
-        s.blit(line, (room.x, room.y + i))
-    for row in range(3):
-        for col in range(27):
-            r = pygame.Rect(face.x + 12 + col * 59.2, face.y + 58 + row * 44, 52, 38)
-            pygame.draw.rect(s, (160, 118, 80), r, border_radius=4)
-            pygame.draw.rect(s, (96, 66, 46), r, 2, border_radius=4)
-            pygame.draw.rect(s, (236, 222, 190), (r.x + 12, r.y + 7, 28, 10))
-            pygame.draw.circle(s, (214, 170, 100), (r.centerx, r.y + 27), 4)
-    # valves glowing along the top of the cabinet
-    for x in range(face.x + 40, face.right - 20, 74):
-        glow(s, (x, face.y + 26), 70, (255, 150, 70), 0.9)
-        pygame.draw.rect(s, (70, 50, 44), (x - 10, face.y + 36, 20, 12), border_radius=3)
-        pygame.draw.ellipse(s, (255, 190, 120), (x - 11, face.y + 4, 22, 36))
-        pygame.draw.ellipse(s, (255, 236, 190), (x - 5, face.y + 14, 10, 20))
-    # tape reels on the left wall, cables on the floor
-    for ry in (520, 760):
-        shadow(s, pygame.Rect(170, ry - 80, 160, 160), radius=80)
-        pygame.draw.circle(s, (60, 50, 56), (250, ry), 84)
-        pygame.draw.circle(s, (120, 84, 60), (250, ry), 70)
-        pygame.draw.circle(s, (60, 50, 56), (250, ry), 26)
-        for a in range(3):
-            ang = a * math.tau / 3 + ry
-            pygame.draw.circle(s, (60, 50, 56), (250 + math.cos(ang) * 46, ry + math.sin(ang) * 46), 14)
-    pygame.draw.line(s, (150, 104, 70), (250, 604), (250, 676), 10)
-    for cy, col in ((960, (170, 70, 60)), (990, (80, 110, 130)), (1010, (190, 150, 80))):
-        pts = [(room.x + 20 + i * 60, cy + math.sin(i * 0.9 + cy) * 12) for i in range(28)]
-        pygame.draw.lines(s, shade(col, 0.6), False, [(x, y + 4) for x, y in pts], 8)
-        pygame.draw.lines(s, col, False, pts, 8)
-    # Liis's terminal, bottom left
-    desk = pygame.Rect(390, 800, 240, 120)
-    prop(s, "desk", desk.centerx, desk.centery, desk.w, desk.h, (0, 0, 0))
-    crt = pygame.Rect(440, 770, 140, 100)
-    shadow(s, crt)
-    pygame.draw.rect(s, (200, 190, 170), crt, border_radius=14)
-    pygame.draw.rect(s, (40, 70, 60), crt.inflate(-24, -24), border_radius=8)
-    glow(s, crt.center, 150, (90, 220, 170), 0.7)
-    for i in range(4):
-        pygame.draw.line(s, (140, 240, 190), (crt.x + 22, crt.y + 26 + i * 13), (crt.right - 30 - i * 12, crt.y + 26 + i * 13), 3)
-    # the keeper's nook, right: rug, cushion, a little shelf for keepsakes, string lights
-    prop(s, "rug_round", 1480, 760, 420, 300, (178, 82, 62))
-    cushion = pygame.Rect(1410, 720, 140, 96)
-    shadow(s, cushion, radius=30)
-    pygame.draw.rect(s, (226, 190, 120), cushion, border_radius=34)
-    pygame.draw.rect(s, (200, 160, 96), cushion, 5, border_radius=34)
-    prop(s, "shelf_low", 1620, 560, 220, 70, (0, 0, 0))
-    pygame.draw.rect(s, (160, 118, 80), (1516, 530, 208, 56), border_radius=6)
-    prop(s, "plant", 1700, 940, 0, 0, (0, 0, 0))
-    prop(s, "plant", 1260, 980, 0, 0, (0, 0, 0))
-    for i in range(12):
-        x = 1260 + i * 42
-        y = 420 + math.sin(i * 0.7) * 16
-        glow(s, (x, y), 46, rnd.choice(((255, 190, 100), (255, 140, 110), (255, 220, 150))), 1.0)
-        pygame.draw.circle(s, (255, 240, 200), (x, y), 5)
-    prop(s, "lamp", 880, 700, 0, 0, (0, 0, 0))
-    prop(s, "rug", 900, 720, 420, 220, (92, 110, 100))
-    prop(s, "lamp", 900, 700, 0, 0, (0, 0, 0))
-    grain(s, 30000, (255, 240, 220), (40, 20, 10), 12)
-    save(s, "maps/home.png")
-
-
 if __name__ == "__main__":
     make_ghost()
     make_small()
     make_people()
     make_koiola_map()
-    make_home_map()
     make_map()
     make_record_images()
     make_sounds()

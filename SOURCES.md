@@ -15,6 +15,12 @@ Kirjete tekstid ja viited on failis `data/records.json`.
 | assets/fonts/CrimsonText-*.ttf | Kirjatüüp Crimson Text | https://github.com/google/fonts/tree/main/ofl/crimsontext | SIL OFL 1.1 |
 | assets/fonts/CourierPrime-Regular.ttf | Kirjatüüp Courier Prime | https://github.com/google/fonts/tree/main/ofl/courierprime | SIL OFL 1.1 |
 
+## Kogu arhiiv mängus
+
+`data/archive.json` sisaldab kõiki kolme näidisandmestiku kirjeid: 171 museaali (MuIS), 6 vallakohtu protokolli ja 6 Tartu ehitusprojekti. Iga kirje juures on allikaviide. 151 museaalil on pilt kaustas `assets/img/arc/`; iga pildi kõrval on samanimeline `.txt` fail MuISi õiguste märkuse ja pildi aadressiga (kõigil 151-l: „Teosele ei rakendu teadaolevalt autoriõigustega seotud piirangud.“). Uuesti tõmbamiseks: `tools/fetch_archive.py`.
+
+Mäng tühjendab osa välju ise (`data/cases.json`); päris andmeid ei ole muudetud.
+
 ## Veel tegemata
 
 - Linnasaal: päris plaanide skaneeringud puuduvad (praegu joonistatud asenduspildid).

@@ -1,0 +1,10 @@
+[
+  {"file": "muis-620951", "blanks": ["Koht"]},
+  {"file": "muis-626126", "blanks": ["Koguja"]},
+  {"file": "vk-115964", "blanks": ["Maakond"]},
+  {"file": "muis-613854", "blanks": ["Kogutud"]},
+  {"file": "muis-616143", "blanks": ["Koguja", "Kogutud"]},
+  {"file": "muis-634478", "blanks": ["Kogutud"]},
+  {"file": "muis-619865", "blanks": ["Rahvas", "Kogutud"]},
+  {"file": "vk-119032", "trip": "koiola", "record": "koiola", "hide_text": true}
+]

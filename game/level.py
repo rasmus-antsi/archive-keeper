@@ -62,12 +62,22 @@ class Stage:
         y = max(0, min(self.size[1] - core.H, self.ghost.pos.y - 30 - core.H / 2))
         return pygame.Vector2(x, y)
 
-    def say(self, text, speaker="", hold=None):
-        self.queue.append((text, speaker, hold or 2.2 + len(text) * 0.055))
+    def say(self, text, speaker=""):
+        self.queue.append((text, speaker, core.WAIT))
 
-    def say_now(self, text, speaker="", hold=None):
+    def say_now(self, text, speaker=""):
         self.queue.clear()
-        self.box.say(text, speaker, hold or 2.2 + len(text) * 0.055)
+        self.box.say(text, speaker, core.WAIT)
+
+    def advance(self, events):
+        """The text box waits for a key. Returns True if the press was used up."""
+        if self.box.string and core.pressed_confirm(events):
+            if self.box.shown < len(self.box.string):
+                self.box.shown = len(self.box.string)
+            else:
+                self.box.clear()
+            return True
+        return False
 
     def step(self, dt):
         self.t += dt
@@ -283,9 +293,10 @@ class Level(Stage):
             if f["state"] == "world":
                 f["state"] = "held"
                 core.play(f"chime_{2 + what['fact']}.ogg", 0.6)
+                self.game.remember(self.rec["blanks"][what["fact"]]["label"], f["value"])
                 self.floaters.append([f["value"], pygame.Vector2(pos), 0.0])
                 if self.complete():
-                    self.say("Kõik on meeles. Värav, kust ma tulin, helendab: sealt saab tagasi masinasse.")
+                    self.say("Kõik on meeles. Värav, kust ma tulin, helendab: sealt saab tagasi serverisse.")
 
     def nearest_haunt(self):
         best = None
@@ -329,19 +340,26 @@ class Level(Stage):
             return
 
         self.run_events(dt)
+        used = self.advance(events)
         target = self.nearest_haunt()
-        if target and core.pressed_confirm(events):
+        if target and not used and core.pressed_confirm(events):
             core.play("hum.ogg", 0.8)
             self.ghost.hidden = True
             self.ghost.vel.update(0, 0)
             self.haunting = [target, 0.9]
         if self.complete() and self.exit.update(dt, self.ghost.pos):
             core.play("enter.ogg", 0.6)
-            from .card import Card
-            self.game.go(lambda: Card(self.game, self.rec))
+            self.leave()
         if core.pressed(events, pygame.K_ESCAPE):
-            from .home import Home
-            self.game.go(lambda: Home(self.game))
+            self.leave()
+
+    def leave(self):
+        """Back to the server, with whatever was learned kept in memory."""
+        for f, blank in zip(self.facts(), self.rec["blanks"]):
+            if f["state"] != "world":
+                self.game.remember(blank["label"], f["value"])
+        from .desk import Desk
+        self.game.go(lambda: Desk(self.game, open_file=self.game.case_file(self.rec["id"])))
 
     def run_events(self, dt):
         if self.event:
@@ -412,4 +430,4 @@ class Level(Stage):
             got = f["state"] != "world"
             core.draw_text(surf, blank["label"], (30, y + 3), "mono", 14, core.DIM)
             core.draw_text(surf, f["value"] if got else "?", (170, y - 2), "serif", 21, core.CREAM if got else core.WARM)
-        core.draw_text(surf, "shift – sööst läbi seina   ·   esc – tagasi masinasse", (core.W - 16 - 440, 18), "mono", 13, core.CREAM, alpha=190)
+        core.draw_text(surf, "shift – sööst läbi seina   ·   esc – tagasi serverisse", (core.W - 16 - 450, 18), "mono", 13, core.CREAM, alpha=190)

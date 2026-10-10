@@ -209,13 +209,7 @@ class World:
         for hs in self.plinths:
             if hs.update(dt, self.ghost.pos):
                 rec = hs.data
-                if rec["id"] in game.restored:
-                    self.box.say(rec["caption"], f"{rec['title']} · {rec['where']}", hold=10)
-                else:
-                    core.play("enter.ogg", 0.6)
-                    game.pos = hs.pos + pygame.Vector2(0, 60)
-                    from .card import Card
-                    game.go(lambda rec=rec: Card(game, rec))
+                self.box.say(rec["caption"], f"{rec['title']} · {rec['where']}", hold=10)
         if self.board.update(dt, self.ghost.pos):
             self.box.say(progress_note(game), SIGNED, hold=13)
         if self.entrance.update(dt, self.ghost.pos):
