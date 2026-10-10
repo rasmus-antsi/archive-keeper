@@ -1,8 +1,6 @@
 """The Scene base class and the SceneManager that runs a stack of them.
 
-A scene draws twice: draw() onto the small pixel canvas and draw_ui() onto
-the full-size window for text and photos. Scenes never touch each other;
-they ask the manager to go(), push() or pop().
+Scenes never touch each other; they ask the manager to go(), push() or pop().
 """
 import pygame
 
@@ -11,7 +9,6 @@ from . import assets, settings
 
 class Scene:
     music = None          # name of a track in assets/music, or None to leave it alone
-    see_through = False   # True for overlays: the scene below is still drawn
 
     def __init__(self, game):
         self.game = game
@@ -25,10 +22,7 @@ class Scene:
     def update(self, dt, events):
         pass
 
-    def draw(self, canvas):
-        pass
-
-    def draw_ui(self, screen):
+    def draw(self, screen):
         pass
 
 
@@ -55,7 +49,8 @@ class SceneManager:
             self.pending = factory
 
     def push(self, scene):
-        """Open an overlay on top of the current scene, without a fade."""
+        """Open an overlay on top of the current scene, without a fade. Only the top scene
+        is drawn; an overlay that wants the old picture behind it keeps a copy of the screen."""
         self.stack.append(scene)
         self._entered()
 
@@ -80,20 +75,8 @@ class SceneManager:
         self.fade = max(0.0, self.fade - dt / self.FADE_IN)
         self.top.update(dt, events)
 
-    def _visible(self):
-        first = len(self.stack) - 1
-        while first > 0 and self.stack[first].see_through:
-            first -= 1
-        return self.stack[first:]
-
-    def draw(self, canvas, screen):
-        visible = self._visible()
-        canvas.fill(settings.NIGHT)
-        for scene in visible:
-            scene.draw(canvas)
-        pygame.transform.scale(canvas, (settings.W, settings.H), screen)
-        for scene in visible:
-            scene.draw_ui(screen)
+    def draw(self, screen):
+        self.top.draw(screen)
         if self.fade > 0:
             self.black.set_alpha(int(255 * self.fade))
             screen.blit(self.black, (0, 0))

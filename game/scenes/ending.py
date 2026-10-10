@@ -17,17 +17,15 @@ class Ending(Scene):
             from .menu import Menu
             self.scenes.go(lambda: Menu(self.game))
 
-    def draw(self, canvas):
-        canvas.fill((22, 22, 28))
-
-    def draw_ui(self, screen):
-        x, width = 140, settings.W - 280
-        ui.draw_text(screen, self.data["heading"], (settings.W / 2, 110), "title", 72, settings.CREAM, center=True)
-        y = 200
+    def draw(self, screen):
+        screen.fill((22, 22, 28))
+        x, width = 360, settings.W - 720
+        ui.draw_text(screen, self.data["heading"], (settings.W / 2, 190), "title", 120, settings.CREAM, center=True)
+        y = 340
         for para in self.data["text"]:
-            y = ui.draw_wrapped(screen, para, (x, y), width, "body", 25, settings.CREAM, center=True) + 18
-        y += 30
+            y = ui.draw_wrapped(screen, para, (x, y), width, "body", 42, settings.CREAM, center=True) + 30
+        y += 50
         for line in self.data["credits"]:
-            y = ui.draw_wrapped(screen, line, (x, y), width, "mono", 16, settings.DIM, center=True) + 6
+            y = ui.draw_wrapped(screen, line, (x, y), width, "mono", 26, settings.DIM, center=True) + 10
         if self.t > 1.5:
             ui.hint(screen, "space — back to the title")

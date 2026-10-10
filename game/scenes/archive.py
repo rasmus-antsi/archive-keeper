@@ -1,7 +1,7 @@
 """The archive room: the ghost walks between the shelves while the robot guards the door.
 
 Painted art replaces the stand-ins as soon as the files exist:
-  assets/img/taustad/arhiiv.png     the whole room, 320x240 (shelves and door included)
+  assets/img/taustad/arhiiv.png     the whole room, 1920x1080 (shelves and door included)
   assets/img/tegelased/robot.png    the robot
 Keep shelves and the door where data/game.json and the constants below put them.
 """
@@ -13,12 +13,13 @@ from .. import assets, settings, ui
 from ..player import Player
 from ..scene import Scene
 
-FLOOR = pygame.Rect(24, 60, 272, 148)
-DOOR = pygame.Rect(144, 208, 32, 32)
-START = (160, 130)
-ROBOT_GUARD = (160, 206)       # feet, in front of the door
-ROBOT_ASIDE = (122, 206)
-REACH = 10                     # how close to a shelf counts as standing at it
+FLOOR = pygame.Rect(144, 300, 1632, 672)
+DOOR = pygame.Rect(864, 972, 192, 108)
+START = (960, 660)
+ROBOT_GUARD = (960, 960)       # feet, in front of the door
+ROBOT_ASIDE = (732, 960)
+ROBOT_FEET = (96, 42)
+REACH = 60                     # how close to a shelf counts as standing at it
 
 
 class Archive(Scene):
@@ -29,8 +30,10 @@ class Archive(Scene):
         self.t = 0.0
         self.player = Player(self.state.archive_pos or START)
         self.shelves = [(s, pygame.Rect(s["rect"])) for s in self.content.shelves]
-        self.background = assets.optional("taustad/arhiiv.png")
-        self.robot_img = assets.optional("tegelased/robot.png") or _stand_in_robot()
+        self.background = assets.backdrop("taustad/arhiiv.png")
+        self.stand_in = None       # (door_open, picture) painted when there is no background yet
+        self.robot_img = assets.sprite("tegelased/robot.png") if assets.optional("tegelased/robot.png") \
+            else assets.enlarge(_stand_in_robot(), settings.PIXEL)
         self.robot_pos = pygame.Vector2(ROBOT_ASIDE if "door_open" in self.state.seen else ROBOT_GUARD)
         self.dialogue = ui.DialogueBox()
         self.near = None           # the shelf dict the ghost is standing at
@@ -51,7 +54,9 @@ class Archive(Scene):
         assets.play("unlock.ogg", 0.5)
 
     def robot_rect(self):
-        return pygame.Rect(round(self.robot_pos.x) - 8, round(self.robot_pos.y) - 7, 16, 7)
+        rect = pygame.Rect((0, 0), ROBOT_FEET)
+        rect.midbottom = (round(self.robot_pos.x), round(self.robot_pos.y))
+        return rect
 
     def walkable(self, feet):
         if feet.colliderect(self.robot_rect()):
@@ -70,16 +75,16 @@ class Archive(Scene):
     def update(self, dt, events):
         self.t += dt
         goal = ROBOT_ASIDE if "door_open" in self.state.seen else ROBOT_GUARD
-        self.robot_pos.move_towards_ip(goal, 30 * dt)
+        self.robot_pos.move_towards_ip(goal, 180 * dt)
         if self.dialogue.update(dt, events) or self.leaving:
             self.player.update(dt, self.walkable, control=False)
             return
         self.player.update(dt, self.walkable)
         feet = self.player.feet()
         self.near = next((s for s, rect in self.shelves if rect.inflate(REACH * 2, REACH * 2).colliderect(feet)), None)
-        self.near_robot = self.robot_rect().inflate(20, 20).colliderect(feet)
+        self.near_robot = self.robot_rect().inflate(120, 120).colliderect(feet)
 
-        if feet.top > FLOOR.bottom + 4:
+        if feet.top > FLOOR.bottom + 24:
             self.leaving = True
             from .ending import Ending
             self.scenes.go(lambda: Ending(self.game))
@@ -92,7 +97,9 @@ class Archive(Scene):
     def open_shelf(self, shelf):
         from .reader import Reader
         self.state.archive_pos = tuple(self.player.pos)
+        self.near = None
         assets.play("place.ogg", 0.5)
+        self.draw(self.game.screen)        # a clean picture for the reader to sit on
         self.scenes.push(Reader(self.game, shelf))
 
     def talk_to_robot(self):
@@ -102,43 +109,48 @@ class Archive(Scene):
 
     # ---------------------------------------------------------------- drawing
 
-    def draw(self, canvas):
+    def draw(self, screen):
+        door_open = "door_open" in self.state.seen
         if self.background:
-            canvas.blit(self.background, (0, 0))
+            screen.blit(self.background, (0, 0))
         else:
-            _stand_in_room(canvas, self.shelves, "door_open" in self.state.seen)
+            if self.stand_in is None or self.stand_in[0] != door_open:
+                self.stand_in = (door_open, _stand_in_room(self.shelves, door_open))
+            screen.blit(self.stand_in[1], (0, 0))
         pulse = 0.5 + 0.5 * math.sin(self.t * 3)
         for shelf, rect in self.shelves:
             if self.unsolved(shelf):
-                glow = pygame.Surface(rect.inflate(6, 6).size, pygame.SRCALPHA)
-                pygame.draw.rect(glow, (*settings.TEAL, int(60 + 90 * pulse)), glow.get_rect(), 2, border_radius=3)
-                canvas.blit(glow, rect.inflate(6, 6))
+                glow = [int(c * (0.45 + 0.55 * pulse)) for c in settings.TEAL]
+                pygame.draw.rect(screen, glow, rect.inflate(24, 24), 8, border_radius=10)
             if shelf is self.near and not self.dialogue.active:
-                pygame.draw.rect(canvas, settings.CREAM, rect.inflate(2, 2), 1)
+                pygame.draw.rect(screen, settings.CREAM, rect.inflate(8, 8), 4)
         # whoever stands lower on the screen is drawn in front
-        robot = (self.robot_pos.y, lambda: canvas.blit(self.robot_img, self.robot_img.get_rect(
+        robot = (self.robot_pos.y, lambda: screen.blit(self.robot_img, self.robot_img.get_rect(
             midbottom=(round(self.robot_pos.x), round(self.robot_pos.y)))))
-        ghost = (self.player.pos.y, lambda: self.player.draw(canvas))
+        ghost = (self.player.pos.y, lambda: self.player.draw(screen))
         for _, draw in sorted((robot, ghost), key=lambda pair: pair[0]):
             draw()
 
-    def draw_ui(self, screen):
-        if self.scenes.top is not self:
-            return
-        ui.draw_text(screen, f"records restored  {len(self.state.solved)} / {self.state.total}", (24, 16), "mono", 16,
+        ui.draw_text(screen, f"records restored  {len(self.state.solved)} / {self.state.total}", (40, 24), "mono", 26,
                      settings.DIM)
         if self.dialogue.active:
             self.dialogue.draw(screen)
         elif self.near:
             label = self.near["label"] + ("  ·  a memory is caught here" if self.unsolved(self.near) else "")
-            ui.panel(screen, (settings.W / 2 - 230, 2, 460, 38))
-            ui.draw_text(screen, label, (settings.W / 2, 21), "bold", 21, settings.CREAM, center=True)
+            ui.panel(screen, (settings.W / 2 - 400, 8, 800, 62))
+            ui.draw_text(screen, label, (settings.W / 2, 39), "bold", 36, settings.CREAM, center=True)
             ui.hint(screen, "E — read this shelf")
         elif self.near_robot:
             ui.hint(screen, "E — talk")
 
 
 # ---------------------------------------------------------------- stand-in art
+# Painted small and enlarged, so it looks like the pixel art that will replace it.
+
+def _small(rect):
+    k = settings.PIXEL
+    return pygame.Rect(rect[0] // k, rect[1] // k, rect[2] // k, rect[3] // k)
+
 
 def _stand_in_robot():
     img = pygame.Surface((16, 26), pygame.SRCALPHA)
@@ -153,25 +165,31 @@ def _stand_in_robot():
     return img
 
 
-def _stand_in_room(canvas, shelves, door_open):
-    canvas.fill((34, 30, 34))
-    pygame.draw.rect(canvas, (98, 88, 82), FLOOR)
-    for y in range(FLOOR.top + 18, FLOOR.bottom, 18):
-        pygame.draw.line(canvas, (90, 80, 75), (FLOOR.left, y), (FLOOR.right - 1, y))
-    pygame.draw.rect(canvas, (52, 46, 50), (FLOOR.left, 14, FLOOR.width, FLOOR.top - 14))      # back wall
-    for _, rect in shelves:
-        pygame.draw.rect(canvas, (74, 52, 40), rect)
-        pygame.draw.rect(canvas, (44, 30, 24), rect, 1)
+def _stand_in_room(shelves, door_open):
+    k = settings.PIXEL
+    img = pygame.Surface((settings.W // k, settings.H // k))
+    floor, door = _small(FLOOR), _small(DOOR)
+    img.fill((34, 30, 34))
+    pygame.draw.rect(img, (98, 88, 82), floor)
+    for y in range(floor.top + 18, floor.bottom, 18):
+        pygame.draw.line(img, (90, 80, 75), (floor.left, y), (floor.right - 1, y))
+    pygame.draw.rect(img, (52, 46, 50), (floor.left, 8, floor.width, floor.top - 8))      # back wall
+    for _, big in shelves:
+        rect = _small(big)
+        pygame.draw.rect(img, (74, 52, 40), rect)
+        pygame.draw.rect(img, (44, 30, 24), rect, 1)
         if rect.width > rect.height:
-            for y in range(rect.top + 4, rect.bottom - 6, 11):
-                pygame.draw.line(canvas, (44, 30, 24), (rect.left + 1, y + 9), (rect.right - 2, y + 9))
+            for y in range(rect.top + 3, rect.bottom - 6, 11):
+                pygame.draw.line(img, (44, 30, 24), (rect.left + 1, y + 9), (rect.right - 2, y + 9))
                 for i, x in enumerate(range(rect.left + 3, rect.right - 4, 4)):
-                    pygame.draw.rect(canvas, _BOOKS[(i * 7 + y) % len(_BOOKS)], (x, y + 1 + (i * 5 + y) % 3, 3, 8 - (i * 5 + y) % 3))
+                    drop = (i * 5 + y) % 3
+                    pygame.draw.rect(img, _BOOKS[(i * 7 + y) % len(_BOOKS)], (x, y + 1 + drop, 3, 8 - drop))
         else:
             for i, y in enumerate(range(rect.top + 3, rect.bottom - 4, 4)):
-                pygame.draw.rect(canvas, _BOOKS[(i * 7) % len(_BOOKS)], (rect.left + 3, y, rect.width - 6, 3))
-    pygame.draw.rect(canvas, (20, 18, 22) if door_open else (86, 62, 44), DOOR.inflate(-4, 0))
-    pygame.draw.rect(canvas, (44, 30, 24), DOOR.inflate(-4, 0), 1)
+                pygame.draw.rect(img, _BOOKS[(i * 7) % len(_BOOKS)], (rect.left + 3, y, rect.width - 6, 3))
+    pygame.draw.rect(img, (20, 18, 22) if door_open else (86, 62, 44), door.inflate(-4, 0))
+    pygame.draw.rect(img, (44, 30, 24), door.inflate(-4, 0), 1)
+    return pygame.transform.scale(img, (settings.W, settings.H)).convert()
 
 
 _BOOKS = [(150, 72, 60), (92, 122, 150), (176, 150, 96), (88, 120, 96), (130, 96, 132), (196, 188, 168)]

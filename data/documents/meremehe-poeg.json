@@ -14,16 +14,16 @@
   "background": "taustad/meremehe-tuba.png",
 
   "npcs": [
-    {"id": "poiss", "name": "Poiss", "sprite": "tegelased/junsu.png", "pos": [276, 214], "scale": 3}
+    {"id": "poiss", "name": "Poiss", "sprite": "tegelased/junsu.png", "pos": [1640, 980], "scale": 18}
   ],
 
   "objects": [
-    {"id": "kompass", "label": "päikesekell-kompass", "rect": [70, 118, 22, 16]},
-    {"id": "trykimasin", "label": "trükimasin", "rect": [150, 84, 62, 70]},
-    {"id": "kyynal", "label": "küünal", "rect": [28, 96, 12, 26]},
-    {"id": "raamat", "label": "raamat", "rect": [104, 122, 24, 12]},
-    {"id": "kell", "label": "seinakell", "rect": [236, 40, 22, 34]},
-    {"id": "tool", "label": "tool", "rect": [22, 150, 30, 46]}
+    {"id": "kompass", "label": "päikesekell-kompass", "rect": [420, 530, 132, 96]},
+    {"id": "trykimasin", "label": "trükimasin", "rect": [900, 380, 372, 315]},
+    {"id": "kyynal", "label": "küünal", "rect": [168, 430, 72, 117]},
+    {"id": "raamat", "label": "raamat", "rect": [624, 560, 144, 60]},
+    {"id": "kell", "label": "seinakell", "rect": [1416, 180, 132, 153]},
+    {"id": "tool", "label": "tool", "rect": [132, 675, 180, 207]}
   ],
 
   "requests": [

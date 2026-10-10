@@ -1,4 +1,4 @@
-"""Text, panels, input helpers and the dialogue box. All of it draws on the sharp layer."""
+"""Text, panels, input helpers and the dialogue box. Sizes are for the 1920x1080 screen."""
 import math
 
 import pygame
@@ -27,15 +27,6 @@ def clicked(events):
         if e.type == pygame.MOUSEBUTTONDOWN and e.button == 1:
             return e.pos
     return None
-
-
-def to_canvas(pos):
-    return pos[0] / settings.SCALE, pos[1] / settings.SCALE
-
-
-def to_screen(rect):
-    s = settings.SCALE
-    return pygame.Rect(rect[0] * s, rect[1] * s, rect[2] * s, rect[3] * s)
 
 
 # ---------------------------------------------------------------- text
@@ -89,18 +80,18 @@ def draw_wrapped(surf, string, pos, width, role="body", size=24, color=settings.
     return y
 
 
-def panel(surf, rect, color=settings.NIGHT, alpha=225, radius=10, border=None):
+def panel(surf, rect, color=settings.NIGHT, alpha=225, radius=14, border=None):
     rect = pygame.Rect(rect)
     box = pygame.Surface(rect.size, pygame.SRCALPHA)
     pygame.draw.rect(box, (*color, alpha), box.get_rect(), border_radius=radius)
     if border:
-        pygame.draw.rect(box, border, box.get_rect(), 2, border_radius=radius)
+        pygame.draw.rect(box, border, box.get_rect(), 3, border_radius=radius)
     surf.blit(box, rect)
 
 
 def hint(surf, string, alpha=255):
     """One line of key help along the bottom edge."""
-    draw_text(surf, string, (settings.W / 2, settings.H - 18), "mono", 15, settings.DIM, center=True, alpha=alpha)
+    draw_text(surf, string, (settings.W / 2, settings.H - 30), "mono", 24, settings.DIM, center=True, alpha=alpha)
 
 
 def blink(speed=160):
@@ -152,21 +143,21 @@ class DialogueBox:
         if not self.queue:
             return
         speaker, line = self.queue[0]
-        width = settings.W - 120
-        lines = wrap(line, "body", 26, width - 56)
-        height = 30 + len(lines) * 32 + (26 if speaker else 0)
-        x, y = 60, settings.H - height - 34
-        panel(surf, (x, y, width, height), border=(70, 70, 84))
-        ty = y + 14
+        width = settings.W - 360
+        lines = wrap(line, "body", 44, width - 100)
+        height = 56 + len(lines) * 54 + (44 if speaker else 0)
+        x, y = 180, settings.H - height - 70
+        panel(surf, (x, y, width, height), radius=16, border=(70, 70, 84))
+        ty = y + 24
         if speaker:
-            draw_text(surf, speaker, (x + 28, ty), "mono", 16, settings.TEAL)
-            ty += 26
+            draw_text(surf, speaker, (x + 50, ty), "mono", 26, settings.TEAL)
+            ty += 44
         left = int(self.shown)
         for l in lines:
             part = l[:max(0, left)]
             left -= len(l) + 1
             if part:
-                draw_text(surf, part, (x + 28, ty), "body", 26)
-            ty += 32
+                draw_text(surf, part, (x + 50, ty), "body", 44)
+            ty += 54
         if self.shown >= len(line):
-            draw_text(surf, "space >", (x + width - 92, y + height - 24), "mono", 14, settings.WARM, alpha=blink())
+            draw_text(surf, "space >", (x + width - 150, y + height + 8), "mono", 22, settings.WARM, alpha=blink())

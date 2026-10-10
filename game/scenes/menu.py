@@ -13,7 +13,8 @@ class Menu(Scene):
     def __init__(self, game):
         super().__init__(game)
         self.t = 0.0
-        self.ghost = pygame.transform.scale_by(assets.sprite("tegelased/down.png", (14, 25)), 2)
+        self.background = assets.backdrop("taustad/menu.png")
+        self.ghost = assets.sprite("tegelased/down.png", scale=settings.PIXEL * 2)
 
     def update(self, dt, events):
         self.t += dt
@@ -23,16 +24,17 @@ class Menu(Scene):
             from .intro import Intro
             self.scenes.go(lambda: Intro(self.game))
 
-    def draw(self, canvas):
-        canvas.fill((30, 28, 34))
-        pygame.draw.rect(canvas, (44, 40, 44), (0, 168, settings.CANVAS_W, 72))
-        bob = round(math.sin(self.t * 2) * 2)
-        canvas.blit(self.ghost, self.ghost.get_rect(midbottom=(settings.CANVAS_W // 2, 178 + bob)))
-
-    def draw_ui(self, screen):
+    def draw(self, screen):
+        if self.background:
+            screen.blit(self.background, (0, 0))
+        else:
+            screen.fill((30, 28, 34))
+            pygame.draw.rect(screen, (44, 40, 44), (0, 760, settings.W, 320))
+            bob = round(math.sin(self.t * 2) * 2) * settings.PIXEL
+            screen.blit(self.ghost, self.ghost.get_rect(midbottom=(settings.W // 2, 810 + bob)))
         game = self.content.game
-        ui.draw_text(screen, game["title"], (settings.W / 2, 190), "title", 110, settings.CREAM, center=True)
-        ui.draw_text(screen, game["subtitle"], (settings.W / 2, 280), "italic", 30, settings.TEAL, center=True)
-        ui.draw_text(screen, "press space to begin", (settings.W / 2, 610), "mono", 20, settings.WARM, center=True,
+        ui.draw_text(screen, game["title"], (settings.W / 2, 250), "title", 190, settings.CREAM, center=True)
+        ui.draw_text(screen, game["subtitle"], (settings.W / 2, 400), "italic", 50, settings.TEAL, center=True)
+        ui.draw_text(screen, "press space to begin", (settings.W / 2, 930), "mono", 34, settings.WARM, center=True,
                      alpha=ui.blink(260))
-        ui.hint(screen, "WASD / arrows move · E or space interact · M mute music")
+        ui.hint(screen, "WASD / arrows move · E or space interact · M mute music · F fullscreen")

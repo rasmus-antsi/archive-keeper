@@ -33,13 +33,13 @@
   },
 
   "shelves": [
-    {"id": "tartu", "label": "Tartu, 1800s", "rect": [40, 22, 104, 38],
+    {"id": "tartu", "label": "Tartu, 1800s", "rect": [240, 84, 624, 216],
      "folders": ["Tartu ehitusprojektid"]},
-    {"id": "vallakohtud", "label": "Parish courts", "rect": [176, 22, 104, 38],
+    {"id": "vallakohtud", "label": "Parish courts", "rect": [1056, 84, 624, 216],
      "folders": ["Vallakohtud"]},
-    {"id": "hoimud-a", "label": "Kindred peoples I", "rect": [4, 76, 20, 112],
+    {"id": "hoimud-a", "label": "Kindred peoples I", "rect": [24, 372, 120, 528],
      "folders": ["Hõimurahvad/Marid", "Hõimurahvad/Udmurdid", "Hõimurahvad/Mordvalased"]},
-    {"id": "hoimud-b", "label": "Kindred peoples II", "rect": [296, 76, 20, 112],
+    {"id": "hoimud-b", "label": "Kindred peoples II", "rect": [1776, 372, 120, 528],
      "folders": ["Hõimurahvad/Vepslased", "Hõimurahvad/Liivlased", "Hõimurahvad/Komid", "Hõimurahvad/Mitu rahvast",
                  "Hõimurahvad/Isurid", "Hõimurahvad/Karjalased", "Hõimurahvad/Saamid", "Hõimurahvad/Handid",
                  "Hõimurahvad/Vadjalased", "Hõimurahvad/Soomlased", "Hõimurahvad/Ungarlased", "Hõimurahvad/Määramata",

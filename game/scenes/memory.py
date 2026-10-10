@@ -2,8 +2,9 @@
 for things, and objects to click. Everything about it comes from one file in
 data/documents/.
 
-The picture is assets/img/<background>, 320x240. Until it exists the scene paints
-a plain room and shows every object as a labelled box.
+The picture is assets/img/<background>, 1920x1080, and every rect and position in
+the document is in those pixels. Until the picture exists the scene paints a plain
+room and shows every object as a labelled box.
 """
 import pygame
 
@@ -18,13 +19,14 @@ class Memory(Scene):
         super().__init__(game)
         self.doc = doc
         self.t = 0.0
-        self.background = assets.optional(doc.get("background", ""))
+        self.background = assets.backdrop(doc.get("background", ""))
         self.objects = [(o, pygame.Rect(o["rect"])) for o in doc["objects"]]
         self.npcs = [Npc(n) for n in doc.get("npcs", [])]
         self.request = 0               # which of the document's requests is being asked
         self.dialogue = ui.DialogueBox()
         self.hover = None
         self.blackout = 0.0            # a wrong guess blinks the scene away for a moment
+        self.black = pygame.Surface((settings.W, settings.H))
         self.done = False
 
     def enter(self):
@@ -75,54 +77,47 @@ class Memory(Scene):
         if ui.pressed(events, *ui.BACK):
             self.leave()
             return
-        mouse = ui.to_canvas(pygame.mouse.get_pos())
+        mouse = self.game.display.mouse()
         self.hover = next((o for o, rect in self.objects if rect.collidepoint(mouse)), None)
         click = ui.clicked(events)
         if click:
-            at = ui.to_canvas(click)
-            if any(n.rect.collidepoint(at) for n in self.npcs):
+            if any(n.rect.collidepoint(click) for n in self.npcs):
                 self.ask()
                 return
-            obj = next((o for o, rect in self.objects if rect.collidepoint(at)), None)
+            obj = next((o for o, rect in self.objects if rect.collidepoint(click)), None)
             if obj:
                 self.choose(obj)
 
     # ---------------------------------------------------------------- drawing
 
-    def draw(self, canvas):
+    def draw(self, screen):
         if self.background:
-            canvas.blit(self.background, (0, 0))
+            screen.blit(self.background, (0, 0))
         else:
-            canvas.fill((70, 60, 56))
-            pygame.draw.rect(canvas, (96, 78, 62), (0, 150, settings.CANVAS_W, 90))
+            screen.fill((70, 60, 56))
+            pygame.draw.rect(screen, (96, 78, 62), (0, 675, settings.W, 405))
             for obj, rect in self.objects:
-                pygame.draw.rect(canvas, (150, 130, 104), rect)
-                pygame.draw.rect(canvas, (50, 40, 34), rect, 1)
+                pygame.draw.rect(screen, (150, 130, 104), rect)
+                pygame.draw.rect(screen, (50, 40, 34), rect, 6)
+                ui.draw_text(screen, obj.get("label", obj["id"]), rect.center, "mono", 20, settings.INK, center=True)
         if self.hover:
-            rect = pygame.Rect(self.hover["rect"]).inflate(4, 4)
-            pygame.draw.rect(canvas, settings.CREAM, rect, 1)
+            pygame.draw.rect(screen, settings.CREAM, pygame.Rect(self.hover["rect"]).inflate(20, 20), 4, border_radius=8)
         for npc in self.npcs:
-            npc.draw(canvas)
+            npc.draw(screen)
 
-    def draw_ui(self, screen):
-        if not self.background:
-            for obj, rect in self.objects:
-                ui.draw_text(screen, obj.get("label", obj["id"]), ui.to_screen(rect).center, "mono", 12, settings.INK,
-                             center=True)
         fade = max(0, min(1, self.t / 0.6, (5 - self.t) / 1.0))
         if fade > 0:
-            ui.draw_text(screen, self.doc.get("place", ""), (settings.W / 2, 64), "title", 54, settings.CREAM,
+            ui.draw_text(screen, self.doc.get("place", ""), (settings.W / 2, 110), "title", 96, settings.CREAM,
                          center=True, alpha=int(255 * fade))
         n, total = min(self.request + 1, len(self.doc["requests"])), len(self.doc["requests"])
-        ui.draw_text(screen, f"{self.doc['title']}  ·  {n} / {total}", (24, 16), "mono", 16, settings.CREAM)
+        ui.draw_text(screen, f"{self.doc['title']}  ·  {n} / {total}", (40, 24), "mono", 26, settings.CREAM)
         if self.dialogue.active:
             self.dialogue.draw(screen)
         else:
             ui.hint(screen, "click the thing they asked for · click a person to hear it again · Esc — back to the archive")
         if self.blackout > 0:
-            black = pygame.Surface((settings.W, settings.H))
-            black.set_alpha(int(255 * min(1, self.blackout * 2)))
-            screen.blit(black, (0, 0))
+            self.black.set_alpha(int(255 * min(1, self.blackout * 2)))
+            screen.blit(self.black, (0, 0))
 
 
 class Npc:
@@ -134,11 +129,11 @@ class Npc:
         self.name = data.get("name", "")
         self.img = None
         if data.get("sprite"):
-            self.img = pygame.transform.scale_by(assets.sprite(data["sprite"]), data.get("scale", 1))
+            self.img = assets.sprite(data["sprite"], scale=data.get("scale"))
             self.rect = self.img.get_rect(midbottom=data["pos"])
         else:
             self.rect = pygame.Rect(data["rect"])
 
-    def draw(self, canvas):
+    def draw(self, screen):
         if self.img:
-            canvas.blit(self.img, self.rect)
+            screen.blit(self.img, self.rect)

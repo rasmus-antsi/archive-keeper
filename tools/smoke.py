@@ -12,6 +12,7 @@ import pygame
 
 from game import settings
 from game.app import Game
+from game.display import Display
 from game.scenes.archive import Archive
 from game.scenes.ending import Ending
 from game.scenes.intro import Intro
@@ -22,8 +23,9 @@ from game.scenes.reader import Reader
 out = sys.argv[1]
 os.makedirs(out, exist_ok=True)
 pygame.init()
-screen = pygame.display.set_mode((settings.W, settings.H))
-game = Game(screen)
+display = Display()
+game = Game(display)
+screen = display.surface
 DT = 1 / 60
 SPACE = pygame.event.Event(pygame.KEYDOWN, key=pygame.K_SPACE)
 
@@ -40,9 +42,10 @@ def shot(name):
     pygame.image.save(screen, f"{out}/{name}.png")
 
 
-def click(canvas_pos):
-    pos = (canvas_pos[0] * settings.SCALE, canvas_pos[1] * settings.SCALE)
-    return pygame.event.Event(pygame.MOUSEBUTTONDOWN, button=1, pos=pos)
+def click(pos):
+    """A left click at a game position, sent through the window so the mapping is tested too."""
+    win = (display.view.x + pos[0] * display.view.w / settings.W, display.view.y + pos[1] * display.view.h / settings.H)
+    return pygame.event.Event(pygame.MOUSEBUTTONDOWN, button=1, pos=win)
 
 
 def top(kind):
@@ -76,11 +79,10 @@ shot("3-archive-welcome")
 talk_through()
 for shelf in game.content.shelves:      # every shelf opens and shows its records
     rect = pygame.Rect(shelf["rect"])
-    room.player.pos.update(max(34, min(286, rect.centerx)), max(68, min(200, rect.centery)))
     if rect.width > rect.height:
-        room.player.pos.y = 66
+        room.player.pos.update(rect.centerx, 340)
     else:
-        room.player.pos.x = 30 if rect.x < 100 else 290
+        room.player.pos.update(190 if rect.x < 900 else 1730, rect.centery)
     run(0.2)
     assert room.near is shelf, f"not standing at shelf {shelf['id']}"
     shot(f"4-at-shelf-{shelf['id']}")
@@ -92,7 +94,7 @@ for shelf in game.content.shelves:      # every shelf opens and shows its record
     run(0.2, pygame.event.Event(pygame.KEYDOWN, key=pygame.K_ESCAPE))
     top(Archive)
 
-room.player.pos.update(160, 190)        # the robot will not let the ghost through
+room.player.pos.update(960, 880)        # the robot will not let the ghost through
 run(0.2)
 run(0.3, SPACE)
 shot("6-robot-blocks")
@@ -101,7 +103,7 @@ talk_through()
 for doc in game.content.documents:      # solve every memory, with one wrong guess each
     shelf = next(s for s in game.content.shelves if s["id"] == doc["shelf"])
     room = top(Archive)
-    room.player.pos.update(pygame.Rect(shelf["rect"]).centerx, 66)
+    room.player.pos.update(pygame.Rect(shelf["rect"]).centerx, 340)
     run(0.2)
     run(0.2, SPACE)
     reader = top(Reader)
@@ -132,7 +134,7 @@ talk_through()
 run(2)
 assert "door_open" in game.state.seen
 shot("9-door-open")
-room.player.pos.update(160, 222)
+room.player.pos.update(960, 1040)
 run(1.5)
 top(Ending)
 shot("10-ending")

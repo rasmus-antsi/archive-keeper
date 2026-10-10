@@ -6,7 +6,8 @@ COPY main.py archive-keeper/
 COPY game archive-keeper/game
 COPY data archive-keeper/data
 COPY assets archive-keeper/assets
-RUN python -m pygbag --build --title "Archive Keeper" archive-keeper
+COPY web/pygbag.tmpl pygbag.tmpl
+RUN python -m pygbag --build --title "Archive Keeper" --template /src/pygbag.tmpl archive-keeper
 
 FROM caddy:2-alpine
 COPY Caddyfile /etc/caddy/Caddyfile

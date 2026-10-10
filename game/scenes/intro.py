@@ -29,21 +29,19 @@ class Intro(Scene):
             from .archive import Archive
             self.scenes.go(lambda: Archive(self.game))
 
-    def draw(self, canvas):
-        canvas.fill((10, 14, 16))
-
-    def draw_ui(self, screen):
-        x, width = 110, settings.W - 220
-        ui.draw_text(screen, self.heading, (x, 70), "mono", 18, settings.TEAL)
+    def draw(self, screen):
+        screen.fill((10, 14, 16))
+        x, width = 300, settings.W - 600
+        ui.draw_text(screen, self.heading, (x, 110), "mono", 28, settings.TEAL)
         left = int(self.t * TYPE_SPEED)
-        y = 120
+        y = 190
         for para in self.paragraphs:
             if left <= 0:
                 break
-            y = ui.draw_wrapped(screen, para[:left], (x, y), width, "mono", 21, settings.CREAM, gap=7) + 16
+            y = ui.draw_wrapped(screen, para[:left], (x, y), width, "mono", 34, settings.CREAM, gap=10) + 26
             left -= len(para)
         # time left before the game starts on its own
         k = max(0.0, 1 - self.t / self.seconds)
-        screen.fill((40, 60, 62), (x, settings.H - 60, width, 3))
-        screen.fill(settings.TEAL, (x, settings.H - 60, int(width * k), 3))
+        screen.fill((40, 60, 62), (x, settings.H - 90, width, 4))
+        screen.fill(settings.TEAL, (x, settings.H - 90, int(width * k), 4))
         ui.hint(screen, "space — continue" if self.typed() else "space — skip")

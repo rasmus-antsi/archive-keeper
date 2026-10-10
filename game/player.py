@@ -5,8 +5,8 @@ import pygame
 
 from . import assets
 
-SPEED = 70            # canvas pixels per second
-FEET = (10, 5)        # the part of the sprite that collides
+SPEED = 420           # pixels per second
+FEET = (60, 30)       # the part of the sprite that collides
 
 
 class Player:
@@ -15,7 +15,7 @@ class Player:
         self.facing = facing
         self.moving = False
         self.t = 0.0
-        self.sprites = {d: assets.sprite(f"tegelased/{d}.png", (14, 25)) for d in ("up", "down", "left", "right")}
+        self.sprites = {d: assets.sprite(f"tegelased/{d}.png") for d in ("up", "down", "left", "right")}
 
     def feet(self, pos=None):
         pos = self.pos if pos is None else pos
@@ -44,7 +44,7 @@ class Player:
             if walkable(self.feet(trial)):
                 self.pos = trial
 
-    def draw(self, canvas):
+    def draw(self, screen):
         img = self.sprites[self.facing]
-        bob = round(math.sin(self.t * 9)) if self.moving else 0
-        canvas.blit(img, (round(self.pos.x - img.get_width() / 2), round(self.pos.y - img.get_height()) + bob))
+        bob = round(math.sin(self.t * 9)) * 6 if self.moving else 0
+        screen.blit(img, (round(self.pos.x - img.get_width() / 2), round(self.pos.y - img.get_height()) + bob))

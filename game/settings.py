@@ -2,12 +2,16 @@
 
 TITLE = "Archive Keeper"
 
-# The world is pixel art drawn on a small canvas and scaled up with hard pixels.
-# Text and photos are drawn afterwards at full window resolution so they stay sharp.
-CANVAS_W, CANVAS_H = 320, 240
-SCALE = 3
-W, H = CANVAS_W * SCALE, CANVAS_H * SCALE
+# Everything is laid out for a Full HD screen: art, positions in data/ and text
+# sizes are all in 1920x1080 pixels. The window may be any size; game/display.py
+# fits the picture into it.
+W, H = 1920, 1080
 FPS = 60
+
+# Small pixel-art sprites are enlarged by a whole number so they stay crisp.
+# A sprite drawn at full size (taller than SPRITE_BIG) is used as it is.
+PIXEL = 6
+SPRITE_BIG = 100
 
 CREAM = (240, 232, 212)
 INK = (38, 30, 28)
