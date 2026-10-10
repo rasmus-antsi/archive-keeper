@@ -1,0 +1,6 @@
+# Railway sets PORT; 8080 is for running the image locally.
+:{$PORT:8080} {
+	root * /srv
+	encode gzip
+	file_server
+}
