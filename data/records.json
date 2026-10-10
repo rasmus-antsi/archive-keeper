@@ -1,0 +1,250 @@
+[
+  {
+    "id": "tubakavabrik", "wing": "linn",
+    "title": "Tubakavabrik Tiigi tänaval", "where": "Tartu, 1887",
+    "kind": "Ehitusprojekt", "number": "EAA.2623.1.125, l 90",
+    "given": [["Aadress", "Tiigi 78, 80"], ["Tellija", "Heinrich Wöörmann"], ["Kinnitatud", "31.08.1887"]],
+    "blanks": [
+      {"label": "Otstarve", "value": "tubakavabrik",
+       "line": "Tiigi tänava maja plaanile on kirjutatud, milleks see ehitatakse: siin hakatakse tubakat töötlema."},
+      {"label": "Korruseid", "value": "kaks",
+       "line": "Wöörmanni vabrik Tiigi tänaval on joonistatud kahekorruselisena."},
+      {"label": "Kuivkäimla", "value": "väljas",
+       "line": "Tiigi tänava vabrikul on käimla väljas, hoovi peal."}
+    ],
+    "image": "rec/tubakavabrik.png",
+    "caption": "1887. aastal kavandas Heinrich Wöörmann Tiigi tänavale kahekorruselise puust tubakavabriku. Küte ahjuga, käimla õues.",
+    "source": {"name": "Rahvusarhiiv, Tartu ehitusprojektide andmebaas", "ref": "EAA.2623.1.125, leht 90", "url": "ra.ee/apps/hooned"}
+  },
+  {
+    "id": "raatuse", "wing": "linn",
+    "title": "Elamu Raatuse tänaval", "where": "Tartu, 1887",
+    "kind": "Ehitusprojekt", "number": "EAA.2623.1.125, l 91",
+    "given": [["Aadress", "Raatuse 28"], ["Tellija", "Christoph Beiker"], ["Kinnitatud", "03.09.1887"]],
+    "blanks": [
+      {"label": "Välisseinad", "value": "kivi",
+       "line": "Beikeri maja Raatuse tänaval ehitatakse kivist, ainult vaheseinad on puust."},
+      {"label": "Kuivkäimla", "value": "sees",
+       "line": "Raatuse tänava majas on käimla toas sees, mitte hoovis."},
+      {"label": "Korterid", "value": "üks 3- ja üks 4-toaline",
+       "line": "Raatuse 28 ühekorruselises majas on kaks korterit: üks kolme, teine nelja toaga."}
+    ],
+    "image": "rec/raatuse.png",
+    "caption": "Christoph Beikeri ühekorruseline kivimaja Raatuse tänaval: kaks korterit, ahiküte ja käimla majas sees.",
+    "source": {"name": "Rahvusarhiiv, Tartu ehitusprojektide andmebaas", "ref": "EAA.2623.1.125, leht 91", "url": "ra.ee/apps/hooned"}
+  },
+  {
+    "id": "tollakuur", "wing": "linn",
+    "title": "Tõllakuur Kroonuaia tänaval", "where": "Tartu, 1887",
+    "kind": "Ehitusprojekt", "number": "EAA.2623.1.125, l 92",
+    "given": [["Aadress", "Kroonuaia 70/72"], ["Tellija", "Friedrich Hübbe"], ["Kinnitatud", "03.09.1887"]],
+    "blanks": [
+      {"label": "Otstarve", "value": "tõllakuur",
+       "line": "Kroonuaia tänavale ei tule elumaja, vaid kuur tõldade hoidmiseks."},
+      {"label": "Tellija amet", "value": "ehitusmeister",
+       "line": "Kroonuaia kuuri tellija Friedrich Hübbe on ise ehitusmeister."},
+      {"label": "Korruseid", "value": "üks",
+       "line": "Hübbe tõllakuur on kivist ja ühekorruseline."}
+    ],
+    "image": "rec/tollakuur.png",
+    "caption": "Ehitusmeister Friedrich Hübbe lasi Kroonuaia tänavale kavandada ühekorruselise kivist tõllakuuri.",
+    "source": {"name": "Rahvusarhiiv, Tartu ehitusprojektide andmebaas", "ref": "EAA.2623.1.125, leht 92", "url": "ra.ee/apps/hooned"}
+  },
+  {
+    "id": "tsirkus", "wing": "linn",
+    "title": "Tsirkus näitusemaja küljes", "where": "Tartu, 1887",
+    "kind": "Ehitusprojekt", "number": "EAA.2623.1.125, l 94",
+    "given": [["Tellija", "A. Schumann"], ["Kinnitatud", "19.09.1887"]],
+    "blanks": [
+      {"label": "Otstarve", "value": "tsirkus",
+       "line": "A. Schumanni projekt on kõige lõbusam: Tartusse ehitatakse tsirkus."},
+      {"label": "Ehituse tüüp", "value": "näitusemaja juurdeehitus",
+       "line": "Schumanni tsirkus ei ole eraldi hoone. See ehitatakse näitusemaja külge."},
+      {"label": "Välisseinad", "value": "puit",
+       "line": "Tsirkuse seinad tehakse puust."}
+    ],
+    "image": "rec/tsirkus.png",
+    "caption": "Septembris 1887 kinnitati A. Schumanni projekt: puust tsirkus, mis ehitati näitusemaja külge.",
+    "source": {"name": "Rahvusarhiiv, Tartu ehitusprojektide andmebaas", "ref": "EAA.2623.1.125, leht 94", "url": "ra.ee/apps/hooned"}
+  },
+
+  {
+    "id": "koiola", "wing": "vald",
+    "title": "Kurrat sinno sisse", "where": "Vana-Koiola, 1867",
+    "kind": "Vallakohtu protokoll", "number": "kirje 119032",
+    "given": [["Kohus", "Vana-Koiola vallakohus"], ["Kuupäev", "28.08.1867"], ["Liik", "Sõim ja vägivald"]],
+    "blanks": [
+      {"label": "Kaebealune", "value": "Ado Warres",
+       "line": "Vana-Koiolas tuli kohtu ette Ado Warres, kuigi tal polnud seal vähimatki asja, ja hakkas lärmama."},
+      {"label": "Öeldud sõnad", "value": "„Kurrat sinno sisse“",
+       "line": "Vana-Koiola protokollis seisab sõna-sõnalt, mida vallavanemale öeldi: „Kurrat sinno sisse.“"},
+      {"label": "Otsus", "value": "30 vitsahoopi",
+       "line": "Vana-Koiola kohus mõistis: vallavanema ja kohtu trotsimise eest „30 witza löki“."}
+    ],
+    "image": "rec/koiola.png",
+    "caption": "28. augustil 1867 sõimas Ado Warres Vana-Koiola vallakohtus vallavanemat. Neli peremeest nägid pealt.",
+    "original": [
+      "Ado Warres tulli kohto ette, et tem(m)al kige wähhembat asja",
+      "es olle nink nakkas lärmitsema, wallawannemb S. Härms aije",
+      "tedda wälja, te es lä, nink üttel Härmsele: \"Kurrat sinno sisse\",",
+      "kas ollet sinna minno wälja ajaja,\" ja salgas õkwa kohto een ka",
+      "omma wandmist ärra, et ta ei olle sedda üttelnu.",
+      "",
+      "Mõistetu: Selle häbbemata wallawannemba nink koggokonna",
+      "kohto härgitamisse nink trotsmisse eest, saab Ado Warres",
+      "30 witza löki. –"
+    ],
+    "source": {"name": "Rahvusarhiiv, vallakohtute protokollid", "ref": "kirje 119032, Vana-Koiola vald, Põlva khk", "url": "ra.ee/vallakohtud"}
+  },
+  {
+    "id": "sauga", "wing": "vald",
+    "title": "Soe vesi loomadele", "where": "Sauga, 1865",
+    "kind": "Vallakohtu protokoll", "number": "kirje 91286",
+    "given": [["Kohus", "Sauga vallakohus"], ["Kuupäev", "07.01.1865"], ["Liik", "Töö- ja teenistussuhted"]],
+    "blanks": [
+      {"label": "Kaebaja", "value": "Rägu Meyer",
+       "line": "Saugas kaebas Rägu Meyer oma „Holendre“ Schenki peale."},
+      {"label": "Tüli põhjus", "value": "soe vesi loomadele",
+       "line": "Sauga tüli käis selle üle, kes teeb loomadele vee soojaks: „lomad soja wet peawad sama“."},
+      {"label": "Otsus", "value": "15 kopikat päevas",
+       "line": "Sauga kohus arvas: kui Schenk ise ei taha, maksab ta Meyerile vee tegemise eest „päwas 15 kop“."}
+    ],
+    "image": "rec/sauga.png",
+    "caption": "Jaanuaris 1865 vaieldi Sauga vallakohtus, kes peab talvel loomadele vett soojendama. Hind: 15 kopikat päevas.",
+    "original": [
+      "Rägu Meyer kaebas omma Holendre Schenki peale et temma",
+      "nende riistadega ei tahha lomadele wel tehha mis Meyer sinna",
+      "ssutanud ja ommetige on Schenk sedda tellinud, et lomad soja",
+      "wet peawad sama ja olli need riistad jo enne Joulu seatud",
+      "[...] Kohhus arwas kui Schenk sedda ei tahha tehha, ja",
+      "ommetigi lomad soja wet peawad sama, siis wöib Schenk omma",
+      "weteggia ja mis tännini temmal selle tarbeks olnud ommale",
+      "pruki ja maksab Meyeril we teggemisse eest päwas 15 kop."
+    ],
+    "source": {"name": "Rahvusarhiiv, vallakohtute protokollid", "ref": "kirje 91286, Sauga vald, Pärnu-Elisabethi khk", "url": "ra.ee/vallakohtud"}
+  },
+  {
+    "id": "keila", "wing": "vald",
+    "title": "Vaikne kohtupäev", "where": "Keila, 1873",
+    "kind": "Vallakohtu protokoll", "number": "kirje 113993",
+    "given": [["Kohus", "Keila vallakohus"], ["Kuupäev", "11.08.1873"], ["Liik", "Asjaajamine"]],
+    "blanks": [
+      {"label": "Mis juhtus", "value": "kohtukäijaid ei olnud",
+       "line": "Keilas kirjutati sel päeval raamatusse üksainus lause: „Kohto käiaid sell korral ei olnud.“"},
+      {"label": "Peakohtumees", "value": "Jaan Suurjaak",
+       "line": "Keila kohtu peavanem oli Jaan Suurjaak. Tema nime taga on kolm risti."},
+      {"label": "Kirjutaja", "value": "Jacob Rosenwaldt",
+       "line": "Keila protokolli pani kirja kirjutaja Jacob Rosenwaldt."}
+    ],
+    "image": "rec/keila.png",
+    "caption": "11. augustil 1873 ei tulnud Keila vallakohtusse mitte kedagi. Ka see pandi hoolega kirja.",
+    "original": [
+      "Kohto käiaid sell korral ei olnud.",
+      "",
+      "Kohto peawannem: Jaan Suurjaak XXX",
+      "",
+      "Körwamehhed: Jürri Männik XXX",
+      "             Jacob Feldmann XXX",
+      "",
+      "Kirjotaja Jacob Rosenwaldt XXX"
+    ],
+    "source": {"name": "Rahvusarhiiv, vallakohtute protokollid", "ref": "kirje 113993, Keila vald, Keila khk", "url": "ra.ee/vallakohtud"}
+  },
+  {
+    "id": "padi", "wing": "vald",
+    "title": "Padjavargus", "where": "Läänemaa, 1889",
+    "kind": "Vallakohtu protokoll", "number": "kirje 97222",
+    "given": [["Kohus", "Liivi vallakohus"], ["Kuupäev", "26.08.1889"], ["Liik", "Varavastased kuriteod"]],
+    "blanks": [
+      {"label": "Asi", "value": "padjavargus",
+       "line": "Liivi vallas Läänemaal anti kohtule seletada „padja warguse asi“."},
+      {"label": "Tunnistajad", "value": "ta oma lähisugulased",
+       "line": "Jaan Salleri nimetatud tunnistajad olid ta oma ligi sugulased. Seadus ei lubanud neid kutsuda."},
+      {"label": "Kohale ei tulnud", "value": "Jaan ja tema naine",
+       "line": "Padjaasja arutamisele ei tulnud ei Jaan ega ta naine. Jaanile saadeti teade."}
+    ],
+    "image": "rec/padi.png",
+    "caption": "1889. aastal jõudis Läänemaal kohtusse padjavargus. Tunnistajad olid sugulased ja asjaosalised jäid tulemata.",
+    "original": [
+      "Tallitaja andis padja warguse asja [...] walla kohtu seletada.",
+      "Et Jaan Sallerist ülesantud tunnistajad tema oma ligi",
+      "sugulased on ei wõinud neid Eestimaa talu rahwa sead. §859",
+      "järel tunnistuseks kutsuda. Et Jaan, ega ta naene kumbki",
+      "kohtusse ei tulnud saab Jaanile teada antud, nagu Eestimaa",
+      "t. r. s. §821 juhatab.",
+      "",
+      "Kohtuwanem: H. Mändwald",
+      "Kõrwamehed: Willem Siimon XXX  Karl Habermann XXX"
+    ],
+    "source": {"name": "Rahvusarhiiv, vallakohtute protokollid", "ref": "kirje 97222, Liivi vald, Kullamaa khk", "url": "ra.ee/vallakohtud"}
+  },
+
+  {
+    "id": "kolk", "wing": "hoim",
+    "title": "Öövalvuri kolk", "where": "Vistino, 1987",
+    "kind": "Museaal", "number": "ERM B 171:85",
+    "given": [["Rahvas", "isurid"], ["Kogutud", "1987, Marika Mikkor"]],
+    "blanks": [
+      {"label": "Nimetus", "value": "öövalvuri kolk",
+       "line": "Isurite külas käis öövaht igal ööl mööda küla ja tegi sellega häält. See on öövalvuri kolk."},
+      {"label": "Koht", "value": "Vistino küla",
+       "line": "Öövalvuri kolk on pärit Vistino külast Leningradi oblastist."},
+      {"label": "Kasutusel", "value": "1950. aastateni",
+       "line": "Öövahi kolki kasutati kuni 1950. aastateni. Külavahiks oldi perede kaupa kordamööda."}
+    ],
+    "image": "rec/kolk.jpg",
+    "caption": "Kasepuust kolgiga käis Vistino küla öövaht igal ööl mööda küla. Pered olid vahiks kordamööda.",
+    "source": {"name": "Eesti Rahva Muuseum, MuIS", "ref": "ERM B 171:85, kolk, öövalvuri", "url": "opendata.muis.ee/object/620951"}
+  },
+  {
+    "id": "ankur", "wing": "hoim",
+    "title": "Võrgu otsimise ankur", "where": "Koštrõgi, 1970",
+    "kind": "Museaal", "number": "ERM B 68:73",
+    "given": [["Rahvas", "liivlased"], ["Kogutud", "1970, Jüri Linnus, Mati Ruljand"]],
+    "blanks": [
+      {"label": "Nimetus", "value": "võrgu otsimise ankur",
+       "line": "Kuue haruga ankur ei hoia paati paigal. Sellega otsiti merest kadunud võrke."},
+      {"label": "Materjal", "value": "raud",
+       "line": "Võrguotsimise ankur on tehtud rauast."},
+      {"label": "Koht", "value": "Koštrõgi küla",
+       "line": "Ankur on pärit liivlaste Koštrõgi külast Lätist, Nõrpledagi talust."}
+    ],
+    "image": "rec/ankur.jpg",
+    "caption": "Ankrule pandi köis taha ja seda lohistati mööda merepõhja. Kui midagi taha jäi, oli nöörist tunda.",
+    "source": {"name": "Eesti Rahva Muuseum, MuIS", "ref": "ERM B 68:73, võrgu otsimise ankur", "url": "opendata.muis.ee/object/620482"}
+  },
+  {
+    "id": "roos", "wing": "hoim",
+    "title": "Rasvakaku roos", "where": "Luž, 1925",
+    "kind": "Museaal", "number": "ERM B 18:30",
+    "given": [["Rahvas", "liivlased"], ["Kogutud", "1925, Ferdinand Linnus"]],
+    "blanks": [
+      {"label": "Nimetus", "value": "„rasvakaku roos“",
+       "line": "Seda puust orki kutsuti rasvakaku roosiks."},
+      {"label": "Materjal", "value": "mänd",
+       "line": "Rasvakaku roos on tehtud männipuust."},
+      {"label": "Milleks", "value": "kakkudesse aukude torkamiseks",
+       "line": "Roosiga torgati rasvakakkudesse augukesi, et need rohkem rasva endasse imeksid."}
+    ],
+    "image": "rec/roos.jpg",
+    "caption": "Luži küla „rasvakaku roos“: männipuust ork, millega torgati kakkudesse augukesi, et rasv paremini sisse imbuks.",
+    "source": {"name": "Eesti Rahva Muuseum, MuIS", "ref": "ERM B 18:30, „rasvakaku roos“", "url": "opendata.muis.ee/object/636429"}
+  },
+  {
+    "id": "peakorv", "wing": "hoim",
+    "title": "Mesiniku peakorv", "where": "Ira, 1928",
+    "kind": "Museaal", "number": "ERM B 18:32",
+    "given": [["Rahvas", "liivlased"], ["Kogutud", "1928, Ferdinand Linnus"]],
+    "blanks": [
+      {"label": "Nimetus", "value": "mesiniku peakorv",
+       "line": "Võrguga korv käis mesinikul pähe, kui ta mesilaste juurde läks."},
+      {"label": "Koht", "value": "Ira küla",
+       "line": "Mesiniku peakorv osteti Ira külast Boka talust."},
+      {"label": "Põhi", "value": "vana rehepeksumasina sõel",
+       "line": "Peakorvi tegi müüja ise. Põhja võttis ta vana rehepeksumasina sõelast."}
+    ],
+    "image": "rec/peakorv.jpg",
+    "caption": "Ira küla mesinik tegi oma peakorvi ise. Põhjaks läks vana rehepeksumasina sõel.",
+    "source": {"name": "Eesti Rahva Muuseum, MuIS", "ref": "ERM B 18:32, peakorv, mesiniku", "url": "opendata.muis.ee/object/636431"}
+  }
+]

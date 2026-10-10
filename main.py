@@ -1,43 +1,23 @@
 import asyncio
+
 import pygame
 
-W, H = 1920, 1080
-SPEED = 300  # pixels per second
+from game import core
+from game.app import Game
 
 
 async def main():
     pygame.init()
-    screen = pygame.display.set_mode((W, H), pygame.SCALED | pygame.RESIZABLE)
-    pygame.display.set_caption("Archive Keeper")
+    screen = pygame.display.set_mode((core.W, core.H), pygame.SCALED | pygame.RESIZABLE)
+    pygame.display.set_caption("Arhiivihoidja")
     clock = pygame.time.Clock()
+    game = Game(screen)
 
-    pos = pygame.Vector2(W / 2, H / 2)
-    size = 40
-
-    running = True
-    while running:
-        dt = clock.tick(60) / 1000
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-
-        keys = pygame.key.get_pressed()
-        move = pygame.Vector2(
-            keys[pygame.K_d] - keys[pygame.K_a],
-            keys[pygame.K_s] - keys[pygame.K_w],
-        )
-        if move.length() > 0:
-            move = move.normalize()  # same speed on diagonals
-        pos += move * SPEED * dt
-
-        pos.x = max(0, min(W - size, pos.x))
-        pos.y = max(0, min(H - size, pos.y))
-
-        screen.fill((30, 32, 44))
-        pygame.draw.rect(screen, (90, 200, 120), (pos.x, pos.y, size, size))
+    while game.running:
+        dt = min(clock.tick(core.FPS) / 1000, 0.05)
+        game.update(dt, pygame.event.get())
+        game.draw()
         pygame.display.flip()
-
         await asyncio.sleep(0)  # required for the browser build
 
     pygame.quit()
