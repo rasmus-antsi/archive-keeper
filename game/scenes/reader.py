@@ -1,78 +1,106 @@
 """A shelf, opened: browse its real records, and step into the ones that hold a memory.
 
-This is an overlay: it keeps a darkened copy of the room it was opened from.
+This is an overlay (see game/scene.py): the room it was opened from waits, darkened, behind it.
 """
 import random
 
 import pygame
 
 from .. import assets, settings, ui
-from ..scene import Scene
+from ..scene import Overlay
 
 BOX = pygame.Rect(110, 60, settings.W - 220, settings.H - 150)
 LIST_W = 560
 ROW_H = 44
 TOP = 110                                   # room for the shelf's name above the list
 ROWS = (BOX.height - TOP - 24) // ROW_H
+PAGE = pygame.Rect(BOX.left + LIST_W + 24, BOX.top + TOP - 14, BOX.width - LIST_W - 48, BOX.height - TOP - 10)
+MARGIN = 36                                 # between the edge of the page and what is written on it
+PHOTO_H = 380
 FADED = (120, 104, 90)                      # secondary ink on the paper
+SETTLE = 0.12                               # seconds on one record before its sharp photograph is fetched
+_last_rustle = 0
 
 
-class Reader(Scene):
+class Reader(Overlay):
     def __init__(self, game, shelf):
         super().__init__(game)
         self.shelf = shelf
         self.entries = self.content.shelf_entries(shelf)
         self.cursor = min(self.state.shelf_cursor.get(shelf["id"], 0), max(0, len(self.entries) - 1))
-        self.top_row = 0
-        turn_page()
-        self.backdrop = game.screen.copy()
-        dim = pygame.Surface(self.backdrop.get_size(), pygame.SRCALPHA)
-        dim.fill((8, 8, 12, 200))
-        self.backdrop.blit(dim, (0, 0))
+        self.top_row = max(0, min(self.cursor - ROWS // 2, len(self.entries) - ROWS))
+        self.hover = None               # the row the mouse is on
+        self.rested = 0.0               # seconds since the cursor last moved
+        self.wheel = 0.0                # wheel movement not yet turned into whole rows
+        self.keys = ui.Repeat()
+        self.names = {}                 # row -> its title, cut to fit
+        rustle()
         ui.panel(self.backdrop, BOX, (30, 26, 28), 250, radius=20, border=(92, 78, 64))
+        ui.draw_text(self.backdrop, shelf["label"], (BOX.left + 40, BOX.top + 22), "title", 60, settings.WARM)
+        count = ui.text(self.text("reader.count", n=len(self.entries)), "mono", 22, settings.DIM)
+        self.backdrop.blit(count, (BOX.right - 40 - count.get_width(), BOX.top + 50))
         # the open record is a sheet of paper with a dog-eared corner
-        page = self.page_rect()
         fold = 70
-        pygame.draw.polygon(self.backdrop, settings.PAPER, [page.topleft, page.topright, (page.right, page.bottom - fold),
-                                                            (page.right - fold, page.bottom), page.bottomleft])
-        pygame.draw.polygon(self.backdrop, (196, 182, 152), [(page.right, page.bottom - fold), (page.right - fold, page.bottom),
-                                                             (page.right - fold, page.bottom - fold)])
+        pygame.draw.polygon(self.backdrop, settings.PAPER, [PAGE.topleft, PAGE.topright, (PAGE.right, PAGE.bottom - fold),
+                                                            (PAGE.right - fold, PAGE.bottom), PAGE.bottomleft])
+        pygame.draw.polygon(self.backdrop, (196, 182, 152), [(PAGE.right, PAGE.bottom - fold), (PAGE.right - fold, PAGE.bottom),
+                                                             (PAGE.right - fold, PAGE.bottom - fold)])
+
+    # ---------------------------------------------------------------- where things are
 
     def row_rect(self, i):
         return pygame.Rect(BOX.left + 24, BOX.top + TOP + (i - self.top_row) * ROW_H, LIST_W - 40, ROW_H)
 
-    def update(self, dt, events):
+    def visible(self):
+        return range(self.top_row, min(len(self.entries), self.top_row + ROWS))
+
+    def row_at(self, pos):
+        return next((i for i in self.visible() if self.row_rect(i).collidepoint(pos)), None)
+
+    def enter_rect(self):
+        """The 'step inside' box of a record that holds a memory."""
+        return pygame.Rect(PAGE.left + MARGIN, BOX.top + TOP + 110, PAGE.width - 2 * MARGIN, 104)
+
+    # ---------------------------------------------------------------- loop
+
+    def handle(self, dt, events):
         if ui.pressed(events, *ui.BACK, pygame.K_q):
+            self.state.shelf_cursor[self.shelf["id"]] = self.cursor
             self.close()
             return
-        move = ui.pressed(events, pygame.K_DOWN, pygame.K_s) - ui.pressed(events, pygame.K_UP, pygame.K_w)
+        if not self.entries:
+            return
+        move = self.keys.steps(dt, events, ui.UP, ui.DOWN)
         move += 8 * (ui.pressed(events, pygame.K_PAGEDOWN) - ui.pressed(events, pygame.K_PAGEUP))
+        move += len(self.entries) * (ui.pressed(events, pygame.K_END) - ui.pressed(events, pygame.K_HOME))
         for e in events:
-            if e.type == pygame.MOUSEWHEEL:
-                move -= e.y
-        click = ui.clicked(events)
-        enter = ui.confirm(events)
-        if click:
-            for i in range(self.top_row, min(len(self.entries), self.top_row + ROWS)):
-                if self.row_rect(i).collidepoint(click):
-                    enter = enter or (i == self.cursor and self.entries[i]["doc"] is not None)
-                    self.cursor = i
-            if self.entries and self.enter_rect().collidepoint(click):
-                enter = True
-        before = self.cursor
-        if move and self.entries:
-            self.cursor = max(0, min(len(self.entries) - 1, self.cursor + move))
-        if self.cursor != before:
-            turn_page()
-        self.top_row = max(self.cursor - ROWS + 1, min(self.top_row, self.cursor))
-        if enter and self.entries:
-            doc = self.entries[self.cursor]["doc"]
-            if doc and doc["id"] not in self.state.solved:
-                self.step_into(doc)
+            if e.type == pygame.MOUSEWHEEL:          # a touchpad sends many small movements; a wheel sends whole notches
+                self.wheel -= getattr(e, "precise_y", e.y)
+        move += int(self.wheel)
+        self.wheel -= int(self.wheel)
 
-    def close(self):
-        self.state.shelf_cursor[self.shelf["id"]] = self.cursor
-        self.scenes.pop()
+        over = ui.pointed(events)
+        if over:
+            self.hover = self.row_at(over)
+        enter = ui.confirm(events)
+        click = ui.clicked(events)
+        before = self.cursor
+        if click:
+            row = self.row_at(click)
+            if row is not None:         # a second click on a record that holds a memory steps into it
+                enter = enter or (row == self.cursor and self.entries[row]["doc"] is not None)
+                self.cursor = row
+            elif self.enter_rect().collidepoint(click):
+                enter = True
+        self.cursor = max(0, min(len(self.entries) - 1, self.cursor + move))
+        self.rested += dt
+        if self.cursor != before:
+            self.rested = 0.0
+            rustle()
+        self.top_row = max(self.cursor - ROWS + 1, min(self.top_row, self.cursor))
+        doc = self.entries[self.cursor]["doc"]
+        if enter and doc and doc["id"] not in self.state.solved:
+            self.step_into(doc)
 
     def step_into(self, doc):
         from .memory import Memory
@@ -82,32 +110,18 @@ class Reader(Scene):
 
     # ---------------------------------------------------------------- drawing
 
-    def page_rect(self):
-        return pygame.Rect(BOX.left + LIST_W + 24, BOX.top + TOP - 14, BOX.width - LIST_W - 48, BOX.height - TOP - 10)
-
-    def detail_x(self):
-        return self.page_rect().left + 36
-
-    def enter_rect(self):
-        """The 'step inside' box of a record that holds a memory."""
-        x = self.detail_x()
-        return pygame.Rect(x, BOX.top + TOP + 110, self.page_rect().right - x - 36, 104)
-
-    def draw(self, screen):
-        screen.blit(self.backdrop, (0, 0))
-        ui.draw_text(screen, self.shelf["label"], (BOX.left + 40, BOX.top + 22), "title", 60, settings.WARM)
-        count = ui.text(f"{len(self.entries)} records", "mono", 22, settings.DIM)
-        screen.blit(count, (BOX.right - 40 - count.get_width(), BOX.top + 50))
-        
-        for i in range(self.top_row, min(len(self.entries), self.top_row + ROWS)):
+    def paint(self, screen):
+        for i in self.visible():
             entry, rect = self.entries[i], self.row_rect(i)
             doc = entry["doc"]
             if i == self.cursor:
                 pygame.draw.rect(screen, (70, 58, 50), rect, border_radius=6)
+            elif i == self.hover:
+                pygame.draw.rect(screen, (46, 40, 40), rect, border_radius=6)
             color = settings.CREAM
             if doc:
                 color = settings.DIM if doc["id"] in self.state.solved else settings.TEAL
-            ui.draw_text(screen, self.row_name(entry, rect.width - 20), (rect.left + 10, rect.top + 4), "body", 30, color)
+            ui.draw_text(screen, self.row_name(i, rect.width - 20), (rect.left + 10, rect.top + 4), "body", 30, color)
         if len(self.entries) > ROWS:
             track = pygame.Rect(BOX.left + 10, BOX.top + TOP, 5, ROWS * ROW_H)
             bar = pygame.Rect(track.left, track.top + track.height * self.top_row / len(self.entries), 5,
@@ -116,20 +130,26 @@ class Reader(Scene):
 
         if self.entries:
             self.draw_entry(screen, self.entries[self.cursor])
-        ui.hint(screen, "W/S or wheel — browse · Enter — step into a memory (*) · Esc — close")
+        self.hint(screen, "reader.hint")
 
-    def row_name(self, entry, width):
-        if "row" not in entry:
-            name = ("* " if entry["doc"] else "") + entry["title"]
-            while len(name) > 4 and assets.font("body", 30).size(name)[0] > width:
-                name = name[:-2].rstrip() + "…"
-            entry["row"] = name
-        return entry["row"]
+    def row_name(self, i, width):
+        if i not in self.names:
+            entry = self.entries[i]
+            self.names[i] = ui.fit(("* " if entry["doc"] else "") + entry["title"], "body", 30, width)
+        return self.names[i]
+
+    def picture(self, record, box):
+        """The record's photograph. Fetching a sharp one takes a moment, so while the player
+        is still flicking through the list they get the small thumbnail, enlarged."""
+        name = record["image"]
+        if self.rested >= SETTLE or assets.photo_ready(name, box):
+            return assets.photo(name, box)
+        return assets.photo(record["thumb"], box) if record.get("thumb") else None
 
     def draw_entry(self, screen, entry):
         record, doc = entry["record"], entry["doc"]
-        x = self.detail_x()
-        width = self.page_rect().right - x - 36
+        x = PAGE.left + MARGIN
+        width = PAGE.width - 2 * MARGIN
         y = BOX.top + TOP
         role = "title" if doc else "bold"       # shelf-marks like "ERM B 185:6" are unreadable in fraktur
         y = ui.draw_wrapped(screen, entry["title"], (x, y), width, role, 48, settings.INK, limit=2) + 2
@@ -141,19 +161,20 @@ class Reader(Scene):
             solved = doc["id"] in self.state.solved
             ui.panel(screen, box, (36, 36, 40) if solved else (24, 44, 46), 255, border=None if solved else settings.TEAL)
             if solved:
-                ui.draw_text(screen, "Restored. The memory is whole again.", (box.x + 28, box.y + 30), "body", 36,
-                             settings.DIM)
+                ui.draw_text(screen, self.text("reader.restored"), (box.x + 28, box.y + 30), "body", 36, settings.DIM)
             else:
-                ui.draw_text(screen, "A memory is caught in this record.", (box.x + 28, box.y + 10), "body", 36)
-                ui.draw_text(screen, "Enter — step inside", (box.x + 28, box.y + 58), "mono", 26, settings.WARM,
+                ui.draw_text(screen, self.text("reader.caught"), (box.x + 28, box.y + 10), "body", 36)
+                ui.draw_text(screen, self.text("reader.enter"), (box.x + 28, box.y + 58), "mono", 26, settings.WARM,
                              alpha=ui.blink())
             y = box.bottom + 24
 
-        img = assets.photo(record["image"], (width, 380)) if record.get("image") else None
+        img = None
         if doc and record.get("image"):
             # the team's own pixel-art page: blank while the memory is lost, filled in once restored
             name = record.get("image_restored") if doc["id"] in self.state.solved else None
             img = assets.sprite(name or record["image"], scale=2)
+        elif record.get("image"):
+            img = self.picture(record, (width, PHOTO_H))
         if img:
             screen.blit(img, (x, y))
             y += img.get_height() + 20
@@ -177,5 +198,10 @@ class Reader(Scene):
             ui.draw_text(screen, record["rights"], (x, BOX.bottom - 48), "mono", 18, FADED)
 
 
-def turn_page():
-    assets.play(f"page{random.randint(1, 6)}.ogg", 0.5)
+def rustle():
+    """A page turning, but not a whole flock of them when the list is scrolled quickly."""
+    global _last_rustle
+    now = pygame.time.get_ticks()
+    if now - _last_rustle > 70:
+        _last_rustle = now
+        assets.play(f"page{random.randint(1, 6)}.ogg", 0.5)

@@ -70,12 +70,18 @@ async def custom_site():
         __import__(__name__).__file__ = main
 
         # now make a prompt
-        msg  = "Ready to start ! Please click/touch page"
+        msg  = "Click to begin"
         platform.window.infobox.innerText = msg
+        platform.window.infobox.className = "ready"
         print("\n"*4, f"    * Waiting for media user engagement. {msg} *" , "\n"*4)
 
         while not platform.window.MM.UME:
             await asyncio.sleep(.1)
+
+        # the game takes a moment to start: say that the click was heard
+        platform.window.infobox.className = ""
+        platform.window.infobox.innerText = "Waking the archive"
+        await asyncio.sleep(.05)
 
     # start async top level machinery if not started and add a console in any case if requested.
     await TopLevel_async_handler.start_toplevel(platform.shell, console=window.python.config.debug)
@@ -93,7 +99,7 @@ async def custom_site():
     # if you don't reach that step
     # your main.py has an infinite sync loop somewhere !
 
-    platform.window.infobox.style.display = "none"
+    platform.window.loader.style.display = "none"
     platform.window.config.gui_divider = 1
     platform.window.window_resize()
     print("default.tmpl: done")
@@ -162,19 +168,39 @@ config = {
 }
 
 function show_infobox() {
-    infobox.style.display = "block";
-
-    // Measure box
-    const w = infobox.offsetWidth;
-    const h = infobox.offsetHeight;
-
-    // Center in viewport
-    const left = (window.innerWidth - w) / 2;
-    const top = (window.innerHeight - h) / 2;
-
-    infobox.style.left = left + "px";
-    infobox.style.top = top + "px";
+    loader.style.display = "flex";
 }
+
+// Fullscreen for the game. F asks for it here, inside the key press itself: a browser
+// only allows fullscreen while it is handling something the player did.
+function is_fullscreen() {
+    return !!(document.fullscreenElement || document.webkitFullscreenElement);
+}
+
+function toggle_fullscreen() {
+    const page = document.documentElement;
+    const asked = is_fullscreen()
+        ? (document.exitFullscreen || document.webkitExitFullscreen).call(document)
+        : (page.requestFullscreen || page.webkitRequestFullscreen).call(page);
+    if (asked && asked.catch) asked.catch(() => {});
+}
+
+window.addEventListener("keydown", (event) => {
+    if (event.code === "KeyF" && !event.repeat && !event.ctrlKey && !event.metaKey && !event.altKey)
+        toggle_fullscreen();
+});
+
+// The first click or key press. The loader would notice it by itself, but only looks every
+// two seconds; this lets the game start at once and says that the click was heard.
+function engaged() {
+    if (window.MM) MM.UME = true;
+    if (infobox.className === "ready") {
+        infobox.className = "";
+        infobox.innerText = "Waking the archive";
+    }
+}
+window.addEventListener("pointerdown", engaged);
+window.addEventListener("keydown", engaged);
 
 </script>
 
@@ -184,6 +210,8 @@ function show_infobox() {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="viewport" content="height=device-height, initial-scale=1.0">
     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0b0b0f">
+    <meta name="description" content="Archive Keeper: a ghost is called back to restore the records of an archive. A game for TÜ Mängujämm 2026, made with real Estonian heritage records.">
     <meta name="apple-mobile-web-app-capable" content="yes"/>
 
 
@@ -204,17 +232,37 @@ function show_infobox() {
             width: 300px;
         }
 
-        #infobox {
-            position: fixed; /* center relative to viewport */
-            background: #1c1a1e;
-            color: #f0e8d4;
-            border: 1px solid #5c4e40;
-            border-radius: 8px;
-            font-family: Georgia, serif;
-            padding: 12px 24px;
- /*           display: none; */
+        /* what is on the page until the game itself has started */
+        #loader {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
             z-index: 999999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #0b0b0f;
+            color: #f0e8d4;
+            font-family: Georgia, "Times New Roman", serif;
+            text-align: center;
+            pointer-events: none;   /* the first click has to reach the page underneath */
         }
+        #loader .name { font-size: clamp(40px, 7vw, 104px); letter-spacing: 0.02em; }
+        #loader .tagline { font-size: clamp(16px, 2vw, 30px); font-style: italic; color: #82e2d6; margin: 0.6em 0 2.2em; }
+        #infobox {
+            font-family: "Courier New", Courier, monospace;
+            font-size: clamp(14px, 1.5vw, 22px);
+            color: #96969f;
+            animation: breathe 1.8s ease-in-out infinite;
+        }
+        #infobox::after { content: " ..."; }
+        #infobox.ready { color: #ffce82; font-size: clamp(18px, 2vw, 30px); animation-duration: 1.1s; }
+        #infobox.ready::after { content: ""; }
+        @keyframes breathe { 50% { opacity: 0.4; } }
+        @media (prefers-reduced-motion: reduce) { #infobox { animation: none; } }
         div.emscripten { text-align: center; }
         div.emscripten_border { border: 1px solid black; }
         div.thick_border { border: 4px solid black; }
@@ -225,8 +273,10 @@ function show_infobox() {
         canvas.emscripten {
             border: 0px none;
             background-color: transparent;
-            width: 100%;
-            height: 100%;
+            /* as large as the window allows at 16:9. Set here, and firmly, so the picture is
+               never stretched, not even for the moment before the page script has measured it */
+            width: min(100vw, 100vh * 16 / 9) !important;
+            height: min(100vh, 100vw * 9 / 16) !important;
             z-index: 5;
 
             padding: 0;
@@ -316,7 +366,11 @@ height="{{cookiecutter.height}}px"
     oncontextmenu="event.preventDefault()" tabindex=1 hidden>
     </canvas>
 
-    <div id="infobox">Loading, please wait ...</div>
+    <div id="loader">
+        <div class="name">{{cookiecutter.title}}</div>
+        <div class="tagline">a ghost in the machine</div>
+        <div id="infobox">Loading</div>
+    </div>
 
     <div id=html></div>
 

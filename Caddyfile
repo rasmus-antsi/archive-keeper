@@ -2,5 +2,8 @@
 :{$PORT:8080} {
 	root * /srv
 	encode gzip
+	# The game bundle keeps its name from one deploy to the next. "no-cache" makes the
+	# browser ask whether its copy is still current, so nobody plays yesterday's build.
+	header Cache-Control "no-cache"
 	file_server
 }

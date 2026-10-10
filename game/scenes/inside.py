@@ -1,11 +1,11 @@
 """Looking inside a chest, cupboard or barrel in a memory: what is in it, and taking one thing.
 
-This is an overlay: it keeps a darkened copy of the place it was opened from.
+This is an overlay (see game/scene.py): the place it was opened in waits, darkened, behind it.
 """
 import pygame
 
-from .. import settings, ui
-from ..scene import Scene
+from .. import assets, settings, ui
+from ..scene import Overlay
 from .memory import item_image
 
 BOX = pygame.Rect(0, 0, 1240, 560)
@@ -13,50 +13,54 @@ BOX.center = (settings.W // 2, settings.H // 2 - 20)
 SLOT = 240
 
 
-class Inside(Scene):
+class Inside(Overlay):
+    DIM = 0.75
+
     def __init__(self, game, memory, container):
         super().__init__(game)
         self.memory = memory
         self.container = container
         self.items = memory.contents(container)
         self.cursor = 0
-        self.backdrop = game.screen.copy()
-        dim = pygame.Surface(self.backdrop.get_size(), pygame.SRCALPHA)
-        dim.fill((8, 8, 12, 190))
-        self.backdrop.blit(dim, (0, 0))
         ui.panel(self.backdrop, BOX, (58, 42, 34), 255, radius=20, border=(132, 98, 66))
         ui.panel(self.backdrop, BOX.inflate(-60, -230).move(0, 30), (34, 25, 22), 255, radius=12)
+        ui.draw_text(self.backdrop, container.label.capitalize(), (BOX.centerx, BOX.top + 70), "title", 72,
+                     settings.WARM, center=True)
 
     def slot(self, i):
         rect = pygame.Rect(0, 0, SLOT, SLOT)
         rect.center = (BOX.centerx + (i - (len(self.items) - 1) / 2) * (SLOT + 30), BOX.centery + 30)
         return rect
 
-    def update(self, dt, events):
+    def choose(self, i):
+        if i != self.cursor:
+            self.cursor = i
+            assets.play("tick.ogg", 0.5)
+
+    def handle(self, dt, events):
         if ui.pressed(events, *ui.BACK, pygame.K_q):
-            self.scenes.pop()
+            self.close()
             return
         take = ui.confirm(events)
         if self.items:
-            move = ui.pressed(events, pygame.K_RIGHT, pygame.K_d) - ui.pressed(events, pygame.K_LEFT, pygame.K_a)
-            self.cursor = (self.cursor + move) % len(self.items)
-            click = ui.clicked(events)
+            move = ui.pressed(events, *ui.RIGHT) - ui.pressed(events, *ui.LEFT)
+            self.choose((self.cursor + move) % len(self.items))
+            over, click = ui.pointed(events), ui.clicked(events)
             for i in range(len(self.items)):
+                if over and self.slot(i).collidepoint(over):
+                    self.choose(i)
                 if click and self.slot(i).collidepoint(click):
                     self.cursor, take = i, True
         if take:
             if self.items:
                 self.memory.take(self.items[self.cursor])
-            self.scenes.pop()
+            self.close()
 
-    def draw(self, screen):
-        screen.blit(self.backdrop, (0, 0))
-        ui.draw_text(screen, self.container.label.capitalize(), (BOX.centerx, BOX.top + 70), "title", 72, settings.WARM,
-                     center=True)
+    def paint(self, screen):
         if not self.items:
-            ui.draw_text(screen, "Tühi. Ainult tolm.", (BOX.centerx, BOX.centery + 30), "italic", 44, settings.DIM,
+            ui.draw_text(screen, self.text("memory.empty"), (BOX.centerx, BOX.centery + 30), "italic", 44, settings.DIM,
                          center=True)
-            ui.hint(screen, "E või Esc — sulge")
+            self.hint(screen, "memory.close")
             return
         for i, item in enumerate(self.items):
             rect = self.slot(i)
@@ -67,4 +71,4 @@ class Inside(Scene):
             screen.blit(img, img.get_rect(center=rect.center))
         ui.draw_text(screen, self.items[self.cursor]["label"], (BOX.centerx, BOX.bottom - 62), "body", 44,
                      settings.CREAM, center=True)
-        ui.hint(screen, "A/D — vali · E — võta kaasa · Esc — sulge")
+        self.hint(screen, "memory.take")

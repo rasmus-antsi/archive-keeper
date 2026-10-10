@@ -1,5 +1,5 @@
 """The robots' opening message: typed out, held for a while, skippable."""
-from .. import settings, ui
+from .. import assets, settings, ui
 from ..scene import Scene
 
 TYPE_SPEED = 70       # characters per second
@@ -26,6 +26,8 @@ class Intro(Scene):
         if skip and not self.typed():
             self.t = self.length / TYPE_SPEED       # first press shows the whole text
         elif skip or self.t >= self.seconds:
+            if skip:
+                assets.play("tick.ogg", 0.6)
             from .archive import Archive
             self.scenes.go(lambda: Archive(self.game))
 
@@ -44,4 +46,4 @@ class Intro(Scene):
         k = max(0.0, 1 - self.t / self.seconds)
         screen.fill((40, 60, 62), (x, settings.H - 90, width, 4))
         screen.fill(settings.TEAL, (x, settings.H - 90, int(width * k), 4))
-        ui.hint(screen, "space — continue" if self.typed() else "space — skip")
+        self.hint(screen, "intro.continue" if self.typed() else "intro.skip")

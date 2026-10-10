@@ -2,6 +2,69 @@
   "title": "Archive Keeper",
   "subtitle": "a ghost in the machine",
 
+  "music": {"menu": 0.45, "archive": 0.6, "tartu": 0.38},
+
+  "ui": {
+    "loading": "dusting the shelves",
+    "advance": "space >",
+    "sound_on": "sound on",
+    "sound_off": "sound off",
+    "title": {
+      "begin": "Begin",
+      "settings": "Settings",
+      "credits": "Credits",
+      "quit": "Quit",
+      "hint": "W/S or arrows — choose · Enter or space — select · M mute · F fullscreen"
+    },
+    "settings": {
+      "heading": "Settings",
+      "music": "Music",
+      "sound": "Sounds",
+      "fullscreen": "Fullscreen",
+      "on": "on",
+      "off": "off",
+      "back": "Back",
+      "hint": "W/S — choose · A/D — change · Esc — back"
+    },
+    "pause": {
+      "heading": "Paused",
+      "resume": "Resume",
+      "settings": "Settings",
+      "leave": "Leave this memory",
+      "title": "Back to the title",
+      "sure": "Sure? Press again to give up",
+      "hint": "W/S — choose · Enter — select · Esc — resume"
+    },
+    "credits": {"heading": "Credits", "hint": "Esc — back"},
+    "intro": {"skip": "space — skip", "continue": "space — continue"},
+    "archive": {
+      "count": "records restored  {done} / {total}",
+      "move": "WASD / arrows — move · E or space — interact · Esc — menu",
+      "talk": "E — talk",
+      "read": "E — read this shelf",
+      "caught": "a memory is caught here"
+    },
+    "reader": {
+      "count": "{n} records",
+      "hint": "W/S or wheel — browse · Enter — step into a memory (*) · Esc — close",
+      "caught": "A memory is caught in this record.",
+      "enter": "Enter — step inside",
+      "restored": "Restored. The memory is whole again."
+    },
+    "memory": {
+      "continue": "space — continue",
+      "carrying": "kaasas",
+      "give": "E — anna talle: {item}",
+      "listen": "E — kuula uuesti",
+      "open": "E — vaata sisse: {thing}",
+      "search": "otsi üles, mida küsiti, ja vii see talle · Esc — menüü",
+      "empty": "Tühi. Ainult tolm.",
+      "close": "E või Esc — sulge",
+      "take": "A/D — vali · E — võta kaasa · Esc — sulge"
+    },
+    "ending": {"back": "space — back to the title"}
+  },
+
   "intro": {
     "seconds": 20,
     "heading": "INCOMING TRANSMISSION",

@@ -8,6 +8,7 @@ class GameState:
         self.seen = set()          # one-off moments already shown, by name
         self.archive_pos = None    # where the ghost stood when it left the archive room
         self.shelf_cursor = {}     # shelf id -> last selected entry
+        self.walked = 0.0          # art pixels the ghost has walked in the archive, to know when it has learnt how
 
     @property
     def all_solved(self):

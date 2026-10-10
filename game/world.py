@@ -5,6 +5,10 @@ Everything here is measured in art pixels, the pixels the artists draw. The worl
 drawn small (settings.VIEW, 240x135) and enlarged settings.PIXEL times onto the
 screen in one step, which keeps it crisp and fast in the browser.
 
+The camera is not held to whole art pixels: the enlarged picture is shifted by the
+part of a pixel that is left over, so the view scrolls one screen pixel at a time
+instead of eight. The ghost is drawn afterwards at its exact place for the same reason.
+
 A map is a dict (see data/game.json "map" and data/documents/*.json "map"):
 
   size        [w, h] of the whole place
@@ -25,9 +29,13 @@ import pygame
 
 from . import assets, paint, settings
 
+PIXEL = settings.PIXEL
 VIEW = pygame.Rect(0, 0, settings.VIEW_W, settings.VIEW_H)
 REACH = 9                      # how close to a thing counts as standing at it
-_glows, _shadows = {}, {}
+FOLLOW = 9.0                   # how eagerly the camera catches up with the ghost; bigger is tighter
+JUMP = 40                      # further than this from where it belongs, the camera jumps instead of gliding
+VOID = (18, 16, 20)            # what lies outside every room
+_glows, _shadows, _canvases = {}, {}, []
 
 
 class Room:
@@ -48,6 +56,8 @@ class Prop:
         self.data = data
         self.type = data["type"]
         self.id = data.get("id")
+        if self.type not in paint.PROPS:
+            raise ValueError(f"a map has a prop of type '{self.type}'; the types are: {', '.join(sorted(paint.PROPS))}")
         spec = paint.PROPS[self.type]
         self.flat, self.wall = spec.flat, spec.wall
         name = data.get("sprite") or f"props/{self.type}.png"
@@ -86,15 +96,14 @@ class World:
         self.sprites = [p for p in self.props if p.image and not p.flat]
         self.lights = [p.light for p in self.props if p.light]
         self.ground = painting.convert() if painting else self._paint()
-        self.low = pygame.Surface(VIEW.size).convert()
-        self.dark = pygame.Surface(VIEW.size).convert()
-        self.cam = pygame.Vector2()
+        self.cam = pygame.Vector2()       # top left corner of the view, exact
+        self.origin = (0, 0)              # the same in whole screen pixels
 
     # ---------------------------------------------------------------- building
 
     def _paint(self):
         ground = pygame.Surface(self.size).convert()
-        ground.fill((18, 16, 20))
+        ground.fill(VOID)
         for room in self.rooms:
             r = paint.rng(self.name, *room.rect)
             rect = room.rect
@@ -157,49 +166,105 @@ class World:
                 goal = 0.0 if room.rect.collidepoint(pos) else 1.0
                 room.cover += max(-dt * 5, min(dt * 5, goal - room.cover))
 
-    # ---------------------------------------------------------------- drawing
+    # ---------------------------------------------------------------- camera
 
-    def look_at(self, pos):
+    def look_at(self, pos, dt=0.0):
+        """Bring the camera towards pos, the ghost's feet. It glides there over a few
+        frames; with no dt, or when it has far to go, it is put there at once."""
         for axis, (size, view) in enumerate(zip(self.size, VIEW.size)):
-            centre = round(pos[axis]) - view // 2 - (10 if axis else 0)
-            self.cam[axis] = max(0, min(size - view, centre)) if size > view else (size - view) // 2
+            goal = pos[axis] - view / 2 - (10 if axis else 0)
+            goal = max(0, min(size - view, goal)) if size > view else (size - view) / 2
+            gap = goal - self.cam[axis]
+            self.cam[axis] = goal if not dt or abs(gap) > JUMP else goal - gap * math.exp(-FOLLOW * dt)
+        self.origin = (round(self.cam.x * PIXEL), round(self.cam.y * PIXEL))
 
     def to_screen(self, pos):
-        return (pos[0] - self.cam.x) * settings.PIXEL, (pos[1] - self.cam.y) * settings.PIXEL
+        return pos[0] * PIXEL - self.origin[0], pos[1] * PIXEL - self.origin[1]
 
-    def draw(self, screen, actors, lights=(), outlines=()):
-        """actors: (y of the feet, picture, top left) for everybody who walks about.
+    # ---------------------------------------------------------------- drawing
+
+    def draw(self, screen, ghost=None, actors=(), lights=(), outlines=()):
+        """ghost: the Player, drawn sharp and last, at its exact place.
+        actors: (y of the feet, picture, top left) for everybody else who walks about.
         lights: extra (x, y, radius, colour). outlines: (rect, colour) frames drawn unlit."""
-        low, cx, cy = self.low, int(self.cam.x), int(self.cam.y)
-        seen = VIEW.move(cx, cy)
-        if cx < 0 or cy < 0:
-            low.fill((18, 16, 20))
-        low.blit(self.ground, (0, 0), seen) if cx >= 0 and cy >= 0 else low.blit(self.ground, (-cx, -cy))
+        low, dark, big = _canvas()
+        ox, oy = self.origin
+        cx, cy = ox // PIXEL, oy // PIXEL             # the art pixel in the top left corner
+        seen = pygame.Rect((cx, cy), low.get_size())
+        low.fill(VOID)
+        low.blit(self.ground, (-cx, -cy))
 
-        things = [(p.base, 0, p.image, p.rect.topleft) for p in self.sprites if p.rect.colliderect(seen)]
+        # (y it is sorted by, layer, picture, top left, see-through or None)
+        things = [(p.base, 0, p.image, p.rect.topleft, None) for p in self.sprites if p.rect.colliderect(seen)]
         for base, image, topleft in actors:
             low.blit(_shadow(image.get_width()), (topleft[0] - cx, round(base) - 3 - cy))
-            things.append((base, 1, image, topleft))
+            things.append((base, 1, image, topleft, None))
         for room in self.rooms:
             if room.roof and room.cover > 0.02 and room.rect.colliderect(seen):
-                room.roof.set_alpha(int(255 * room.cover))
-                things.append((room.rect.bottom, 2, room.roof, room.rect.topleft))
+                things.append((room.rect.bottom, 2, room.roof, room.rect.topleft, int(255 * room.cover)))
         things.sort(key=lambda thing: thing[:2])
-        for _, _, image, (x, y) in things:
+        for _, _, image, (x, y), alpha in things:
+            if alpha is not None:
+                image.set_alpha(alpha)
             low.blit(image, (x - cx, y - cy))
 
         if self.ambient:
-            self.dark.fill(self.ambient)
+            dark.fill(self.ambient)
             for x, y, radius, color in list(self.lights) + list(lights):
                 if seen.inflate(radius * 2, radius * 2).collidepoint(x, y):
-                    self.dark.blit(_glow(radius, color), (x - radius - cx, y - radius - cy), special_flags=pygame.BLEND_RGB_ADD)
-            low.blit(self.dark, (0, 0), special_flags=pygame.BLEND_RGB_MULT)
+                    dark.blit(_glow(radius, color), (x - radius - cx, y - radius - cy), special_flags=pygame.BLEND_RGB_ADD)
+            low.blit(dark, (0, 0), special_flags=pygame.BLEND_RGB_MULT)
         for rect, color in outlines:
             pygame.draw.rect(low, color, pygame.Rect(rect).move(-cx, -cy).inflate(4, 4), 1)
-        try:
-            pygame.transform.scale(low, (settings.W, settings.H), screen)
-        except ValueError:          # a screen with another pixel format
-            screen.blit(pygame.transform.scale(low, (settings.W, settings.H)), (0, 0))
+
+        # enlarge, and slide the picture back by the part of an art pixel the camera has moved
+        pygame.transform.scale(low, big.get_size(), big)
+        screen.blit(big, (cx * PIXEL - ox, cy * PIXEL - oy))
+        if ghost:
+            self._draw_ghost(screen, ghost, things, low, seen)
+
+    def _draw_ghost(self, screen, ghost, things, low, seen):
+        """The ghost goes straight onto the screen, placed to the screen pixel, so it glides
+        instead of hopping from one art pixel to the next. It is not lit: it glows by itself.
+        Whatever stands in front of it is then cut out of the finished small picture and
+        drawn over it again."""
+        ox, oy = self.origin
+        w, h = ghost.image.get_size()
+        picture = ghost.picture
+        left = round(ghost.pos.x * PIXEL) - picture.get_width() // 2 - ox
+        foot = round((ghost.pos.y - 1 + ghost.lift) * PIXEL) - oy
+        screen.blit(_shadow(w, big=True), (left, round((ghost.pos.y - 3) * PIXEL) - oy))
+        screen.blit(picture, (left, foot - picture.get_height()))
+
+        box = pygame.Rect(math.floor(ghost.pos.x - w / 2), math.floor(ghost.pos.y - h - 2), w + 2, h + 5)
+        for base, layer, image, (x, y), alpha in things:
+            if (base, layer) <= (ghost.pos.y, 1):
+                continue                                # behind the ghost
+            part = box.clip(pygame.Rect((x, y), image.get_size())).clip(seen)
+            if not part.w or not part.h:
+                continue
+            piece = low.subsurface(part.move(-seen.x, -seen.y))
+            if alpha is None:
+                # a prop or a person: only where its own picture is solid, in the lit colours it has on screen
+                cut = pygame.Surface(part.size, pygame.SRCALPHA)
+                cut.blit(image, (0, 0), part.move(-x, -y))
+                cut.fill((255, 255, 255), special_flags=pygame.BLEND_RGB_MAX)
+                cut.blit(piece, (0, 0), special_flags=pygame.BLEND_RGB_MULT)
+                piece = cut
+            piece = pygame.transform.scale_by(piece, PIXEL)
+            if alpha is not None:
+                piece.set_alpha(alpha)                  # a roof that is fading away
+            screen.blit(piece, (part.x * PIXEL - ox, part.y * PIXEL - oy))
+
+
+def _canvas():
+    """The small picture the world is drawn on, its darkness layer, and the enlarged copy.
+    One art pixel wider and taller than the view, to have something to scroll into."""
+    if not _canvases:
+        size = (VIEW.w + 1, VIEW.h + 1)
+        _canvases.extend((pygame.Surface(size).convert(), pygame.Surface(size).convert(),
+                          pygame.Surface((size[0] * PIXEL, size[1] * PIXEL)).convert()))
+    return _canvases
 
 
 def _glow(radius, color):
@@ -214,9 +279,11 @@ def _glow(radius, color):
     return _glows[key]
 
 
-def _shadow(width):
-    if width not in _shadows:
+def _shadow(width, big=False):
+    """The soft patch under somebody's feet; big is the same picture at screen size."""
+    key = (width, big)
+    if key not in _shadows:
         img = pygame.Surface((width, 5), pygame.SRCALPHA)
         pygame.draw.ellipse(img, (0, 0, 0, 80), (1, 0, width - 2, 5))
-        _shadows[width] = img
-    return _shadows[width]
+        _shadows[key] = pygame.transform.scale_by(img, PIXEL) if big else img
+    return _shadows[key]

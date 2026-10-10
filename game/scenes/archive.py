@@ -14,10 +14,14 @@ from ..player import Player
 from ..scene import Scene
 
 GHOST_LIGHT = (150, 176, 190)
+ROBOT_SPEED = 26          # art pixels per second
+PULSE_STEPS = 10          # the shelves' glow breathes in this many shades
+LEARNT = 90               # art pixels walked before the "how to move" line goes away
 
 
 class Archive(Scene):
     music = "archive"
+    pausable = True
 
     def __init__(self, game):
         super().__init__(game)
@@ -25,6 +29,7 @@ class Archive(Scene):
         data = self.content.game["map"]
         self.world = game.world("archive", data)
         self.player = Player(self.state.archive_pos or data["start"])
+        self.world.look_at(self.player.pos)
         self.shelves = {s["id"]: s for s in self.content.shelves}
         self.cases = [p for p in self.world.props if p.data.get("shelf")]
         self.door = self.world.by_id["exit"]
@@ -33,7 +38,7 @@ class Archive(Scene):
         self.robot_img = assets.optional("tegelased/robot.png") or paint.robot()
         self.robot_guard, self.robot_aside = data["robot"]["guard"], data["robot"]["aside"]       # feet positions
         self.robot_pos = pygame.Vector2(self.robot_aside if self.door_open else self.robot_guard)
-        self.dialogue = ui.DialogueBox()
+        self.dialogue = ui.DialogueBox(prompt=self.text("advance"))
         self.near = None           # the bookcase the ghost is standing at
         self.near_robot = False
         self.leaving = False
@@ -55,10 +60,18 @@ class Archive(Scene):
         self.state.seen.add("door_open")
         assets.play("unlock.ogg", 0.5)
 
-    def robot_rect(self):
+    def robot_rect(self, pos=None):
+        pos = self.robot_pos if pos is None else pos
         rect = pygame.Rect(0, 0, 12, 5)
-        rect.midbottom = (round(self.robot_pos.x), round(self.robot_pos.y))
+        rect.midbottom = (round(pos.x), round(pos.y))
         return rect
+
+    def move_robot(self, dt):
+        """The robot walks between its post at the door and its place beside it. It waits
+        rather than walk into the ghost, which could never get out from under it again."""
+        step = self.robot_pos.move_towards(self.robot_aside if self.door_open else self.robot_guard, ROBOT_SPEED * dt)
+        if not self.robot_rect(step).colliderect(self.player.feet()):
+            self.robot_pos = step
 
     def walkable(self, feet):
         if feet.colliderect(self.robot_rect()):
@@ -72,11 +85,14 @@ class Archive(Scene):
 
     def update(self, dt, events):
         self.t += dt
-        self.robot_pos.move_towards_ip(self.robot_aside if self.door_open else self.robot_guard, 26 * dt)
-        if self.dialogue.update(dt, events) or self.leaving:
-            self.player.update(dt, self.walkable, control=False)
+        self.move_robot(dt)
+        busy = self.dialogue.update(dt, events) or self.leaving
+        before = pygame.Vector2(self.player.pos)
+        self.player.update(dt, self.walkable, control=not busy)
+        self.world.look_at(self.player.pos, dt)
+        if busy:
             return
-        self.player.update(dt, self.walkable)
+        self.state.walked += self.player.pos.distance_to(before)
         feet = self.player.feet()
         self.near = self.world.nearest(feet, self.cases)
         self.near_robot = self.robot_rect().inflate(18, 18).colliderect(feet)
@@ -96,7 +112,6 @@ class Archive(Scene):
         self.state.archive_pos = tuple(self.player.pos)
         self.near = None
         assets.play("place.ogg", 0.5)
-        self.draw(self.game.screen)        # a clean picture for the reader to sit on
         self.scenes.push(Reader(self.game, shelf))
 
     def talk_to_robot(self):
@@ -108,9 +123,9 @@ class Archive(Scene):
 
     def draw(self, screen):
         world = self.world
-        world.look_at(self.player.pos)
         self.door.image = self.door_images[self.door_open]
-        pulse = 0.5 + 0.5 * math.sin(self.t * 3)
+        # a few fixed shades instead of a new one every frame: each shade of light is a picture that is kept
+        pulse = round((0.5 + 0.5 * math.sin(self.t * 3)) * PULSE_STEPS) / PULSE_STEPS
         glowing = [p for p in self.cases if self.unsolved(p.data["shelf"])]
         lights = [(round(self.player.pos.x), round(self.player.pos.y) - 12, 50, GHOST_LIGHT)]
         lights += [(p.rect.centerx, p.rect.centery, 44, tuple(int(c * (0.35 + 0.4 * pulse)) for c in settings.TEAL))
@@ -119,27 +134,34 @@ class Archive(Scene):
         if self.near and not self.dialogue.active:
             outlines.append((self.near.rect, settings.CREAM))
         robot = self.robot_img
-        actors = [self.player.actor(), (self.robot_pos.y, robot, (round(self.robot_pos.x) - robot.get_width() // 2,
-                                                                 round(self.robot_pos.y) - robot.get_height()))]
-        world.draw(screen, actors, lights, outlines)
+        robot_at = (round(self.robot_pos.x) - robot.get_width() // 2, round(self.robot_pos.y) - robot.get_height())
+        world.draw(screen, self.player, [(self.robot_pos.y, robot, robot_at)], lights, outlines)
 
-        ui.draw_text(screen, f"records restored  {len(self.state.solved)} / {self.state.total}", (40, 24), "mono", 26,
-                     settings.DIM)
+        ui.draw_text(screen, self.text("archive.count", done=len(self.state.solved), total=self.state.total), (40, 24),
+                     "mono", 26, settings.DIM)
         if self.dialogue.active:
             self.dialogue.draw(screen)
-            return
+        elif not self.plain:
+            self.draw_prompts(screen, glowing)
+
+    def draw_prompts(self, screen, glowing):
+        """Where to go (an arrow to the nearest shelf that still glows, or to the open door)
+        and what can be done right here."""
+        world = self.world
         if glowing:
             target = min(glowing, key=lambda p: self.player.pos.distance_to(p.rect.center))
             ui.pointer(screen, world.to_screen(target.rect.center))
         elif self.door_open:
             ui.pointer(screen, world.to_screen(self.exit.center), settings.WARM)
         if self.near_robot:
-            ui.key_prompt(screen, world.to_screen((self.robot_pos.x, self.robot_pos.y - robot.get_height())))
-            ui.hint(screen, "E — talk")
+            ui.key_prompt(screen, world.to_screen((self.robot_pos.x, self.robot_pos.y - self.robot_img.get_height())))
+            self.hint(screen, "archive.talk")
         elif self.near:
             shelf = self.shelves[self.near.data["shelf"]]
             ui.key_prompt(screen, world.to_screen(self.near.rect.midtop))
-            label = shelf["label"] + ("  ·  a memory is caught here" if self.unsolved(shelf["id"]) else "")
-            ui.panel(screen, (settings.W / 2 - 400, 8, 800, 62))
-            ui.draw_text(screen, label, (settings.W / 2, 39), "bold", 36, settings.CREAM, center=True)
-            ui.hint(screen, "E — read this shelf")
+            name = shelf["label"] + (f"  ·  {self.text('archive.caught')}" if self.unsolved(shelf["id"]) else "")
+            ui.panel(screen, (settings.W / 2 - 400, settings.H - 130, 800, 62))
+            ui.draw_text(screen, name, (settings.W / 2, settings.H - 99), "bold", 36, settings.CREAM, center=True)
+            self.hint(screen, "archive.read")
+        elif self.state.walked < LEARNT:
+            self.hint(screen, "archive.move")

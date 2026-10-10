@@ -1,6 +1,6 @@
 """Everything the writer and artists edit lives in data/ and is loaded here.
 
-data/game.json          interface text, the robot's lines, the archive rooms, the shelves, credits
+data/game.json          interface text ("ui"), the robot's lines, the archive rooms, the shelves, credits
 data/documents/*.json   one file per memory (a record you can step into)
 data/archive.json       the real heritage records that fill the shelves
 """
@@ -23,6 +23,16 @@ class Content:
         self.shelves = self.game["shelves"]
         for doc in self.documents:
             _check(doc, {s["id"] for s in self.shelves})
+
+    def text(self, key, **values):
+        """A line of interface text from "ui" in data/game.json: text("archive.count", done=1, total=2).
+        A line that is missing shows its own name instead of stopping the game."""
+        line = self.game.get("ui", {})
+        for part in key.split("."):
+            line = line.get(part) if isinstance(line, dict) else None
+        if not isinstance(line, str):
+            return f"[{key}]"
+        return line.format(**values) if values else line
 
     def shelf_entries(self, shelf):
         """What a shelf holds: its memories first, then the plain archive records.

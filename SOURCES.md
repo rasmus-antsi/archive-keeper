@@ -15,6 +15,8 @@ Kirjete tekstid ja viited on failis `data/records.json`.
 | assets/fonts/CrimsonText-*.ttf | Kirjatüüp Crimson Text | https://github.com/google/fonts/tree/main/ofl/crimsontext | SIL OFL 1.1 |
 | assets/fonts/CourierPrime-Regular.ttf | Kirjatüüp Courier Prime | https://github.com/google/fonts/tree/main/ofl/courierprime | SIL OFL 1.1 |
 | assets/fonts/UnifrakturMaguntia-Book.ttf | Kirjatüüp UnifrakturMaguntia | https://github.com/google/fonts/tree/main/ofl/unifrakturmaguntia | SIL OFL 1.1 |
+| assets/snd/tick.ogg | Menüü klõps | koodiga genereeritud: `tools/make_tick.py` | tiimi enda tehtud |
+| favicon.png | Brauseri vahekaardi ja akna ikoon | tehtud tiimi kummituse pildist: `tools/make_icon.py` | tiimi enda tehtud |
 
 ## Kogu arhiiv mängus
 

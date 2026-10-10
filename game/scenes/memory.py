@@ -17,12 +17,14 @@ a key or click.
 """
 import pygame
 
-from .. import assets, paint, settings, ui
+from .. import assets, effects, paint, settings, ui
 from ..player import Player
 from ..scene import Scene
 
 
 class Memory(Scene):
+    pausable = True
+
     def __init__(self, game, doc):
         super().__init__(game)
         self.doc = doc
@@ -30,6 +32,7 @@ class Memory(Scene):
         self.t = 0.0
         self.world = game.world(doc["id"], doc["map"])
         self.player = Player(doc["map"]["start"])
+        self.world.look_at(self.player.pos)
         self.items = {i["id"]: i for i in doc["items"]}
         self.containers = [p for p in self.world.props if "holds" in p.data]
         self.home = {item: p.id for p in self.containers for item in p.data["holds"]}     # where each thing belongs
@@ -39,10 +42,9 @@ class Memory(Scene):
         self.request = 0               # which of the document's requests is being asked
         self.establishing = assets.backdrop(doc.get("establishing", ""))
         box = doc.get("dialogue", {})          # lets a document keep the text clear of a big portrait
-        self.dialogue = ui.DialogueBox(box.get("x", 180), box.get("width", settings.W - 360))
+        self.dialogue = ui.DialogueBox(box.get("x", 180), box.get("width", settings.W - 360), prompt=self.text("advance"))
         self.near = None               # the container or Npc the ghost is standing at
         self.blackout = 0.0            # a wrong guess blinks the scene away for a moment
-        self.black = pygame.Surface((settings.W, settings.H))
         self.done = False
         self.asked = False
 
@@ -92,6 +94,7 @@ class Memory(Scene):
             self.dialogue.say(request.get("thanks", []) or ["…"], npc.name if npc else "", on_done=self.leave)
 
     def leave(self):
+        """Back to the archive: with the memory restored, or given up from the pause menu."""
         if self.done:
             self.state.solved.add(self.doc["id"])
         from .archive import Archive
@@ -117,25 +120,26 @@ class Memory(Scene):
                 self.t = 0.0
                 self.ask()
             return
-        if self.blackout > 0.5 or self.dialogue.update(dt, events):
-            self.player.update(dt, self.walkable, control=False)
+        busy = self.blackout > 0.5 or self.dialogue.update(dt, events)
+        self.player.update(dt, self.walkable, control=not busy)
+        self.world.look_at(self.player.pos, dt)
+        if busy:
             self.near = None
             return
-        if ui.pressed(events, *ui.BACK):
-            self.leave()
-            return
-        self.player.update(dt, self.walkable)
         self.near = self.nearest()
         if ui.confirm(events) and self.near:
             if not isinstance(self.near, Npc):
-                from .inside import Inside
-                assets.play(f"page{1 + int(self.t * 7) % 6}.ogg", 0.5)
-                self.draw(self.game.screen)        # a clean picture for the overlay to sit on
-                self.scenes.push(Inside(self.game, self, self.near))
+                self.look_inside(self.near)
             elif self.carrying:
                 self.give()
             else:
                 self.ask()
+
+    def look_inside(self, container):
+        from .inside import Inside
+        assets.play(f"page{1 + int(self.t * 7) % 6}.ogg", 0.5)
+        self.near = None
+        self.scenes.push(Inside(self.game, self, container))
 
     # ---------------------------------------------------------------- drawing
 
@@ -143,12 +147,10 @@ class Memory(Scene):
         if self.establishing:
             screen.blit(self.establishing, (0, 0))
             ui.draw_text(screen, self.doc.get("place", ""), (settings.W / 2, 110), "title", 96, settings.CREAM, center=True)
-            ui.hint(screen, "space — continue")
+            self.hint(screen, "memory.continue")
             return
-        world = self.world
-        world.look_at(self.player.pos)
         outlines = [(self.near.rect, settings.CREAM)] if self.near and not isinstance(self.near, Npc) else []
-        world.draw(screen, [self.player.actor()] + [n.actor() for n in self.npcs], outlines=outlines)
+        self.world.draw(screen, self.player, [n.actor() for n in self.npcs], outlines=outlines)
         talking = self.dialogue.active and self.dialogue.queue[0][0]
         for npc in self.npcs:
             if talking == npc.name:
@@ -159,29 +161,47 @@ class Memory(Scene):
             ui.draw_text(screen, self.doc.get("place", ""), (settings.W / 2, 110), "title", 96, settings.CREAM,
                          center=True, alpha=int(255 * fade))
         n, total = min(self.request + 1, len(self.doc["requests"])), len(self.doc["requests"])
-        ui.panel(screen, (24, 14, 470, 52), alpha=150)
-        ui.draw_text(screen, f"{self.doc['title']}  ·  {n} / {total}", (40, 24), "mono", 26, settings.CREAM)
+        ui.label(screen, f"{self.doc['title']}  ·  {n} / {total}", (24, 14))
         if self.carrying:
             item = self.items[self.carrying]
             ui.panel(screen, (settings.W - 200, 20, 176, 216), alpha=200, border=settings.WARM)
             img = item_image(item, 128)
             screen.blit(img, img.get_rect(center=(settings.W - 112, 104)))
-            ui.draw_text(screen, "kaasas", (settings.W - 112, 196), "mono", 24, settings.WARM, center=True)
+            ui.draw_text(screen, self.text("memory.carrying"), (settings.W - 112, 196), "mono", 24, settings.WARM,
+                         center=True)
         if self.dialogue.active:
             self.dialogue.draw(screen)
-        elif isinstance(self.near, Npc):
-            ui.key_prompt(screen, world.to_screen(self.near.rect.midtop))
-            ui.hint(screen, f"E — anna talle: {self.items[self.carrying]['label']}" if self.carrying else "E — kuula uuesti")
+        elif not self.plain:
+            self.draw_prompts(screen)
+        effects.darken(screen, self.blackout * 2)
+
+    def draw_prompts(self, screen):
+        """What can be done right here: a key cap on the thing, a line of help, and an arrow
+        back to whoever is waiting for what the ghost carries."""
+        if isinstance(self.near, Npc):
+            ui.key_prompt(screen, self.world.to_screen(self.near.rect.midtop))
+            if self.carrying:
+                self.hint(screen, "memory.give", item=self.items[self.carrying]["label"])
+            else:
+                self.hint(screen, "memory.listen")
         elif self.near:
-            ui.key_prompt(screen, world.to_screen(self.near.rect.midtop))
-            ui.hint(screen, f"E — vaata sisse: {self.near.label}")
+            ui.key_prompt(screen, self.world.to_screen(self.near.rect.midtop))
+            self.hint(screen, "memory.open", thing=self.near.label)
         else:
             if self.carrying and self.npcs:
-                ui.pointer(screen, world.to_screen(self.npcs[0].rect.center), settings.WARM)
-            ui.hint(screen, "otsi üles, mida küsiti, ja vii see talle · Esc — tagasi arhiivi")
-        if self.blackout > 0:
-            self.black.set_alpha(int(255 * min(1, self.blackout * 2)))
-            screen.blit(self.black, (0, 0))
+                asker = self.speaker(self.doc["requests"][min(self.request, len(self.doc["requests"]) - 1)])
+                ui.pointer(screen, self.world.to_screen(asker.rect.center), settings.WARM)
+            self.hint(screen, "memory.search")
+
+
+_icons = {}
+
+
+def warm_up(doc):
+    """Make the people of a memory ahead of time, behind the loading bar: enlarging a big
+    portrait takes long enough to be felt if it is left until the memory opens."""
+    for npc in doc.get("npcs", []):
+        Npc(npc)
 
 
 def item_image(item, box):
@@ -194,9 +214,6 @@ def item_image(item, box):
     if key not in _icons:
         _icons[key] = assets.enlarge(paint.icon(item.get("icon", item["id"])), box // 16)
     return _icons[key]
-
-
-_icons = {}
 
 
 class Npc:

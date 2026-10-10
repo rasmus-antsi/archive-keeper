@@ -2,7 +2,6 @@ import asyncio
 
 import pygame
 
-from game import settings
 from game.app import Game
 from game.display import Display
 
@@ -10,15 +9,13 @@ from game.display import Display
 async def main():
     pygame.init()
     display = Display()
-    clock = pygame.time.Clock()
     game = Game(display)
 
     while game.running:
-        dt = min(clock.tick(settings.FPS) / 1000, 0.05)
-        game.update(dt, pygame.event.get(), clock.get_fps())
+        game.update(display.tick(), pygame.event.get())
         game.draw()
         display.present()
-        await asyncio.sleep(0)  # required for the browser build
+        await asyncio.sleep(0)      # hands the frame to the browser; the web build needs it
 
     pygame.quit()
 

@@ -1,25 +1,49 @@
-"""Screen transitions drawn over a scene. k runs from 0 (nothing) to 1 (fully covered)."""
+"""Screen transitions drawn over a scene. k runs from 0 (nothing) to 1 (fully covered).
+
+Darkening and whitening lay a sheet of one colour, see-through as a whole, over the
+picture. That is the cheap way in the browser: measured there, it takes 1.4 ms for the
+full screen, against 8 ms for pygame's multiply and add fills (which win on the desktop).
+"""
 import math
 
 import pygame
 
 from . import settings
 
-_veil = _small = _big = None
+_small = _big = None
+_sheets = {}
 KEY = (255, 0, 255)
 
 
-def _cover(screen, color, alpha):
-    global _veil
-    if _veil is None:
-        _veil = pygame.Surface((settings.W, settings.H))
-    _veil.fill(color)
-    _veil.set_alpha(max(0, min(255, int(alpha))))
-    screen.blit(_veil, (0, 0))
+def ease(k):
+    """A soft start and a soft stop for anything that runs from 0 to 1."""
+    k = max(0.0, min(1.0, k))
+    return k * k * (3 - 2 * k)
+
+
+def cover(screen, color, k):
+    """Mix the whole picture towards one colour: 0 leaves it alone, 1 hides it."""
+    alpha = round(255 * max(0.0, min(1.0, k)))
+    if not alpha:
+        return
+    sheet = _sheets.get(color)
+    if sheet is None:
+        sheet = _sheets[color] = pygame.Surface((settings.W, settings.H)).convert()
+        sheet.fill(color)
+    sheet.set_alpha(alpha)
+    screen.blit(sheet, (0, 0))
+
+
+def darken(screen, k):
+    cover(screen, (0, 0, 0), k)
+
+
+def whiten(screen, k):
+    cover(screen, (255, 255, 255), k)
 
 
 def fade(screen, k, t, closing):
-    _cover(screen, (0, 0, 0), 255 * k)
+    darken(screen, ease(k))
 
 
 def spiral(screen, k, t, closing):
@@ -28,13 +52,13 @@ def spiral(screen, k, t, closing):
     like the rooms, so it costs almost nothing."""
     global _small, _big
     if not closing:
-        _cover(screen, (255, 255, 255), 255 * k)
+        whiten(screen, ease(k))
         return
     if _small is None:
         _small = pygame.Surface((settings.VIEW_W, settings.VIEW_H)).convert()
         _big = pygame.Surface((settings.W, settings.H)).convert()
         _big.set_colorkey(KEY)
-    _cover(screen, (0, 0, 0), 190 * k)
+    darken(screen, 0.75 * k)
     _small.fill(KEY)
     cx, cy = settings.VIEW_W // 2, settings.VIEW_H // 2
     pitch = 5.8                             # how fast an arm moves outwards, pixels per radian
