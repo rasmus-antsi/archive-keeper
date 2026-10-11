@@ -2,5 +2,4 @@
 venv
 build
 art-src
-tools
 **/__pycache__
