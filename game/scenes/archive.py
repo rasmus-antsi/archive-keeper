@@ -138,7 +138,7 @@ class Archive(Scene):
         world.draw(screen, self.player, [(self.robot_pos.y, robot, robot_at)], lights, outlines)
 
         ui.draw_text(screen, self.text("archive.count", done=len(self.state.solved), total=self.state.total), (40, 24),
-                     "mono", 26, settings.DIM)
+                     "pixel", 26, settings.DIM)
         if self.dialogue.active:
             self.dialogue.draw(screen)
         elif not self.plain:
@@ -161,7 +161,7 @@ class Archive(Scene):
             ui.key_prompt(screen, world.to_screen(self.near.rect.midtop))
             name = shelf["label"] + (f"  ·  {self.text('archive.caught')}" if self.unsolved(shelf["id"]) else "")
             ui.panel(screen, (settings.W / 2 - 400, settings.H - 130, 800, 62))
-            ui.draw_text(screen, name, (settings.W / 2, settings.H - 99), "bold", 36, settings.CREAM, center=True)
+            ui.draw_text(screen, name, (settings.W / 2, settings.H - 99), "pixel", 40, settings.CREAM, center=True)
             self.hint(screen, "archive.read")
         elif self.state.walked < LEARNT:
             self.hint(screen, "archive.move")

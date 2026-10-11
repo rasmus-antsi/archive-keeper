@@ -32,8 +32,8 @@ NIGHT = (16, 16, 22)
 # role -> font file in assets/fonts
 FONTS = {
     "title": "UnifrakturMaguntia-Book.ttf",   # headings, places, document titles
-    "body": "CrimsonText-Regular.ttf",        # dialogue and long text
+    "pixel": "Jersey10-Regular.ttf",          # everything else on the screen: menus, hints, everything said
+    "body": "CrimsonText-Regular.ttf",        # these three only on paper, the record page of an open shelf
     "italic": "CrimsonText-Italic.ttf",
     "bold": "CrimsonText-SemiBold.ttf",
-    "mono": "CourierPrime-Regular.ttf",       # the robots and all interface hints
 }

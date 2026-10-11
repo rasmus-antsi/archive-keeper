@@ -36,7 +36,7 @@ class Title(Scene):
             page.fill((44, 40, 44), (0, 640, settings.W, settings.H - 640))
         game = self.content.game
         ui.draw_text(page, game["title"], (settings.W / 2, 250), "title", 190, settings.CREAM, center=True)
-        ui.draw_text(page, game["subtitle"], (settings.W / 2, 400), "italic", 50, settings.TEAL, center=True)
+        ui.draw_text(page, game["subtitle"], (settings.W / 2, 400), "pixel", 50, settings.TEAL, center=True)
         return page
 
     def begin(self):

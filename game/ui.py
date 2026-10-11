@@ -191,7 +191,7 @@ def key_prompt(surf, pos, key="E"):
         cap = _panels[("key", key)] = pygame.Surface((54, 59), pygame.SRCALPHA)
         pygame.draw.rect(cap, settings.NIGHT, (0, 5, 54, 54), border_radius=10)
         pygame.draw.rect(cap, settings.CREAM, (0, 0, 54, 54), border_radius=10)
-        label = text(key, "mono", 34, settings.INK)
+        label = text(key, "pixel", 34, settings.INK)
         cap.blit(label, label.get_rect(center=(27, 27)))
     bob = round(math.sin(pygame.time.get_ticks() / 220) * 5)
     x = max(40, min(settings.W - 40, pos[0]))
@@ -218,12 +218,12 @@ def pointer(surf, target, color=settings.TEAL):
 
 def hint(surf, string):
     """One line of key help along the bottom edge."""
-    width = text(string, "mono", 24, settings.CREAM).get_width() + 60
+    width = text(string, "pixel", 24, settings.CREAM).get_width() + 60
     panel(surf, (settings.W / 2 - width / 2, settings.H - 54, width, 46), alpha=170, radius=10)
-    draw_text(surf, string, (settings.W / 2, settings.H - 31), "mono", 24, settings.CREAM, center=True)
+    draw_text(surf, string, (settings.W / 2, settings.H - 31), "pixel", 24, settings.CREAM, center=True)
 
 
-def label(surf, string, pos, role="mono", size=26, color=settings.CREAM, alpha=150):
+def label(surf, string, pos, role="pixel", size=26, color=settings.CREAM, alpha=150):
     """A line of text on a dark plate that is as wide as the text. pos is the plate's top left."""
     img = text(string, role, size, color)
     panel(surf, (pos[0], pos[1], img.get_width() + 32, img.get_height() + 22), alpha=alpha)
@@ -244,7 +244,7 @@ def draw_toast(surf):
     if left <= 0:
         return
     alpha = min(255, left * 255 // 300) // 51 * 51          # fades out over its last 0.3 seconds, in five steps
-    img = text(_toast[0], "mono", 26, settings.WARM)
+    img = text(_toast[0], "pixel", 26, settings.WARM)
     plate = pygame.Rect(0, 84, img.get_width() + 52, 50)
     plate.centerx = settings.W // 2
     panel(surf, plate, alpha=alpha * 200 // 255, radius=10)
@@ -337,9 +337,9 @@ class Menu:
             chosen = i == self.cursor
             color = settings.CREAM if chosen else settings.DIM
             if not choice.level:
-                draw_text(surf, choice.caption, row.center, "mono", 34, color, center=True)
+                draw_text(surf, choice.caption, row.center, "pixel", 34, color, center=True)
                 continue
-            img = text(choice.caption, "mono", 34, color)
+            img = text(choice.caption, "pixel", 34, color)
             surf.blit(img, (row.x + 28, row.centery - img.get_height() // 2))
             bar = self.bar(i)
             full = round(choice.level() * self.NOTCHES)
@@ -428,15 +428,15 @@ class DialogueBox:
             return
         speaker, line = self.queue[0]
         x, width = self.x, self.width
-        lines = wrap(line, "body", 44, width - 100)
+        lines = wrap(line, "pixel", 44, width - 100)
         height = 56 + len(lines) * 54 + (44 if speaker else 0)
         slip = round((1 - self.rise) ** 2 * 36)          # eases into place
         y = 40 - slip if self.top else settings.H - height - 70 + slip
         panel(surf, (x, y, width, height), radius=16, border=(70, 70, 84))
         ty = y + 24
         if speaker:
-            draw_text(surf, speaker, (x + 50, ty), "mono", 26, settings.TEAL)
+            draw_text(surf, speaker, (x + 50, ty), "pixel", 26, settings.TEAL)
             ty += 44
-        draw_typed(surf, lines, self.shown, (x + 50, ty), "body", 44, step=54)
+        draw_typed(surf, lines, self.shown, (x + 50, ty), "pixel", 44, step=54)
         if self.shown >= len(line):
-            draw_text(surf, self.prompt, (x + width - 150, y + height + 8), "mono", 22, settings.WARM, alpha=blink())
+            draw_text(surf, self.prompt, (x + width - 150, y + height + 8), "pixel", 22, settings.WARM, alpha=blink())

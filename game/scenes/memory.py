@@ -169,7 +169,7 @@ class Memory(Scene):
             ui.panel(screen, (settings.W - 200, 20, 176, 216), alpha=200, border=settings.WARM)
             img = item_image(item, 128)
             screen.blit(img, img.get_rect(center=(settings.W - 112, 104)))
-            ui.draw_text(screen, self.text("memory.carrying"), (settings.W - 112, 196), "mono", 24, settings.WARM,
+            ui.draw_text(screen, self.text("memory.carrying"), (settings.W - 112, 196), "pixel", 24, settings.WARM,
                          center=True)
         if self.dialogue.active:
             self.dialogue.draw(screen)

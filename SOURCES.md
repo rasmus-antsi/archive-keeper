@@ -13,7 +13,7 @@ Kirjete tekstid ja viited on failis `data/records.json`.
 | data/records.json (vallasaal), assets/img/rec/{koiola,sauga,keila,padi}.png | Vallakohtu protokollid, kirjed 119032, 91286, 113993, 97222 (tekst) | https://www.ra.ee/vallakohtud/ · HUM-häkatoni näidisandmestik „Parish Court Records“ | KONTROLLIDA – litsentsi lehel ei leidnud |
 | data/records.json (linnasaal) | Ehitusprojektid EAA.2623.1.125, lehed 90, 91, 92, 94 (andmed) | https://www.ra.ee/apps/hooned/ · HUM-häkatoni näidisandmestik „Building Designs in Tartu“ | KONTROLLIDA – litsentsi lehel ei leidnud |
 | assets/fonts/CrimsonText-*.ttf | Kirjatüüp Crimson Text | https://github.com/google/fonts/tree/main/ofl/crimsontext | SIL OFL 1.1 |
-| assets/fonts/CourierPrime-Regular.ttf | Kirjatüüp Courier Prime | https://github.com/google/fonts/tree/main/ofl/courierprime | SIL OFL 1.1 |
+| assets/fonts/Jersey10-Regular.ttf | Kirjatüüp Jersey 10 (pikslikiri: menüüd, vihjed, kõnekastid) | https://github.com/google/fonts/tree/main/ofl/jersey10 | SIL OFL 1.1 |
 | assets/fonts/UnifrakturMaguntia-Book.ttf | Kirjatüüp UnifrakturMaguntia | https://github.com/google/fonts/tree/main/ofl/unifrakturmaguntia | SIL OFL 1.1 |
 | assets/snd/tick.ogg | Menüü klõps | koodiga genereeritud: `tools/make_tick.py` | tiimi enda tehtud |
 | favicon.png | Brauseri vahekaardi ja akna ikoon | tehtud tiimi kummituse pildist: `tools/make_icon.py` | tiimi enda tehtud |

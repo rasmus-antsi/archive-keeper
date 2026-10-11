@@ -109,7 +109,7 @@ class Credits(Overlay):
         blocks = [([credits["jam"]], 30, settings.WARM), (credits["team"], 30, settings.CREAM),
                   (credits["sources"], 24, settings.DIM)]
         inner = self.WIDTH - 120
-        text_h = sum(len(ui.wrap(line, "mono", size, inner)) * (assets.font("mono", size).size("X")[1] + self.GAP)
+        text_h = sum(len(ui.wrap(line, "pixel", size, inner)) * (assets.font("pixel", size).size("X")[1] + self.GAP)
                      for lines, size, _ in blocks for line in lines)
         self.box = pygame.Rect(0, 0, self.WIDTH, 170 + text_h + self.BETWEEN * (len(blocks) - 1))
         self.box.center = (settings.W // 2, settings.H // 2 - 20)
@@ -119,7 +119,7 @@ class Credits(Overlay):
         y = self.box.top + 136
         for lines, size, color in blocks:
             for line in lines:
-                y = ui.draw_wrapped(self.backdrop, line, (self.box.x + 60, y), inner, "mono", size, color,
+                y = ui.draw_wrapped(self.backdrop, line, (self.box.x + 60, y), inner, "pixel", size, color,
                                     gap=self.GAP, center=True)
             y += self.BETWEEN
 

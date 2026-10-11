@@ -58,7 +58,7 @@ class Inside(Overlay):
 
     def paint(self, screen):
         if not self.items:
-            ui.draw_text(screen, self.text("memory.empty"), (BOX.centerx, BOX.centery + 30), "italic", 44, settings.DIM,
+            ui.draw_text(screen, self.text("memory.empty"), (BOX.centerx, BOX.centery + 30), "pixel", 44, settings.DIM,
                          center=True)
             self.hint(screen, "memory.close")
             return
@@ -69,6 +69,6 @@ class Inside(Overlay):
                 pygame.draw.rect(screen, settings.WARM, rect, 4, border_radius=14)
             img = item_image(item, SLOT - 40)
             screen.blit(img, img.get_rect(center=rect.center))
-        ui.draw_text(screen, self.items[self.cursor]["label"], (BOX.centerx, BOX.bottom - 62), "body", 44,
+        ui.draw_text(screen, self.items[self.cursor]["label"], (BOX.centerx, BOX.bottom - 62), "pixel", 44,
                      settings.CREAM, center=True)
         self.hint(screen, "memory.take")

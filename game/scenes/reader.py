@@ -37,7 +37,7 @@ class Reader(Overlay):
         rustle()
         ui.panel(self.backdrop, BOX, (30, 26, 28), 250, radius=20, border=(92, 78, 64))
         ui.draw_text(self.backdrop, shelf["label"], (BOX.left + 40, BOX.top + 22), "title", 60, settings.WARM)
-        count = ui.text(self.text("reader.count", n=len(self.entries)), "mono", 22, settings.DIM)
+        count = ui.text(self.text("reader.count", n=len(self.entries)), "pixel", 22, settings.DIM)
         self.backdrop.blit(count, (BOX.right - 40 - count.get_width(), BOX.top + 50))
         # the open record is a sheet of paper with a dog-eared corner
         fold = 70
@@ -121,7 +121,7 @@ class Reader(Overlay):
             color = settings.CREAM
             if doc:
                 color = settings.DIM if doc["id"] in self.state.solved else settings.TEAL
-            ui.draw_text(screen, self.row_name(i, rect.width - 20), (rect.left + 10, rect.top + 4), "body", 30, color)
+            ui.draw_text(screen, self.row_name(i, rect.width - 20), (rect.left + 10, rect.top + 4), "pixel", 30, color)
         if len(self.entries) > ROWS:
             track = pygame.Rect(BOX.left + 10, BOX.top + TOP, 5, ROWS * ROW_H)
             bar = pygame.Rect(track.left, track.top + track.height * self.top_row / len(self.entries), 5,
@@ -135,7 +135,7 @@ class Reader(Overlay):
     def row_name(self, i, width):
         if i not in self.names:
             entry = self.entries[i]
-            self.names[i] = ui.fit(("* " if entry["doc"] else "") + entry["title"], "body", 30, width)
+            self.names[i] = ui.fit(("* " if entry["doc"] else "") + entry["title"], "pixel", 30, width)
         return self.names[i]
 
     def picture(self, record, box):
@@ -161,10 +161,10 @@ class Reader(Overlay):
             solved = doc["id"] in self.state.solved
             ui.panel(screen, box, (36, 36, 40) if solved else (24, 44, 46), 255, border=None if solved else settings.TEAL)
             if solved:
-                ui.draw_text(screen, self.text("reader.restored"), (box.x + 28, box.y + 30), "body", 36, settings.DIM)
+                ui.draw_text(screen, self.text("reader.restored"), (box.x + 28, box.y + 30), "pixel", 36, settings.DIM)
             else:
-                ui.draw_text(screen, self.text("reader.caught"), (box.x + 28, box.y + 10), "body", 36)
-                ui.draw_text(screen, self.text("reader.enter"), (box.x + 28, box.y + 58), "mono", 26, settings.WARM,
+                ui.draw_text(screen, self.text("reader.caught"), (box.x + 28, box.y + 10), "pixel", 36)
+                ui.draw_text(screen, self.text("reader.enter"), (box.x + 28, box.y + 58), "pixel", 26, settings.WARM,
                              alpha=ui.blink())
             y = box.bottom + 24
 
@@ -182,7 +182,7 @@ class Reader(Overlay):
         for label, value in record.get("fields", []):
             if not value or y > BOX.bottom - 125:
                 continue
-            ui.draw_text(screen, label.upper(), (x, y + 8), "mono", 20, FADED)
+            ui.draw_text(screen, label.upper(), (x, y + 8), "pixel", 20, FADED)
             y = ui.draw_wrapped(screen, value, (x + 210, y), width - 210, "body", 30, settings.INK, gap=1, limit=2) + 4
 
         for kind, body in record.get("texts", []):
@@ -193,9 +193,9 @@ class Reader(Overlay):
             y = ui.draw_wrapped(screen, body, (x, y + 12), width, "italic", 28, (70, 56, 50), gap=1, limit=room) + 6
 
         if record.get("source"):
-            ui.draw_text(screen, record["source"], (x, BOX.bottom - 76), "mono", 18, FADED)
+            ui.draw_text(screen, record["source"], (x, BOX.bottom - 76), "pixel", 18, FADED)
         if record.get("rights"):
-            ui.draw_text(screen, record["rights"], (x, BOX.bottom - 48), "mono", 18, FADED)
+            ui.draw_text(screen, record["rights"], (x, BOX.bottom - 48), "pixel", 18, FADED)
 
 
 def rustle():

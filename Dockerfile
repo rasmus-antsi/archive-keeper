@@ -20,3 +20,5 @@ RUN python -m pygbag --build --title "Archive Keeper" --icon /src/favicon.png --
 FROM caddy:2-alpine
 COPY Caddyfile /etc/caddy/Caddyfile
 COPY --from=build /src/archive-keeper/build/web /srv
+# the loading page is written in the game's two typefaces before the game itself has arrived
+COPY assets/fonts/UnifrakturMaguntia-Book.ttf assets/fonts/Jersey10-Regular.ttf /srv/fonts/

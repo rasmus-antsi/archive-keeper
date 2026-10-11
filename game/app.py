@@ -59,4 +59,4 @@ class Game:
             pygame.draw.line(self.screen, settings.RED, (x - 30, y), (x + 30, y), 3)
             pygame.draw.line(self.screen, settings.RED, (x, y - 30), (x, y + 30), 3)
             ui.panel(self.screen, (settings.W - 420, 8, 412, 44))
-            ui.draw_text(self.screen, f"{self.display.fps:3.0f} fps  mouse {x},{y}", (settings.W - 408, 16), "mono", 24, settings.WARM)
+            ui.draw_text(self.screen, f"{self.display.fps:3.0f} fps  mouse {x},{y}", (settings.W - 408, 16), "pixel", 24, settings.WARM)

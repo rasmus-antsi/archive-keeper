@@ -45,10 +45,10 @@ class Intro(Scene):
     def draw(self, screen):
         screen.fill((10, 14, 16))
         x, width = 300, settings.W - 600
-        ui.draw_text(screen, self.heading, (x, 230), "mono", 28, settings.TEAL)
-        count = ui.text(f"{self.page + 1} / {len(self.paragraphs)}", "mono", 28, settings.DIM)
+        ui.draw_text(screen, self.heading, (x, 230), "pixel", 28, settings.TEAL)
+        count = ui.text(f"{self.page + 1} / {len(self.paragraphs)}", "pixel", 28, settings.DIM)
         screen.blit(count, (x + width - count.get_width(), 230))
         screen.fill((40, 60, 62), (x, 280, width, 4))
-        lines = ui.wrap(self.paragraphs[self.page], "mono", 40, width)
-        ui.draw_typed(screen, lines, self.t * TYPE_SPEED, (x, 330), "mono", 40, step=56)
+        lines = ui.wrap(self.paragraphs[self.page], "pixel", 40, width)
+        ui.draw_typed(screen, lines, self.t * TYPE_SPEED, (x, 330), "pixel", 40, step=56)
         self.hint(screen, "intro.typing" if not self.typed() else "intro.begin" if self.last else "intro.next")

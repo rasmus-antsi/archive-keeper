@@ -232,6 +232,10 @@ window.addEventListener("keydown", engaged);
             width: 300px;
         }
 
+        /* the game's own two typefaces, so this page looks like the title screen that follows it */
+        @font-face { font-family: "Keeper Title"; src: url("fonts/UnifrakturMaguntia-Book.ttf"); font-display: block; }
+        @font-face { font-family: "Keeper Pixel"; src: url("fonts/Jersey10-Regular.ttf"); font-display: block; }
+
         /* what is on the page until the game itself has started */
         #loader {
             position: fixed;
@@ -246,20 +250,19 @@ window.addEventListener("keydown", engaged);
             justify-content: center;
             background: #0b0b0f;
             color: #f0e8d4;
-            font-family: Georgia, "Times New Roman", serif;
+            font-family: "Keeper Pixel", "Courier New", Courier, monospace;
             text-align: center;
             pointer-events: none;   /* the first click has to reach the page underneath */
         }
-        #loader .name { font-size: clamp(40px, 7vw, 104px); letter-spacing: 0.02em; }
-        #loader .tagline { font-size: clamp(16px, 2vw, 30px); font-style: italic; color: #82e2d6; margin: 0.6em 0 2.2em; }
+        #loader .name { font-family: "Keeper Title", Georgia, serif; font-size: clamp(44px, 9vw, 150px); }
+        #loader .tagline { font-size: clamp(18px, 2.4vw, 40px); color: #82e2d6; margin: 0.4em 0 2em; }
         #infobox {
-            font-family: "Courier New", Courier, monospace;
-            font-size: clamp(14px, 1.5vw, 22px);
+            font-size: clamp(16px, 1.7vw, 28px);
             color: #96969f;
             animation: breathe 1.8s ease-in-out infinite;
         }
         #infobox::after { content: " ..."; }
-        #infobox.ready { color: #ffce82; font-size: clamp(18px, 2vw, 30px); animation-duration: 1.1s; }
+        #infobox.ready { color: #ffce82; font-size: clamp(20px, 2.2vw, 36px); animation-duration: 1.1s; }
         #infobox.ready::after { content: ""; }
         @keyframes breathe { 50% { opacity: 0.4; } }
         @media (prefers-reduced-motion: reduce) { #infobox { animation: none; } }

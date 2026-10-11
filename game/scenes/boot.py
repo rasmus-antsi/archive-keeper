@@ -10,10 +10,10 @@ from . import memory
 SLICE = 0.008         # seconds of loading done per frame; the rest keeps the screen alive
 
 # every (role, size) the game writes with; tools/smoke.py fails when one is missing here
-FONTS = (("mono", 30), ("mono", 40), ("title", 190), ("title", 120), ("title", 96), ("title", 72), ("title", 60), ("title", 48),
-         ("body", 44), ("body", 40), ("body", 36), ("body", 30), ("bold", 48), ("bold", 36), ("italic", 50),
-         ("italic", 44), ("italic", 30), ("italic", 28), ("mono", 34), ("mono", 28), ("mono", 26), ("mono", 24),
-         ("mono", 22), ("mono", 20), ("mono", 18))
+FONTS = (("pixel", 30), ("title", 190), ("title", 120), ("title", 96), ("title", 72), ("title", 60), ("title", 48),
+         ("pixel", 50), ("pixel", 44), ("pixel", 40), ("pixel", 36), ("pixel", 34), ("pixel", 28), ("pixel", 26),
+         ("pixel", 24), ("pixel", 22), ("pixel", 20), ("pixel", 18), ("bold", 48), ("body", 30), ("italic", 30),
+         ("italic", 28))
 
 
 class Boot(Scene):
@@ -57,6 +57,6 @@ class Boot(Scene):
             ghost = assets.sprite("tegelased/down.png")
             screen.blit(ghost, ghost.get_rect(midbottom=(settings.W // 2, y - 110 + round(math.sin(self.t * 3) * 6))))
         if self.done > 1:         # and the second the font
-            ui.draw_text(screen, self.text("loading"), (settings.W / 2, y - 50), "mono", 30, settings.DIM, center=True)
+            ui.draw_text(screen, self.text("loading"), (settings.W / 2, y - 50), "pixel", 30, settings.DIM, center=True)
         screen.fill((48, 44, 52), (x, y, width, 8))
         screen.fill(settings.TEAL, (x, y, round(width * self.bar), 8))
