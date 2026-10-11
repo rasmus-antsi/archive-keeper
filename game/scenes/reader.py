@@ -17,6 +17,7 @@ ROWS = (BOX.height - TOP - 24) // ROW_H
 PAGE = pygame.Rect(BOX.left + LIST_W + 24, BOX.top + TOP - 14, BOX.width - LIST_W - 48, BOX.height - TOP - 10)
 MARGIN = 36                                 # between the edge of the page and what is written on it
 PHOTO_H = 380
+BESIDE = 460                                # a picture that leaves this much of the page's width has the fields beside it
 FADED = (120, 104, 90)                      # secondary ink on the paper
 SETTLE = 0.12                               # seconds on one record before its sharp photograph is fetched
 _last_rustle = 0
@@ -186,15 +187,22 @@ class Reader(Overlay):
             img = assets.sprite(name or record["image"], scale=2)
         elif record.get("image"):
             img = self.picture(record, (width, PHOTO_H))
+        # the fields go beside the picture when it leaves the room, which keeps the lower part
+        # of the page for what the collector wrote down; otherwise they go under it
+        fx, fw, names, under = x, width, 210, y
         if img:
             screen.blit(img, (x, y))
-            y += img.get_height() + 20
-
+            under = y + img.get_height() + 20
+            if width - img.get_width() >= BESIDE:
+                fx, fw, names = x + img.get_width() + 36, width - img.get_width() - 36, 150
+            else:
+                y = under
         for label, value in record.get("fields", []):
             if not value or y > BOX.bottom - 125:
                 continue
-            ui.draw_text(screen, label.upper(), (x, y + 8), "pixel", 20, FADED)
-            y = ui.draw_wrapped(screen, value, (x + 210, y), width - 210, "body", 30, settings.INK, gap=1, limit=2) + 4
+            ui.draw_text(screen, label.upper(), (fx, y + 8), "pixel", 20, FADED)
+            y = ui.draw_wrapped(screen, value, (fx + names, y), fw - names, "body", 30, settings.INK, gap=1, limit=2) + 4
+        y = max(y, under)
 
         for kind, body in record.get("texts", []):
             line = assets.font("italic", 28).get_linesize() + 1
