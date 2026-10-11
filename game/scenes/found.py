@@ -4,9 +4,9 @@ missing from, and the page fills in again.
 This is an overlay (see game/scene.py): the place waits, darkened, behind it.
 
 The page is the document's "record" picture. A request in data/documents/*.json may
-name the "page" as it looks with its thing back, and the "page_spot" [x, y] on it
-(in the picture's own pixels) where the middle of the thing belongs. Without them the
-thing rests in the middle of the page with its name under it.
+name the "page" as it looks with its writing back, and the "page_spot" [x, y] on it
+(in the picture's own pixels) where the middle of the thing belongs. Without a page
+the thing has its name written under it.
 """
 import pygame
 
@@ -71,12 +71,12 @@ class Found(Overlay):
     def paint(self, screen):
         x, y = self.rest
         up = round((1 - effects.ease(self.t / DROP)) * FALL)
-        screen.blit(self.thing, self.thing.get_rect(center=(x, y - up)))
         filled = round(255 * max(0.0, min(1.0, (self.t - DROP) / FILL)))
-        if self.page and filled:
+        if self.page and filled:            # under the thing: a page may have only its text drawn on it
             self.page.set_alpha(filled)
             screen.blit(self.page, self.sheet)
             self.page.set_alpha(255)
+        screen.blit(self.thing, self.thing.get_rect(center=(x, y - up)))
         if self.label and filled:
             ui.draw_text(screen, self.label, (x, y + self.thing.get_height() // 2 + 50), "title", 48, settings.INK,
                          center=True, alpha=filled)

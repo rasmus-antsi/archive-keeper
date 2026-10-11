@@ -27,6 +27,9 @@ ART = {
     "Objektid/Vale_Objekt1.png": "objektid/sekstant.png",
     "Objektid/Trükimasin.png": "objektid/trykimasin.png",
     ("Objektid/pileofmail.png", 43): "objektid/kirjad.png",
+    "Objektid/Vale_Objekt2.png": "objektid/vale-objekt-2.png",
+    # a document's page with its text back, the same scroll as dokument-tyhi.png
+    "Objektid/dokument2.png": "objektid/dokument-trykimasin.png",
     # the town hall square in winter; a prop's picture is named after its type (see game/world.py)
     "Objektid/Kaev.png": "props/well.png",
     "Objektid/Kuusk.png": "props/spruce.png",
@@ -38,6 +41,7 @@ ART = {
     "Objektid/Poodu.png": "props/gallows.png",
     "Objektid/Purskaev.png": "props/fountain.png",
     "Objektid/Raemaja.png": "props/townhall.png",
+    "Objektid/lumememm.png": "props/snowman.png",
     # the archive's furniture; "-open" is the same piece with a door ajar
     "Raamatukogu/diivan.png": "props/sofa.png",
     "Raamatukogu/tugitool.png": "props/armchair.png",

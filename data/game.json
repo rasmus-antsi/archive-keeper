@@ -166,11 +166,12 @@
   "credits": {
     "jam": "A game for TÜ Mängujämm 2026",
     "team": [
-      "Rasmus - programmeerija",
-      "Urmo - programmeerimiskeele tõlk, researcher",
-      "Finn - karakteri disainid",
-      "Gerlina, Marlen - taustad, prompts, dokumentide ümberdisainimine",
-      "Riho - muusika, efektid, pygame abi kui vaja"
+      "Finn - character designs, prompts, backgrounds",
+      "Gerlina - prompt artist",
+      "Marlen - prompt artist",
+      "Rasmus - programmer",
+      "Riho - sound design, music producer",
+      "Urmo - dialogues, prompt artist"
     ],
     "sources": [
       "Records: Estonian National Museum (MuIS) · National Archives of Estonia",

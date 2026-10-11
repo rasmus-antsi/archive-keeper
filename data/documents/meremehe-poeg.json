@@ -1,7 +1,7 @@
 {
   "id": "meremehe-poeg",
   "shelf": "tartu",
-  "title": "Meremehe poeg",
+  "title": "Junsu Käsk",
   "place": "Tartu, 1800ndad",
 
   "record": {
@@ -16,7 +16,7 @@
   "dialogue": {"x": 80, "width": 1180},
 
   "npcs": [
-    {"id": "poiss", "name": "Poiss", "sprite": "tegelased/junsu.png", "pos": [172, 114],
+    {"id": "poiss", "name": "Juhan Von Reinhold ehk Junsu", "sprite": "tegelased/junsu.png", "pos": [172, 114],
      "portrait": "tegelased/suu-kinni.png", "portrait_talk": "tegelased/suu-lahti.png", "portrait_scale": 4,
      "portrait_pos": [1560, 1080]}
   ],
@@ -31,7 +31,8 @@
     {"id": "tindipott", "label": "kaheksajala veri", "image": "objektid/tint.png"},
     {"id": "pudel", "label": "pudel", "image": "objektid/pudel.png"},
     {"id": "taskukell", "label": "taskukell", "image": "objektid/taskukell.png"},
-    {"id": "voti", "label": "võti", "image": "objektid/voti.png"}
+    {"id": "voti", "label": "võti", "image": "objektid/voti.png"},
+    {"id": "vandamasin", "label": "vändaga masin", "image": "objektid/vale-objekt-2.png"}
   ],
 
   "map": {
@@ -49,10 +50,11 @@
       {"type": "streetlamp", "pos": [78, 7]},
       {"type": "streetlamp", "pos": [278, 10]},
       {"type": "streetlamp", "pos": [298, 188]},
-      {"type": "snow", "id": "hang-a", "label": "lumehang", "pos": [96, 58], "holds": ["kyynal"]},
+      {"type": "snow", "id": "hang-a", "label": "lumehang", "pos": [96, 58], "holds": ["kyynal", "vandamasin"]},
       {"type": "snow", "sprite": "props/snow-2.png", "pos": [196, 98]},
       {"type": "snow", "sprite": "props/snow-2.png", "pos": [58, 106]},
       {"type": "fountain", "id": "purskkaev", "label": "purskkaev", "pos": [63, 110], "holds": ["pudel", "voti"]},
+      {"type": "snowman", "pos": [148, 130]},
       {"type": "snow", "sprite": "props/snow-2.png", "id": "hang-d", "label": "lumehang", "pos": [122, 176], "holds": []},
       {"type": "spruce", "id": "kuusk", "label": "kuusealune", "pos": [200, 14], "holds": ["sekstant", "kompass"]},
       {"type": "snow", "id": "hang-c", "label": "lumehang", "pos": [240, 186], "holds": ["raamat"]},
@@ -83,7 +85,8 @@
         "See õel masin SÖÖB MINU KRITSELDUSI ja JOOB KAHEKSAJALGADE VERD."
       ],
       "target": "trykimasin",
-      "page_spot": [95, 92],
+      "page": "objektid/dokument-trykimasin.png",
+      "page_spot": [90, 142],
       "thanks": ["Jah. Too õel masin."]
     }
   ],

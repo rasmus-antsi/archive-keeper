@@ -459,6 +459,7 @@ drawn("spruce", (80, 166), depth=112, inset=12)      # solid far up, so the ghos
 drawn("streetlamp", (20, 66), depth=3)
 drawn("snow", (52, 23), depth=8, inset=4)
 drawn("gallows", (32, 46), depth=4)
+drawn("snowman", (17, 31), depth=6, inset=2)
 
 
 def robot():

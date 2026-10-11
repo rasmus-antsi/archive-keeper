@@ -176,8 +176,7 @@ class Memory(Scene):
         if fade > 0:
             ui.draw_text(screen, self.doc.get("place", ""), (settings.W / 2, 110), "title", 96, settings.CREAM,
                          center=True, alpha=int(255 * fade))
-        n, total = min(self.request + 1, len(self.doc["requests"])), len(self.doc["requests"])
-        ui.label(screen, f"{self.doc['title']}  ·  {n} / {total}", (24, 14))
+        ui.label(screen, f"{self.doc['title']}  ·  {self.request} / {len(self.doc['requests'])}", (24, 14))
         if self.carrying and not self.dialogue.active:      # whoever speaks has their portrait in that corner
             plate = pygame.Rect(settings.W - 300, 20, 276, 316)
             ui.panel(screen, plate, alpha=200, border=settings.WARM)
