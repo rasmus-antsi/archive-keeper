@@ -3,6 +3,8 @@ SceneManager that runs a stack of them.
 
 Scenes never touch each other; they ask the manager to go(), push() or pop().
 """
+import pygame
+
 from . import assets, effects, ui
 
 
@@ -11,6 +13,7 @@ class Scene:
     pausable = False      # whether Esc opens the pause menu here
     hushed = False        # whether the music is held down while this is on top
     plain = False         # True while it is drawn as the picture behind an overlay: no key prompts or hints
+    pointer = False       # whether the mouse pointer shows: only where there is something to point at
 
     def __init__(self, game):
         self.game = game
@@ -132,6 +135,7 @@ class SceneManager:
         if self.top.music is not None:
             assets.music(self.top.music)
         assets.hush(self.top.hushed)
+        pygame.mouse.set_visible(self.top.pointer)
         self.top.enter()
 
     def update(self, dt, events):

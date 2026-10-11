@@ -21,6 +21,7 @@ def warm_up(doc):
 
 class Inside(Overlay):
     DIM = 0.75
+    pointer = True
 
     def __init__(self, game, memory, container):
         super().__init__(game)

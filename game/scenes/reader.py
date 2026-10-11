@@ -35,6 +35,7 @@ def warm_up(content):
 
 
 class Reader(Overlay):
+    pointer = True
     def __init__(self, game, shelf):
         super().__init__(game)
         self.shelf = shelf

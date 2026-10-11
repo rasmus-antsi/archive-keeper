@@ -10,6 +10,7 @@ from ..scene import Scene
 
 class Title(Scene):
     music = "menu"
+    pointer = True
 
     def __init__(self, game):
         super().__init__(game)

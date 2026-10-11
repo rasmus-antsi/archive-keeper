@@ -15,6 +15,7 @@ PLATE, EDGE = (30, 26, 28), (92, 78, 64)
 class MenuOverlay(Overlay):
     """A heading and a column of choices in a box in the middle of the screen."""
     name = ""           # where its words are in "ui"
+    pointer = True
 
     def __init__(self, game, choices):
         super().__init__(game)
@@ -100,6 +101,7 @@ class Settings(MenuOverlay):
 
 
 class Credits(Overlay):
+    pointer = True
     WIDTH, GAP, BETWEEN = 1100, 8, 30       # the box, the space between lines and between blocks
 
     def __init__(self, game):
