@@ -39,7 +39,7 @@ ART = {
     "Raamatukogu/laud.png": "props/table.png",
     "Raamatukogu/väike laud.png": "props/sidetable.png",
     "Raamatukogu/vaip.png": "props/rug.png",
-    "Raamatukogu/lamp.png": "props/lamp.png",
+    "Raamatukogu/lamp sees.png": "props/lamp.png",        # lamp.png has a faint black sheet behind it
     "Raamatukogu/kell.png": "props/clock.png",
     "Raamatukogu/suur kapp kinni.png": "props/bookcase.png",
     "Raamatukogu/suur kapp lahti.png": "props/bookcase-open.png",

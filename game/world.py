@@ -21,7 +21,8 @@ A map is a dict (see data/game.json "map" and data/documents/*.json "map"):
   doors       [{"rect"}] openings the ghost can walk through walls in
   props       [{"type", "pos", ...}] furniture; "pos" is the top left of its picture.
               assets/img/props/<type>.png replaces the stand-in for a type, and
-              "sprite" names a picture for one prop.
+              "sprite" names a picture for one prop. A second picture whose name
+              ends in "-open" is shown while the ghost stands at the prop.
 """
 import math
 
@@ -64,6 +65,8 @@ class Prop:
         self.image = assets.optional(name)
         if self.image is None and not painted:
             self.image = paint.make(data).convert_alpha()
+        # shut, and with its door ajar: the same file name ending in "-open"
+        self.pictures = (self.image, assets.optional(name[:-4] + "-open.png") or self.image)
         size = self.image.get_size() if self.image else data.get("size", spec.size)
         self.rect = pygame.Rect(data["pos"], size)
         depth = data.get("depth", spec.depth)
@@ -80,6 +83,10 @@ class Prop:
 
     def reach(self):
         return (self.solid or self.rect).inflate(REACH * 2, REACH * 2)
+
+    def open(self, on):
+        """Show the picture with the door ajar, for a cupboard somebody is standing at."""
+        self.image = self.pictures[bool(on)]
 
 
 class World:

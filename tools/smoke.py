@@ -238,7 +238,7 @@ for case in room.cases:                 # every bookcase opens and shows its rec
 room.player.pos.update(170, 150)
 run(0.2)
 shot("4-archive-hall")
-room.player.pos.update(350, 170)
+room.player.pos.update(400, 172)
 run(0.2)
 shot("4-archive-stacks")
 sofa = next(p for p in room.world.props if p.type == "sofa")       # the ghost half hidden behind furniture

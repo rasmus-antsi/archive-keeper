@@ -128,7 +128,7 @@ def make(data):
     return s
 
 
-@prop("bookcase", (60, 30), depth=7)
+@prop("bookcase", (60, 30), depth=36)
 def _bookcase(s, w, h, r, data):
     box(s, (0, 0, w, h), (98, 68, 50))
     for y in range(2, h - 8, 9):
@@ -160,7 +160,7 @@ def _rug(s, w, h, r, data):
         s.fill(shade(base, 40), (x, h - 1, 1, 1))
 
 
-@prop("sofa", (44, 24), depth=12)
+@prop("sofa", (44, 24), depth=16)
 def _sofa(s, w, h, r, data):
     cloth = (98, 56, 66)
     box(s, (2, 0, w - 4, 13), cloth)
@@ -172,7 +172,7 @@ def _sofa(s, w, h, r, data):
     s.fill((60, 42, 36), (w - 5, h - 2, 3, 2))
 
 
-@prop("armchair", (20, 22), depth=10)
+@prop("armchair", (20, 22), depth=16)
 def _armchair(s, w, h, r, data):
     cloth = (74, 98, 96)
     box(s, (2, 0, w - 4, 12), cloth)
@@ -207,7 +207,7 @@ def _stool(s, w, h, r, data):
     s.fill((70, 50, 38), (w - 3, 6, 2, 4))
 
 
-@prop("lamp", (12, 30), depth=3, inset=3, light=(64, (236, 190, 120)))
+@prop("lamp", (12, 30), depth=3, inset=4, light=(64, (236, 190, 120)))
 def _lamp(s, w, h, r, data):
     s.fill((52, 44, 44), (5, 9, 2, h - 11))
     box(s, (2, h - 3, 8, 3), (72, 60, 58))
@@ -304,7 +304,7 @@ def _stove(s, w, h, r, data):
     s.fill(shade(tile, -40), (0, 0, w, 2))
 
 
-@prop("well", (26, 26), depth=14)
+@prop("well", (26, 26), depth=22)
 def _well(s, w, h, r, data):
     stone = (140, 136, 130)
     pygame.draw.ellipse(s, shade(stone, -40), (0, 8, w, h - 8))
@@ -427,6 +427,35 @@ def _picture(s, w, h, r, data):
     box(s, (0, 0, w, h), (170, 136, 70))
     s.fill((96, 124, 140), (2, 2, w - 4, h - 4))
     s.fill((120, 150, 110), (2, h - 5, w - 4, 3))
+
+
+# Types the artists drew and nobody painted a stand-in for: the picture is
+# assets/img/props/<type>.png, and until that file exists the prop is a pink box.
+
+def _undrawn(s, w, h, r, data):
+    s.fill((200, 60, 120, 200))
+    pygame.draw.rect(s, (255, 255, 255), (0, 0, w, h), 1)
+
+
+def drawn(name, size, depth=0, inset=0, flat=False, wall=False, light=None):
+    """Register a drawn type. The numbers mean the same as for prop()."""
+    PROPS[name] = Spec(_undrawn, size, depth, inset, flat, wall, light)
+
+
+# the archive
+drawn("clock", (23, 59), depth=6, inset=3)
+drawn("sidetable", (17, 18), depth=8)
+drawn("cupboard", (50, 36), depth=16)
+drawn("bookcase-side", (16, 65), depth=40)
+drawn("cupboard-side", (16, 53), depth=30)
+# the town hall square in winter
+drawn("houses", (214, 68), depth=68)
+drawn("townhall", (33, 192), depth=192)
+drawn("fountain", (80, 78), depth=46, inset=3)
+drawn("spruce", (80, 166), depth=18, inset=24)
+drawn("streetlamp", (20, 66), depth=4, inset=7)
+drawn("snow", (52, 23), depth=10, inset=4)
+drawn("gallows", (32, 46), depth=5, inset=1)
 
 
 def robot():

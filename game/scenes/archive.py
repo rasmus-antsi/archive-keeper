@@ -124,6 +124,8 @@ class Archive(Scene):
     def draw(self, screen):
         world = self.world
         self.door.image = self.door_images[self.door_open]
+        for case in self.cases:
+            case.open(case is self.near and not self.dialogue.active)
         # a few fixed shades instead of a new one every frame: each shade of light is a picture that is kept
         pulse = round((0.5 + 0.5 * math.sin(self.t * 3)) * PULSE_STEPS) / PULSE_STEPS
         glowing = [p for p in self.cases if self.unsolved(p.data["shelf"])]

@@ -158,6 +158,8 @@ class Memory(Scene):
             self.hint(screen, "memory.continue")
             return
         outlines = [(self.near.rect, settings.CREAM)] if self.near and not isinstance(self.near, Npc) else []
+        for container in self.containers:
+            container.open(container is self.near)
         self.world.draw(screen, self.player, [n.actor() for n in self.npcs], outlines=outlines)
         talking = self.dialogue.active and self.dialogue.queue[0][0]
         for npc in self.npcs:
