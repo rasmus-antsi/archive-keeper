@@ -449,6 +449,8 @@ drawn("sidetable", (17, 18), depth=8)
 drawn("cupboard", (50, 36), depth=16)
 drawn("bookcase-side", (16, 65), depth=40)
 drawn("cupboard-side", (16, 53), depth=30)
+drawn("bookcase-purple", (39, 58), depth=40)
+drawn("shelf-purple", (42, 34), depth=16)
 # the town hall square in winter
 drawn("houses", (214, 68), depth=68)
 drawn("townhall", (33, 192), depth=192)

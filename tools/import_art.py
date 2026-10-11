@@ -54,6 +54,9 @@ ART = {
     "Raamatukogu/väike kapp lahti.png": "props/cupboard-open.png",
     "Raamatukogu/kapp suur külg.png": "props/bookcase-side.png",
     "Raamatukogu/kapp väike külg.png": "props/cupboard-side.png",
+    "Objektid/lilla kapp 1.png": "props/bookcase-purple.png",
+    "Objektid/lilla kapp 2.png": "props/bookcase-purple-2.png",
+    "Objektid/väike lilla riiul.png": "props/shelf-purple.png",
 }
 
 

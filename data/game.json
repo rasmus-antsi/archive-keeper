@@ -135,7 +135,10 @@
       {"type": "desk", "pos": [16, 214]},
       {"type": "stool", "pos": [28, 240]},
       {"type": "lamp", "pos": [60, 196]},
+      {"type": "bookcase-purple", "pos": [98, 228]},
+      {"type": "bookcase-purple", "sprite": "props/bookcase-purple-2.png", "pos": [140, 228]},
       {"type": "cupboard", "pos": [196, 246]},
+      {"type": "shelf-purple", "pos": [252, 252]},
       {"type": "cupboard-side", "pos": [322, 204]},
       {"type": "crate", "pos": [300, 268]},
 
