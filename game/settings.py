@@ -8,6 +8,11 @@ TITLE = "Archive Keeper"
 W, H = 1920, 1080
 FPS = 60
 
+# How much sound the mixer hands over at a time, in samples (2048 is 46 ms). In the
+# browser sound is mixed between frames, so a frame that takes longer than this is
+# heard as a pop; pygame's own 512 (12 ms) popped whenever a menu opened.
+AUDIO_BUFFER = 2048
+
 # The rooms the ghost walks in are pixel art: one art pixel is PIXEL screen pixels,
 # so the screen shows VIEW_W x VIEW_H of them at a time (see game/world.py).
 # Interface pictures (portraits, documents) taller than SPRITE_BIG are used as they are.

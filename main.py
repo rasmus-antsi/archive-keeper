@@ -2,11 +2,13 @@ import asyncio
 
 import pygame
 
+from game import settings
 from game.app import Game
 from game.display import Display
 
 
 async def main():
+    pygame.mixer.pre_init(buffer=settings.AUDIO_BUFFER)
     pygame.init()
     display = Display()
     game = Game(display)

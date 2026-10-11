@@ -70,6 +70,7 @@ class Prop:
         self.solid = pygame.Rect(self.rect.x + spec.inset, self.rect.bottom - depth, self.rect.w - 2 * spec.inset,
                                  depth) if depth else None
         self.base = self.rect.top if self.wall else self.rect.bottom      # what it is sorted by
+        self.room = None           # the walled room it stands in; the World fills this in
         light = data.get("light", spec.light)
         self.light = (self.rect.centerx, self.rect.top + 4, light[0], tuple(light[1])) if light else None
 
@@ -91,6 +92,11 @@ class World:
         self.doors = [pygame.Rect(d["rect"]) for d in data.get("doors", [])]
         painting = assets.optional(data.get("background", ""))
         self.props = [Prop(p, painted=painting is not None) for p in data.get("props", [])]
+        for prop in self.props:
+            prop.room = self.indoors((prop.solid or prop.rect).center)
+            if prop.room and prop.room.data.get("roof") and not prop.room.rect.contains(prop.rect):
+                raise ValueError(f"the map '{name}' has a {prop.type} at {list(prop.rect.topleft)} that sticks out of "
+                                 f"its house {list(prop.room.rect)}: it would show beside the roof")
         self.by_id = {p.id: p for p in self.props if p.id}
         self.solids = [p.solid for p in self.props if p.solid]
         self.sprites = [p for p in self.props if p.image and not p.flat]
@@ -147,11 +153,18 @@ class World:
             return False
         return all(self._open(x, y) for x in (feet.left, feet.right - 1) for y in (feet.top, feet.bottom - 1))
 
+    def indoors(self, pos):
+        """The walled room a point is in, or None out of doors."""
+        room = next((r for r in reversed(self.rooms) if r.rect.collidepoint(pos)), None)
+        return room if room and room.wall else None
+
     def nearest(self, feet, props):
-        """The prop from the list that the feet are standing at, the closest if there are several."""
+        """The prop from the list that the feet are standing at, the closest if there are several.
+        Only what is in the same room counts: nothing is reached through a wall."""
+        here = self.indoors(feet.center)
         best, best_d = None, None
         for prop in props:
-            if prop.reach().colliderect(feet):
+            if prop.room is here and prop.reach().colliderect(feet):
                 box = prop.solid or prop.rect
                 d = math.hypot(max(box.left - feet.centerx, 0, feet.centerx - box.right),
                                max(box.top - feet.centery, 0, feet.centery - box.bottom))

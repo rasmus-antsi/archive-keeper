@@ -105,7 +105,9 @@ class Memory(Scene):
 
     def nearest(self):
         feet = self.player.feet()
-        npc = next((n for n in self.npcs if n.solid.inflate(18, 18).colliderect(feet)), None)
+        here = self.world.indoors(feet.center)       # nobody is talked to through a wall
+        npc = next((n for n in self.npcs if n.solid.inflate(18, 18).colliderect(feet)
+                    and self.world.indoors(n.solid.center) is here), None)
         return npc or self.world.nearest(feet, self.containers)
 
     # ---------------------------------------------------------------- loop

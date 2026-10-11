@@ -7,7 +7,6 @@
   "record": {
     "fields": [["Esemed", "päikesekell-kompass; trükimasin"]],
     "texts": [],
-    "source": "ALLIKAS PUUDU – lisa museaali link ja õiguste rida",
     "image": "objektid/dokument-tyhi.png",
     "image_restored": "objektid/dokument-varviline.png"
   },
@@ -68,7 +67,7 @@
 
       {"type": "bookcase", "id": "riiul", "label": "raamaturiiul", "pos": [300, 30], "size": [56, 30], "holds": ["raamat"]},
       {"type": "window", "pos": [376, 38]},
-      {"type": "cabinet", "id": "kapp", "label": "kapp", "pos": [426, 28], "holds": ["tindipott", "trykimasin"]},
+      {"type": "cabinet", "id": "kapp", "label": "kapp", "pos": [426, 30], "holds": ["tindipott", "trykimasin"]},
       {"type": "rug", "pos": [322, 78], "size": [54, 40]},
       {"type": "desk", "pos": [388, 86]},
       {"type": "stool", "pos": [400, 110]},
@@ -116,9 +115,9 @@
     {
       "speaker": "poiss",
       "hint": [
-        "Ma otsin ühte värvilist vidinat. Ma arvan et see on katki läinud, TOAS SEE KOHE ÜLDSE EI TÖÖTA.",
+        "Ma otsin ühte värvilist vidinat. Ma arvan, et see on katki läinud, TOAS SEE KOHE ÜLDSE EI TÖÖTA.",
         "See on vist mingi mänguasi, minu isa ALATI KÄPIB seda kui ta tööle läheb.",
-        "Tollel vidinal on ka paariline millega isa mängib koos, aga minu isa on MEREMEES ja ütleb et õige madrus peaks ainult TÄHTI VAADATES JUBA TEADMA, mida see jutustab."
+        "Tollel vidinal on ka paariline, millega isa mängib. Aga mu isa on MEREMEES ja ütleb, et õige madrus peaks ainult TÄHTI VAADATES TEADMA kõike, mida see vidin jutustab."
       ],
       "target": "kompass",
       "thanks": ["See ta ongi!"]
@@ -126,8 +125,8 @@
     {
       "speaker": "poiss",
       "hint": [
-        "Ma ei oska äraarvata miks minu isa toda õelat olendit tahab, aga kuna olen hea poeg käsitan sind ikka.",
-        "Too mulle masin millel on HUNNIKUS MÜSTILISI SÜMBOLEID.",
+        "Ma ei oska ära arvata, miks minu isa toda õelat vidinat tahab, aga kuna olen hea poeg, käsitan sind ikkagi.",
+        "Too mulle masin, millel on HUNNIKUS MÜSTILISI SÜMBOLEID.",
         "See õel masin SÖÖB MINU KRITSELDUSI ja JOOB KAHEKSAJALGADE VERD."
       ],
       "target": "trykimasin",
@@ -135,5 +134,5 @@
     }
   ],
 
-  "retry": ["Oi oi oi, vaata kes siin jälle on. Võibolla see kord sa teed enda kõrvad lahti ja päriselt kuulad."]
+  "retry": ["Oi oi oi, vaata kes siin jälle on. Võibolla seekord teed sa oma kõrvad lahti ja kuulad ka päriselt."]
 }
