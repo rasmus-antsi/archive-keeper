@@ -356,8 +356,11 @@ assert room.player.pos.distance_to(before) > 10, "the ghost is stuck under the r
 run(3)
 assert room.robot_pos.distance_to(room.robot_aside) < 1, "the robot should reach its place once the ghost is out of the way"
 shot("9-door-open")
-room.player.pos.update(room.exit.centerx, room.exit.top + 8)
+room.player.pos.update(room.exit.centerx - 3, room.exit.bottom + 12)       # on the floor below the door, a little to one side
+room.player.vel.update(0, 0)
+held.add(pygame.K_w)                    # and out on foot: placing the ghost in the doorway once hid a door nobody could enter
 run(1.5)
+held.discard(pygame.K_w)
 top(Ending)
 shot("10-ending-start")
 run(4)
