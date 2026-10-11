@@ -6,7 +6,7 @@ COPY main.py archive-keeper/
 COPY game archive-keeper/game
 COPY data archive-keeper/data
 COPY assets archive-keeper/assets
-COPY web/pygbag.tmpl favicon.png ./
+COPY web/pygbag.tmpl favicon.png tools/trim_build.py ./
 # Left over from earlier versions of the game and no longer opened by it: without them
 # the page has 3 MB less to download. Named one by one so that new art is never caught.
 RUN cd archive-keeper && rm -rf data/levels data/records.json data/cases.json \
@@ -15,6 +15,8 @@ RUN cd archive-keeper && rm -rf data/levels data/records.json data/cases.json \
     assets/img/static_0.png assets/img/static_1.png assets/img/static_2.png assets/img/static_3.png \
     assets/img/visitor_0.png assets/img/visitor_1.png assets/img/visitor_2.png assets/img/visitor_3.png \
     assets/img/visitor_4.png
+# The records that stand on no shelf, and their photographs: another 5 MB.
+RUN python trim_build.py archive-keeper
 RUN python -m pygbag --build --title "Archive Keeper" --icon /src/favicon.png --template /src/pygbag.tmpl archive-keeper
 
 FROM caddy:2-alpine

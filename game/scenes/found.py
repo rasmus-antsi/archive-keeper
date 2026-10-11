@@ -15,10 +15,23 @@ from ..scene import Overlay
 from .memory import item_image
 
 SCALE = 4             # how much the page is enlarged
+THING = 400           # the square the thing is enlarged to fit
 SHEET = (664, 816)    # the size of a page, for a document that has no picture of one
 DROP = 0.7            # seconds for the thing to come down onto the page
 FILL = 0.8            # seconds for the page to fill in after that
 FALL = 420            # how far above its place the thing starts
+
+
+def warm_up(doc):
+    """Enlarge a memory's pages and the things that go onto them ahead of time, behind the
+    loading bar: done when the view opens, it is a pause long enough to be heard."""
+    pages = [doc.get("record", {}).get("image", "")] + [request.get("page", "") for request in doc["requests"]]
+    for name in pages:
+        if assets.optional(name):
+            assets.sprite(name, scale=SCALE)
+    items = {item["id"]: item for item in doc["items"]}
+    for request in doc["requests"]:
+        item_image(items[request["target"]], THING)
 
 
 class Found(Overlay):
@@ -32,7 +45,7 @@ class Found(Overlay):
         blank = assets.sprite(blank, scale=SCALE) if assets.optional(blank) else None
         filled = request.get("page", "")
         self.page = assets.sprite(filled, scale=SCALE) if assets.optional(filled) else None
-        self.thing = item_image(item, 400)
+        self.thing = item_image(item, THING)
         self.sheet = pygame.Rect((0, 0), blank.get_size() if blank else SHEET)
         self.sheet.center = (settings.W // 2, settings.H // 2 - 24)
         spot = request.get("page_spot")

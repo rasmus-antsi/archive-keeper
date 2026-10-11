@@ -5,7 +5,7 @@ import time
 
 from .. import assets, settings, ui
 from ..scene import Scene
-from . import memory
+from . import found, inside, memory, reader
 
 SLICE = 0.008         # seconds of loading done per frame; the rest keeps the screen alive
 
@@ -35,9 +35,12 @@ class Boot(Scene):
         for name in sorted(os.listdir("assets/snd")):
             yield lambda name=name: assets.sound(name)
         yield lambda: self.game.world("archive", self.content.game["map"])
+        yield from reader.warm_up(self.content)
         for doc in self.content.documents:
             yield lambda doc=doc: self.game.world(doc["id"], doc["map"])
             yield lambda doc=doc: memory.warm_up(doc)
+            yield lambda doc=doc: inside.warm_up(doc)
+            yield lambda doc=doc: found.warm_up(doc)
 
     def update(self, dt, events):
         self.t += dt

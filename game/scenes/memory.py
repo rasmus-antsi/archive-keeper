@@ -23,6 +23,9 @@ from ..player import Player
 from ..scene import Scene
 
 
+CARRIED = 240         # the square the thing being carried is enlarged to fit, in the corner of the screen
+
+
 class Memory(Scene):
     pausable = True
 
@@ -175,7 +178,7 @@ class Memory(Scene):
         if self.carrying and not self.dialogue.active:      # whoever speaks has their portrait in that corner
             plate = pygame.Rect(settings.W - 300, 20, 276, 316)
             ui.panel(screen, plate, alpha=200, border=settings.WARM)
-            img = item_image(self.items[self.carrying], 240)
+            img = item_image(self.items[self.carrying], CARRIED)
             screen.blit(img, img.get_rect(center=(plate.centerx, plate.top + 136)))
             ui.draw_text(screen, self.text("memory.carrying"), (plate.centerx, plate.bottom - 30), "pixel", 26,
                          settings.WARM, center=True)
@@ -208,10 +211,13 @@ _icons = {}
 
 
 def warm_up(doc):
-    """Make the people of a memory ahead of time, behind the loading bar: enlarging a big
-    portrait takes long enough to be felt if it is left until the memory opens."""
+    """Make the people of a memory, and the picture of each thing as it is carried, ahead of
+    time behind the loading bar: enlarging a big portrait takes long enough to be felt if it
+    is left until the memory opens."""
     for npc in doc.get("npcs", []):
         Npc(npc)
+    for item in doc["items"]:
+        item_image(item, CARRIED)
 
 
 def item_image(item, box):

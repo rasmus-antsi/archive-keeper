@@ -22,6 +22,17 @@ SETTLE = 0.12                               # seconds on one record before its s
 _last_rustle = 0
 
 
+def warm_up(content):
+    """One job for each photograph on the shelves, for the loading screen: read and scaled
+    ahead of time, a record's picture is there the moment the record is opened. There are
+    few enough of them now for assets.photo() to keep them all."""
+    box = (PAGE.width - 2 * MARGIN, PHOTO_H)
+    for shelf in content.shelves:
+        for entry in content.shelf_entries(shelf):
+            if entry["doc"] is None and entry["record"].get("image"):
+                yield lambda name=entry["record"]["image"]: assets.photo(name, box)
+
+
 class Reader(Overlay):
     def __init__(self, game, shelf):
         super().__init__(game)

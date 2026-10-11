@@ -13,6 +13,12 @@ BOX.center = (settings.W // 2, settings.H // 2 - 20)
 SLOT = 320
 
 
+def warm_up(doc):
+    """Enlarge every thing of a memory to the size the slots show it at, behind the loading bar."""
+    for item in doc["items"]:
+        item_image(item, SLOT - 32)
+
+
 class Inside(Overlay):
     DIM = 0.75
 
