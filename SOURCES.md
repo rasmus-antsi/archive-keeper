@@ -28,12 +28,13 @@ Riiulitel on mängus 24 kirjet: Tartu ehitusprojektid (6), vallakohtud (6) ja ku
 
 ## Tiimi joonistatud pildid
 
+Ukse kriuks ja portaalihelid on Drive'i kaustast Muusika (`art-src/Muusika`); `tools/import_sounds.py` lõikab neilt vaikuse ära ja võtab uksesalvestusest ühe kriuksu.
+
 Originaalid on kaustas `art-src/` (Drive'i kaustad Objektid ja Raamatukogu); mängu failid teeb neist `tools/import_art.py`: esemete suured pildid (`assets/img/objektid`), Raekoja platsi talvine vaade ja arhiivi mööbel (`assets/img/props`).
 
 ## Veel tegemata
 
 - **Päikesekell-kompassi museaali link ja õiguste rida puudub** (`data/documents/meremehe-poeg.json`, "record" → "source"). Seni mäng allikarida ei näita.
-- Trükimasinal ja kirjapakil ei ole joonistatud pilti; mängus on koodis joonistatud ikoon.
 
 - Linnasaal: päris plaanide skaneeringud puuduvad (praegu joonistatud asenduspildid).
 - Vallasaal: protokollilehtede skaneeringud puuduvad (praegu ärakiri tekstist).
@@ -41,4 +42,4 @@ Originaalid on kaustas `art-src/` (Drive'i kaustad Objektid ja Raamatukogu); mä
 
 ## Tehisaru kasutus
 
-Kood ja koodis joonistatud asenduspildid (sh trükimasina ja kirjapaki ikoon) on tehtud Claude Code'i abil. Sissejuhatuse, roboti, lõpuekraani ja mälestuste tekstid, muusika, heliefektid ja pildid (assets/music, assets/snd/{wrong,restore,page*}.ogg, assets/img/tegelased, assets/img/objektid) on tiimi enda tehtud; ülejäänud helid kaustas assets/snd on koodiga genereeritud. Tekstid vajavad inimese ülelugemist.
+Kood ja koodis joonistatud asenduspildid on tehtud Claude Code'i abil. Sissejuhatuse, roboti, lõpuekraani ja mälestuste tekstid, muusika, heliefektid ja pildid (assets/music, assets/snd/{wrong,restore,page*,door,portal*}.ogg, assets/img/tegelased, assets/img/objektid) on tiimi enda tehtud; ülejäänud helid kaustas assets/snd on koodiga genereeritud. Tekstid vajavad inimese ülelugemist.

@@ -16,6 +16,8 @@ Everything about a memory is in one file in data/documents/:
 An optional "establishing" picture (a wide view of the place) is shown first, until
 a key or click.
 """
+import random
+
 import pygame
 
 from .. import assets, effects, paint, settings, ui
@@ -106,6 +108,7 @@ class Memory(Scene):
         """Back to the archive: with the memory restored, or given up from the pause menu."""
         if self.done:
             self.state.solved.add(self.doc["id"])
+        assets.play(f"portal{random.randint(1, 3)}.ogg", 0.5)
         from .archive import Archive
         self.scenes.go(lambda: Archive(self.game), "spiral")
 

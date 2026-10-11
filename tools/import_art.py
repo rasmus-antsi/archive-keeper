@@ -5,6 +5,9 @@
 Each picture is cut down to what is drawn on it (the artists leave a margin), and one
 that was saved on a white background gets a see-through one. The table says where
 each picture goes; add a line when a new one arrives in the Drive.
+
+A picture that was saved enlarged, every drawn pixel many pixels wide, is listed as
+(file, how many drawn pixels wide it really is) and brought back to that size.
 """
 import os
 
@@ -22,6 +25,8 @@ ART = {
     "Objektid/Tint.png": "objektid/tint.png",
     "Objektid/Võti.png": "objektid/voti.png",
     "Objektid/Vale_Objekt1.png": "objektid/sekstant.png",
+    "Objektid/Trükimasin.png": "objektid/trykimasin.png",
+    ("Objektid/pileofmail.png", 43): "objektid/kirjad.png",
     # the town hall square in winter; a prop's picture is named after its type (see game/world.py)
     "Objektid/Kaev.png": "props/well.png",
     "Objektid/Kuusk.png": "props/spruce.png",
@@ -60,12 +65,25 @@ def cut_white(img):
         patch.to_surface(img, setcolor=(0, 0, 0, 0), unsetcolor=None)
 
 
+def shrink(img, across):
+    """An enlarged picture at its drawn size: one pixel from the middle of each block."""
+    block = img.get_width() / across
+    small = pygame.Surface((across, round(img.get_height() / block)), pygame.SRCALPHA)
+    for y in range(small.get_height()):
+        for x in range(across):
+            small.set_at((x, y), img.get_at((int((x + 0.5) * block), int((y + 0.5) * block))))
+    return small
+
+
 def main():
     pygame.init()
     pygame.display.set_mode((1, 1))
     for source, target in ART.items():
+        source, across = source if isinstance(source, tuple) else (source, None)
         loaded = pygame.image.load(f"{SOURCE}/{source}")
         img = loaded.convert_alpha()
+        if across:
+            img = shrink(img, across)
         if not loaded.get_flags() & pygame.SRCALPHA:
             cut_white(img)
         img = img.subsurface(img.get_bounding_rect()).copy()

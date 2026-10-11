@@ -95,10 +95,10 @@ def harden(img):
     if soft > pixels * 0.005:
         return img
     shape = pygame.mask.from_surface(img, 127)
-    crisp = shape.to_surface(img.copy(), setsurface=img, unsetcolor=(0, 0, 0, 0))
     flat = pygame.Surface(img.get_size()).convert()
     flat.fill(KEY)
-    flat.blit(crisp, (0, 0))
+    # copied, not drawn: drawn, a pixel that is a little see-through takes on some of the reserved colour
+    shape.to_surface(flat, setsurface=img.convert(), unsetcolor=None)
     if pygame.mask.from_threshold(flat, KEY, (1, 1, 1, 255)).count() != pixels - shape.count():
         return img                                  # the picture uses the reserved colour itself
     flat.set_colorkey(KEY, pygame.RLEACCEL)

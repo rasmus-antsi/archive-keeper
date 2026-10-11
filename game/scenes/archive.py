@@ -58,7 +58,7 @@ class Archive(Scene):
 
     def open_door(self):
         self.state.seen.add("door_open")
-        assets.play("unlock.ogg", 0.5)
+        assets.play("door.ogg", 0.7)
 
     def robot_rect(self, pos=None):
         pos = self.robot_pos if pos is None else pos

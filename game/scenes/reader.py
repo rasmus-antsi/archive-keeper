@@ -117,7 +117,7 @@ class Reader(Overlay):
     def step_into(self, doc):
         from .memory import Memory
         self.state.shelf_cursor[self.shelf["id"]] = self.cursor
-        assets.play("enter.ogg", 0.5)
+        assets.play(f"portal{random.randint(1, 3)}.ogg", 0.5)
         self.scenes.go(lambda: Memory(self.game, doc), "spiral")
 
     # ---------------------------------------------------------------- drawing
