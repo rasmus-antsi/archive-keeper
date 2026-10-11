@@ -63,6 +63,7 @@
       "open": "E — vaata sisse: {thing}",
       "search": "otsi üles, mida küsiti, ja vii see talle · Esc — menüü",
       "empty": "Tühi. Ainult tolm.",
+      "found": "E või tühik — edasi",
       "close": "E või Esc — sulge",
       "take": "A/D — vali · E — võta kaasa · Esc — sulge"
     },

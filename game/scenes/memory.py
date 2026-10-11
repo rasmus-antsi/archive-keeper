@@ -10,7 +10,8 @@ Everything about a memory is in one file in data/documents/:
             "image" is a drawn picture in assets/img; "icon" names a stand-in.
   npcs      the people: a small "sprite" standing at "pos", and optionally a big
             "portrait" (with a mouth-open "portrait_talk") shown while they speak.
-  requests  what is asked for, in order: {"speaker", "hint", "target", "thanks"}.
+  requests  what is asked for, in order: {"speaker", "hint", "target", "thanks"},
+            and optionally the "page" the thing goes back onto (see game/scenes/found.py).
 
 An optional "establishing" picture (a wide view of the place) is shown first, until
 a key or click.
@@ -87,6 +88,11 @@ class Memory(Scene):
             return
         assets.play("restore.ogg", 0.5)
         self.request += 1
+        from .found import Found
+        self.scenes.push(Found(self.game, self.doc, self.items[item], request, after=lambda: self.thank(request, npc)))
+
+    def thank(self, request, npc):
+        """After the thing has gone back onto its page: thanks, and the next request or the way home."""
         if self.request < len(self.doc["requests"]):
             self.ask(first=request.get("thanks", []))
         else:
@@ -164,13 +170,13 @@ class Memory(Scene):
                          center=True, alpha=int(255 * fade))
         n, total = min(self.request + 1, len(self.doc["requests"])), len(self.doc["requests"])
         ui.label(screen, f"{self.doc['title']}  ·  {n} / {total}", (24, 14))
-        if self.carrying:
-            item = self.items[self.carrying]
-            ui.panel(screen, (settings.W - 200, 20, 176, 216), alpha=200, border=settings.WARM)
-            img = item_image(item, 128)
-            screen.blit(img, img.get_rect(center=(settings.W - 112, 104)))
-            ui.draw_text(screen, self.text("memory.carrying"), (settings.W - 112, 196), "pixel", 24, settings.WARM,
-                         center=True)
+        if self.carrying and not self.dialogue.active:      # whoever speaks has their portrait in that corner
+            plate = pygame.Rect(settings.W - 300, 20, 276, 316)
+            ui.panel(screen, plate, alpha=200, border=settings.WARM)
+            img = item_image(self.items[self.carrying], 240)
+            screen.blit(img, img.get_rect(center=(plate.centerx, plate.top + 136)))
+            ui.draw_text(screen, self.text("memory.carrying"), (plate.centerx, plate.bottom - 30), "pixel", 26,
+                         settings.WARM, center=True)
         if self.dialogue.active:
             self.dialogue.draw(screen)
         elif not self.plain:

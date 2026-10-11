@@ -23,15 +23,15 @@
 
   "items": [
     {"id": "kompass", "label": "värviline karbike", "image": "objektid/paikesekell.png"},
-    {"id": "pikksilm", "label": "pikksilm", "icon": "spyglass"},
-    {"id": "kyynal", "label": "küünal", "icon": "candle"},
+    {"id": "sekstant", "label": "sekstant", "image": "objektid/sekstant.png"},
+    {"id": "kyynal", "label": "küünal", "image": "objektid/kyynal.png"},
     {"id": "kirjad", "label": "pakk kirju", "icon": "letters"},
-    {"id": "raamat", "label": "raamat", "icon": "book"},
+    {"id": "raamat", "label": "raamat", "image": "objektid/raamat.png"},
     {"id": "trykimasin", "label": "klahvidega masin", "icon": "typewriter"},
-    {"id": "tindipott", "label": "tindipott", "icon": "inkwell"},
-    {"id": "pudel", "label": "pudel", "icon": "bottle"},
-    {"id": "taskukell", "label": "taskukell", "icon": "watch"},
-    {"id": "voti", "label": "võti", "icon": "key"}
+    {"id": "tindipott", "label": "tindipott", "image": "objektid/tint.png"},
+    {"id": "pudel", "label": "pudel", "image": "objektid/pudel.png"},
+    {"id": "taskukell", "label": "taskukell", "image": "objektid/taskukell.png"},
+    {"id": "voti", "label": "võti", "image": "objektid/voti.png"}
   ],
 
   "map": {
@@ -57,7 +57,7 @@
       {"type": "picture", "pos": [112, 46]},
       {"type": "window", "pos": [166, 48]},
       {"type": "bed", "pos": [46, 64]},
-      {"type": "chest", "id": "merekirst", "label": "isa merekirst", "pos": [84, 56], "holds": ["pikksilm", "kompass"]},
+      {"type": "chest", "id": "merekirst", "label": "isa merekirst", "pos": [84, 56], "holds": ["sekstant", "kompass"]},
       {"type": "dresser", "id": "kummut-a", "label": "kummut", "pos": [126, 52], "holds": ["kyynal"]},
       {"type": "stove", "pos": [198, 42]},
       {"type": "rug", "pos": [96, 98], "size": [84, 46], "color": [86, 100, 126]},
@@ -120,6 +120,8 @@
         "Tollel vidinal on ka paariline, millega isa mängib. Aga mu isa on MEREMEES ja ütleb, et õige madrus peaks ainult TÄHTI VAADATES TEADMA kõike, mida see vidin jutustab."
       ],
       "target": "kompass",
+      "page": "objektid/dokument-varviline.png",
+      "page_spot": [98, 139],
       "thanks": ["See ta ongi!"]
     },
     {
@@ -130,6 +132,7 @@
         "See õel masin SÖÖB MINU KRITSELDUSI ja JOOB KAHEKSAJALGADE VERD."
       ],
       "target": "trykimasin",
+      "page_spot": [95, 92],
       "thanks": ["Jah. Too õel masin."]
     }
   ],

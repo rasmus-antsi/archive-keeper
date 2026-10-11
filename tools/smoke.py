@@ -16,6 +16,7 @@ from game.display import Display
 from game.scenes import boot
 from game.scenes.archive import Archive, LEARNT
 from game.scenes.ending import Ending
+from game.scenes.found import Found
 from game.scenes.inside import Inside
 from game.scenes.intro import Intro
 from game.scenes.memory import Memory
@@ -268,7 +269,7 @@ def fetch(memory, item):
     assert memory.carrying == item
     stand_at(memory, memory.npcs[0].solid)
     shot(f"8-memory-carrying-{item}")
-    run(1.0, SPACE)
+    run(0.3, SPACE)
 
 
 def step_into(doc):
@@ -328,6 +329,14 @@ for doc in game.content.documents:      # solve every memory, with one wrong gue
         talk_through()
         fetch(memory, request["target"])
         assert memory.request == i + 1, "the right thing should move on"
+        found = top(Found)                  # the thing goes back onto its page
+        assert not found.settled
+        shot(f"8-memory-{doc['id']}-{i}-found-falling")
+        run(0.1, SPACE)
+        assert found.settled, "a press should skip to the finished page"
+        shot(f"8-memory-{doc['id']}-{i}-found")
+        run(0.5, SPACE)
+        top(Memory)
     talk_through()
     run(1.5)
     assert doc["id"] in game.state.solved

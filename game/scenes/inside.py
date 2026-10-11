@@ -8,9 +8,9 @@ from .. import assets, settings, ui
 from ..scene import Overlay
 from .memory import item_image
 
-BOX = pygame.Rect(0, 0, 1240, 560)
+BOX = pygame.Rect(0, 0, 1240, 640)
 BOX.center = (settings.W // 2, settings.H // 2 - 20)
-SLOT = 240
+SLOT = 320
 
 
 class Inside(Overlay):
@@ -67,7 +67,7 @@ class Inside(Overlay):
             if i == self.cursor:
                 pygame.draw.rect(screen, (92, 68, 50), rect, border_radius=14)
                 pygame.draw.rect(screen, settings.WARM, rect, 4, border_radius=14)
-            img = item_image(item, SLOT - 40)
+            img = item_image(item, SLOT - 32)
             screen.blit(img, img.get_rect(center=rect.center))
         ui.draw_text(screen, self.items[self.cursor]["label"], (BOX.centerx, BOX.bottom - 62), "pixel", 44,
                      settings.CREAM, center=True)
