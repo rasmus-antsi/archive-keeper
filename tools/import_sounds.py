@@ -7,8 +7,8 @@ Needs numpy and soundfile, which the game itself does not:
 The files arrive with silence before and after the sound, and a sound that starts a
 second late is a second late in the game. Here that silence is cut off. Otherwise a
 sound is left as it is, with two exceptions: the door recording holds several creaks
-one after another and the game plays only one of them, and the answers to a thing
-handed over are made louder.
+one after another, of which the game plays the last for the door and the long first
+one for the cupboards, and the answers to a thing handed over are made louder.
 """
 import numpy as np
 import soundfile as sf
@@ -69,6 +69,8 @@ def main():
         print(f"   a creak from {start / rate:5.2f} to {end / rate:5.2f} s")
     start, end = parts[-1]       # the last creak is the shortest and the loudest: a door opening once
     save("door.ogg", cut(wave, rate, start, end), rate)
+    start, end = parts[0]        # the first goes on for eight seconds: the archive's cupboards
+    save("creak.ogg", cut(wave, rate, start, end), rate)
 
 
 main()

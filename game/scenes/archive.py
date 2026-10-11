@@ -111,7 +111,7 @@ class Archive(Scene):
         from .reader import Reader
         self.state.archive_pos = tuple(self.player.pos)
         self.near = None
-        assets.play("place.ogg", 0.5)
+        assets.play("creak.ogg", 0.8, alone=True)       # eight seconds of it, so never two at once
         self.scenes.push(Reader(self.game, shelf))
 
     def talk_to_robot(self):

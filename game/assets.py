@@ -156,9 +156,10 @@ def sound(name):
     return _sounds[name]
 
 
-def play(name, volume=1.0):
+def play(name, volume=1.0, alone=False):
+    """alone: leave a long sound be if it is still sounding from the last time."""
     snd = sound(name)
-    if snd and not muted and levels["sound"] > 0:
+    if snd and not muted and levels["sound"] > 0 and not (alone and snd.get_num_channels()):
         snd.set_volume(volume * levels["sound"])
         snd.play()
 
