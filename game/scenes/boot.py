@@ -10,7 +10,7 @@ from . import memory
 SLICE = 0.008         # seconds of loading done per frame; the rest keeps the screen alive
 
 # every (role, size) the game writes with; tools/smoke.py fails when one is missing here
-FONTS = (("mono", 30), ("title", 190), ("title", 120), ("title", 96), ("title", 72), ("title", 60), ("title", 48),
+FONTS = (("mono", 30), ("mono", 40), ("title", 190), ("title", 120), ("title", 96), ("title", 72), ("title", 60), ("title", 48),
          ("body", 44), ("body", 40), ("body", 36), ("body", 30), ("bold", 48), ("bold", 36), ("italic", 50),
          ("italic", 44), ("italic", 30), ("italic", 28), ("mono", 34), ("mono", 28), ("mono", 26), ("mono", 24),
          ("mono", 22), ("mono", 20), ("mono", 18))

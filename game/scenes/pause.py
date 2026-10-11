@@ -100,20 +100,28 @@ class Settings(MenuOverlay):
 
 
 class Credits(Overlay):
+    WIDTH, GAP, BETWEEN = 1100, 8, 30       # the box, the space between lines and between blocks
+
     def __init__(self, game):
         super().__init__(game)
-        self.lines = self.content.game["ending"]["credits"]
-        width = 1100
-        text_h = sum(len(ui.wrap(line, "mono", 26, width - 120)) * 38 + 14 for line in self.lines)
-        self.box = pygame.Rect(0, 0, width, 170 + text_h)
+        credits = self.content.game["credits"]
+        # (lines, text size, colour): the jam, the team, where the records come from
+        blocks = [([credits["jam"]], 30, settings.WARM), (credits["team"], 30, settings.CREAM),
+                  (credits["sources"], 24, settings.DIM)]
+        inner = self.WIDTH - 120
+        text_h = sum(len(ui.wrap(line, "mono", size, inner)) * (assets.font("mono", size).size("X")[1] + self.GAP)
+                     for lines, size, _ in blocks for line in lines)
+        self.box = pygame.Rect(0, 0, self.WIDTH, 170 + text_h + self.BETWEEN * (len(blocks) - 1))
         self.box.center = (settings.W // 2, settings.H // 2 - 20)
         ui.panel(self.backdrop, self.box, PLATE, 250, radius=20, border=EDGE)
         ui.draw_text(self.backdrop, self.text("credits.heading"), (self.box.centerx, self.box.top + 70), "title", 72,
                      settings.WARM, center=True)
         y = self.box.top + 136
-        for line in self.lines:
-            y = ui.draw_wrapped(self.backdrop, line, (self.box.x + 60, y), width - 120, "mono", 26, settings.CREAM,
-                                gap=8, center=True) + 14
+        for lines, size, color in blocks:
+            for line in lines:
+                y = ui.draw_wrapped(self.backdrop, line, (self.box.x + 60, y), inner, "mono", size, color,
+                                    gap=self.GAP, center=True)
+            y += self.BETWEEN
 
     def handle(self, dt, events):
         if ui.pressed(events, *ui.BACK, pygame.K_q) or ui.confirm(events) or ui.clicked(events):

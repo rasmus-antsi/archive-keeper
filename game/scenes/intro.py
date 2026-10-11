@@ -1,4 +1,5 @@
-"""The robots' opening message: typed out, held for a while, skippable."""
+"""The robots' opening message, a paragraph at a time: each one is typed out and
+then waits for a key. Esc skips the rest."""
 from .. import assets, settings, ui
 from ..scene import Scene
 
@@ -13,37 +14,41 @@ class Intro(Scene):
         data = self.content.game["intro"]
         self.heading = data["heading"]
         self.paragraphs = data["text"]
-        self.length = sum(len(p) for p in self.paragraphs)
-        self.seconds = max(data.get("seconds", 20), self.length / TYPE_SPEED + 4)
-        self.t = 0.0
+        self.page = 0             # which paragraph is on the screen
+        self.t = 0.0              # seconds it has been typing
+
+    @property
+    def last(self):
+        return self.page == len(self.paragraphs) - 1
 
     def typed(self):
-        return self.t * TYPE_SPEED >= self.length
+        return self.t * TYPE_SPEED >= len(self.paragraphs[self.page])
+
+    def begin(self):
+        from .archive import Archive
+        self.scenes.go(lambda: Archive(self.game))
 
     def update(self, dt, events):
         self.t += dt
-        skip = ui.confirm(events) or ui.clicked(events)
-        if skip and not self.typed():
-            self.t = self.length / TYPE_SPEED       # first press shows the whole text
-        elif skip or self.t >= self.seconds:
-            if skip:
-                assets.play("tick.ogg", 0.6)
-            from .archive import Archive
-            self.scenes.go(lambda: Archive(self.game))
+        if ui.pressed(events, *ui.BACK):
+            self.begin()
+        elif ui.confirm(events) or ui.clicked(events):
+            if not self.typed():
+                self.t = len(self.paragraphs[self.page]) / TYPE_SPEED       # first press shows the whole paragraph
+                return
+            assets.play("tick.ogg", 0.6)
+            if self.last:
+                self.begin()
+            else:
+                self.page, self.t = self.page + 1, 0.0
 
     def draw(self, screen):
         screen.fill((10, 14, 16))
         x, width = 300, settings.W - 600
-        ui.draw_text(screen, self.heading, (x, 110), "mono", 28, settings.TEAL)
-        left = self.t * TYPE_SPEED
-        y = 190
-        for para in self.paragraphs:
-            if left <= 0:
-                break
-            y = ui.draw_typed(screen, ui.wrap(para, "mono", 34, width), left, (x, y), "mono", 34, step=44) + 26
-            left -= len(para)
-        # time left before the game starts on its own
-        k = max(0.0, 1 - self.t / self.seconds)
-        screen.fill((40, 60, 62), (x, settings.H - 90, width, 4))
-        screen.fill(settings.TEAL, (x, settings.H - 90, int(width * k), 4))
-        self.hint(screen, "intro.continue" if self.typed() else "intro.skip")
+        ui.draw_text(screen, self.heading, (x, 230), "mono", 28, settings.TEAL)
+        count = ui.text(f"{self.page + 1} / {len(self.paragraphs)}", "mono", 28, settings.DIM)
+        screen.blit(count, (x + width - count.get_width(), 230))
+        screen.fill((40, 60, 62), (x, 280, width, 4))
+        lines = ui.wrap(self.paragraphs[self.page], "mono", 40, width)
+        ui.draw_typed(screen, lines, self.t * TYPE_SPEED, (x, 330), "mono", 40, step=56)
+        self.hint(screen, "intro.typing" if not self.typed() else "intro.begin" if self.last else "intro.next")

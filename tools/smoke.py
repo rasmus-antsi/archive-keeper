@@ -167,11 +167,20 @@ run(1, click(title.menu.row(0).center))
 
 # ---------------------------------------------------------------- the opening message
 
-top(Intro)
-run(6)
+intro = top(Intro)
+while not intro.typed():
+    run(0.1)
 shot("2-intro")
-run(0.1, SPACE)          # show all the text
-shot("2-intro-full")
+run(0.5, SPACE)
+assert intro.page == 1 and not intro.typed(), "space should bring the next paragraph"
+shot("2-intro-typing")
+run(0.1, SPACE)          # the rest of the paragraph at once
+assert intro.page == 1 and intro.typed(), "a press while it types should only finish the paragraph"
+for _ in range(2 * len(intro.paragraphs)):
+    run(0.1, SPACE)
+    if intro.last and intro.typed():
+        break
+shot("2-intro-last")
 run(1, SPACE)
 
 # ---------------------------------------------------------------- the archive
@@ -349,8 +358,7 @@ top(Title)
 
 run(1, ENTER)                           # a second game starts from nothing
 top(Intro)
-run(0.1, SPACE)
-run(1, SPACE)
+run(1, ESC)                             # Esc skips the whole message
 room = top(Archive)
 assert not game.state.solved and room.dialogue.active and not room.door_open, "a new game should start afresh"
 

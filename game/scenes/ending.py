@@ -37,8 +37,9 @@ class Ending(Scene):
                                 alpha=self.shade(n)) + 28
         y += 30
         after = len(self.data["text"]) + 1
-        for line in self.data["credits"]:
+        credits = self.content.game["credits"]
+        for line in [credits["jam"]] + credits["team"]:
             y = ui.draw_wrapped(screen, line, (x, y), width, "mono", 26, settings.DIM, center=True,
-                                alpha=self.shade(after)) + 10
+                                alpha=self.shade(after)) + 6
         if self.t > self.wait:
             self.hint(screen, "ending.back")

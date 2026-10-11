@@ -1,6 +1,7 @@
 """Everything the writer and artists edit lives in data/ and is loaded here.
 
-data/game.json          interface text ("ui"), the robot's lines, the archive rooms, the shelves, credits
+data/game.json          interface text ("ui"), the robot's lines, the archive rooms, the shelves and
+                        which records stand on them, the credits
 data/documents/*.json   one file per memory (a record you can step into)
 data/archive.json       the real heritage records that fill the shelves
 """
@@ -21,8 +22,14 @@ class Content:
                           for name in sorted(os.listdir("data/documents")) if name.endswith(".json")]
         self.by_id = {d["id"]: d for d in self.documents}
         self.shelves = self.game["shelves"]
+        self.records = {r["id"]: r for r in self.archive}
         for doc in self.documents:
             _check(doc, {s["id"] for s in self.shelves})
+        for shelf in self.shelves:
+            for record in shelf.get("records", []):
+                if record not in self.records:
+                    raise ValueError(f"data/game.json: shelf '{shelf['id']}' names record '{record}', "
+                                     "which is not in data/archive.json")
 
     def text(self, key, **values):
         """A line of interface text from "ui" in data/game.json: text("archive.count", done=1, total=2).
@@ -38,12 +45,16 @@ class Content:
         """What a shelf holds: its memories first, then the plain archive records.
 
         Each entry is {"title", "sub", "record", "doc"}; doc is None for plain records.
+        A shelf either picks its records one by one ("records": their ids, in the order
+        shown) or takes everything in some folders of the archive ("folders").
         """
         entries = [{"title": d["title"], "sub": d.get("place", ""), "record": d.get("record", {}), "doc": d}
                    for d in self.documents if d["shelf"] == shelf["id"]]
-        for rec in self.archive:
-            if any(rec["folder"].startswith(prefix) for prefix in shelf.get("folders", [])):
-                entries.append({"title": rec["name"], "sub": rec["folder"].split("/")[-1], "record": rec, "doc": None})
+        picked = [self.records[i] for i in shelf.get("records", [])]
+        picked += [rec for rec in self.archive
+                   if any(rec["folder"].startswith(prefix) for prefix in shelf.get("folders", []))]
+        for rec in picked:
+            entries.append({"title": rec["name"], "sub": rec["folder"].split("/")[-1], "record": rec, "doc": None})
         return entries
 
     def shelf_documents(self, shelf):

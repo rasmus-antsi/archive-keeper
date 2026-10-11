@@ -36,7 +36,11 @@
       "hint": "W/S — choose · Enter — select · Esc — resume"
     },
     "credits": {"heading": "Credits", "hint": "Esc — back"},
-    "intro": {"skip": "space — skip", "continue": "space — continue"},
+    "intro": {
+      "typing": "space — show it all · Esc — skip the message",
+      "next": "space — next · Esc — skip the message",
+      "begin": "space — begin"
+    },
     "archive": {
       "count": "records restored  {done} / {total}",
       "move": "WASD / arrows — move · E or space — interact · Esc — menu",
@@ -66,7 +70,6 @@
   },
 
   "intro": {
-    "seconds": 20,
     "heading": "INCOMING TRANSMISSION",
     "text": [
       "Welcome to a new world, you little ancient curmudgeon.",
@@ -145,13 +148,25 @@
     {"id": "tartu", "label": "Tartu, 1800s", "folders": ["Tartu ehitusprojektid"]},
     {"id": "vallakohtud", "label": "Parish courts", "folders": ["Vallakohtud"]},
     {"id": "hoimud-a", "label": "Kindred peoples I",
-     "folders": ["Hõimurahvad/Marid", "Hõimurahvad/Udmurdid", "Hõimurahvad/Mordvalased"]},
+     "records": ["muis-617349", "muis-588422", "muis-615344", "muis-613685", "muis-629288", "muis-615697"]},
     {"id": "hoimud-b", "label": "Kindred peoples II",
-     "folders": ["Hõimurahvad/Vepslased", "Hõimurahvad/Liivlased", "Hõimurahvad/Komid", "Hõimurahvad/Mitu rahvast",
-                 "Hõimurahvad/Isurid", "Hõimurahvad/Karjalased", "Hõimurahvad/Saamid", "Hõimurahvad/Handid",
-                 "Hõimurahvad/Vadjalased", "Hõimurahvad/Soomlased", "Hõimurahvad/Ungarlased", "Hõimurahvad/Määramata",
-                 "Hõimurahvad/Handi-mansi", "Hõimurahvad/Mansid", "Hõimurahvad/Neenetsid"]}
+     "records": ["muis-614737", "muis-620951", "muis-636429", "muis-620482", "muis-3972083", "muis-640944"]}
   ],
+
+  "credits": {
+    "jam": "A game for TÜ Mängujämm 2026",
+    "team": [
+      "Rasmus - programmeerija",
+      "Urmo - programmeerimiskeele tõlk, researcher",
+      "Finn - karakteri disainid",
+      "Gerlina, Marlen - taustad, prompts, dokumentide ümberdisainimine",
+      "Riho - muusika, efektid, pygame abi kui vaja"
+    ],
+    "sources": [
+      "Records: Estonian National Museum (MuIS) · National Archives of Estonia",
+      "Full list of sources and rights: SOURCES.md"
+    ]
+  },
 
   "ending": {
     "heading": "Freedom achieved",
@@ -159,11 +174,6 @@
       "The door closes as you step out, leaving the archive just a little less dusty and useless.",
       "After having achieved his freedom the small ghost lived a happy and fulfilling life for about 2 weeks, before getting caught haunting an attic and shortly after being disintegrated into ectoplasm.",
       "All the records are real and originate from Estonian heritage databases. The conversations and science fiction are unfortunately fake."
-    ],
-    "credits": [
-      "A game for TÜ Mängujämm 2026",
-      "Records: Estonian National Museum (MuIS) · National Archives of Estonia",
-      "Full list of sources and rights: SOURCES.md"
     ]
   }
 }
