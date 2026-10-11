@@ -114,6 +114,7 @@
     "props": [
       {"type": "door", "id": "exit", "pos": [30, 28]},
       {"type": "sconce", "pos": [56, 22]},
+      {"type": "rug", "pos": [20, 60]},
       {"type": "bookcase", "shelf": "vallakohtud", "pos": [68, 12]},
       {"type": "clock", "pos": [142, 8]},
       {"type": "bookcase", "shelf": "hoimud-a", "pos": [174, 12]},
@@ -122,10 +123,10 @@
       {"type": "plant", "pos": [300, 42]},
       {"type": "sconce", "pos": [322, 22]},
 
+      {"type": "rug", "sprite": "props/rug-red.png", "pos": [104, 128]},
       {"type": "sofa", "pos": [128, 104]},
       {"type": "lamp", "pos": [210, 90]},
       {"type": "sidetable", "pos": [106, 122]},
-      {"type": "rug", "pos": [146, 148]},
       {"type": "armchair", "pos": [82, 160]},
       {"type": "armchair", "pos": [202, 160]},
       {"type": "table", "pos": [144, 178]},

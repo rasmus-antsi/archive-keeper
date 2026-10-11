@@ -61,6 +61,7 @@ ART = {
     "Objektid/lilla kapp 1.png": "props/bookcase-purple.png",
     "Objektid/lilla kapp 2.png": "props/bookcase-purple-2.png",
     "Objektid/väike lilla riiul.png": "props/shelf-purple.png",
+    "Objektid/vaip.png": "props/rug-red.png",
 }
 
 
