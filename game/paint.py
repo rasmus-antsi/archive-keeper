@@ -34,6 +34,7 @@ def box(s, rect, color, edge=-38, top=16):
 FLOORS = {
     "planks": (86, 74, 72), "boards": (150, 116, 84), "threshold": (84, 62, 48),
     "cobble": (148, 140, 128), "grass": (104, 132, 84), "dirt": (140, 114, 84), "tiles": (92, 88, 96),
+    "square": (127, 129, 129), "pavement": (97, 98, 98),       # the greys of the artists' town hall square, left flat
 }
 WALLS = {"stone": (62, 60, 76), "plaster": (206, 190, 160), "paper": (132, 104, 98), "log": (124, 92, 62)}
 
@@ -451,11 +452,11 @@ drawn("cupboard-side", (16, 53), depth=30)
 # the town hall square in winter
 drawn("houses", (214, 68), depth=68)
 drawn("townhall", (33, 192), depth=192)
-drawn("fountain", (80, 78), depth=46, inset=3)
-drawn("spruce", (80, 166), depth=18, inset=24)
-drawn("streetlamp", (20, 66), depth=4, inset=7)
-drawn("snow", (52, 23), depth=10, inset=4)
-drawn("gallows", (32, 46), depth=5, inset=1)
+drawn("fountain", (80, 78), depth=62, inset=3)
+drawn("spruce", (80, 166), depth=112, inset=12)      # solid far up, so the ghost is never lost behind it
+drawn("streetlamp", (20, 66), depth=3)
+drawn("snow", (52, 23), depth=8, inset=4)
+drawn("gallows", (32, 46), depth=4)
 
 
 def robot():
